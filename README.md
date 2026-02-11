@@ -2,6 +2,14 @@
 
 # orchestration-start-here
 
+[![CI](https://github.com/organvm-iv-taxis/orchestration-start-here/actions/workflows/ci.yml/badge.svg)](https://github.com/organvm-iv-taxis/orchestration-start-here/actions/workflows/ci.yml)
+[![Coverage](https://img.shields.io/badge/coverage-pending-lightgrey)](https://github.com/organvm-iv-taxis/orchestration-start-here)
+[![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg)](https://github.com/organvm-iv-taxis/orchestration-start-here/blob/main/LICENSE)
+[![Organ IV](https://img.shields.io/badge/Organ-IV%20Taxis-10B981)](https://github.com/organvm-iv-taxis)
+[![Status](https://img.shields.io/badge/status-active-brightgreen)](https://github.com/organvm-iv-taxis/orchestration-start-here)
+[![Python](https://img.shields.io/badge/lang-Python-informational)](https://github.com/organvm-iv-taxis/orchestration-start-here)
+
+
 **The central nervous system of an eight-organ creative-institutional architecture.** This repository is the single coordination point for ~80 repositories distributed across 8 GitHub organizations, enforcing governance rules, validating cross-organ dependencies, running monthly system-wide health audits, and automating the promotion pipeline that moves work from theoretical research through artistic expression into commercial products. Everything in this system — every README deployed, every dependency validated, every essay published — flows through the data structures and automation pipelines defined here.
 
 ---

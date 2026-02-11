@@ -59,11 +59,21 @@ jobs:
           }
 
           current_organ = org_to_organ.get(org_name, 'UNKNOWN')
-          allowed = governance['articles']['II']['allowed_dependencies']
+          allowed = governance.get('articles', {}).get('II', {}).get('allowed_dependencies', {})
+          MAX_TRANSITIVE_DEPTH = 4
 
           violations = []
+          results = []
 
-          # Find current repo in registry
+          # Build full dependency graph for cycle + depth checking
+          dep_graph = {}
+          for organ_id, organ in registry.get('organs', {}).items():
+              for repo in organ.get('repositories', []):
+                  full_name = f"{repo.get('org', '')}/{repo['name']}"
+                  deps = repo.get('dependencies', [])
+                  dep_graph[full_name] = deps
+
+          # --- Check 1: Direction violations for current repo ---
           for organ_id, organ in registry.get('organs', {}).items():
               for repo in organ.get('repositories', []):
                   if repo['name'] == repo_name and repo.get('org') == org_name:
@@ -71,29 +81,86 @@ jobs:
                       for dep in deps:
                           dep_org = dep.split('/')[0] if '/' in dep else ''
                           dep_organ = org_to_organ.get(dep_org, 'UNKNOWN')
-
-                          # Check if dependency direction is allowed
                           if dep_organ != current_organ:
                               allowed_targets = allowed.get(current_organ, [])
                               if dep_organ not in allowed_targets:
                                   violations.append(
-                                      f"Back-edge: {current_organ} -> {dep_organ} "
-                                      f"({current_repo} depends on {dep})"
+                                      f"Direction: {current_organ} cannot depend on "
+                                      f"{dep_organ} ({current_repo} -> {dep})"
                                   )
 
-          # Report results
+          # --- Check 2: Circular dependency detection (DFS) ---
+          visited = set()
+          path = set()
+          cycles = []
+
+          def find_cycles(node, current_path):
+              if node in path:
+                  idx = current_path.index(node)
+                  cycles.append(current_path[idx:] + [node])
+                  return
+              if node in visited:
+                  return
+              visited.add(node)
+              path.add(node)
+              current_path.append(node)
+              for neighbor in dep_graph.get(node, []):
+                  find_cycles(neighbor, current_path)
+              path.remove(node)
+              current_path.pop()
+
+          for node in dep_graph:
+              if node not in visited:
+                  find_cycles(node, [])
+
+          for cycle in cycles:
+              violations.append(f"Circular: {' -> '.join(cycle)}")
+
+          # --- Check 3: Transitive depth ---
+          def measure_depth(node, seen=None):
+              if seen is None:
+                  seen = set()
+              if node in seen:
+                  return 0  # cycle — handled above
+              seen.add(node)
+              deps = dep_graph.get(node, [])
+              if not deps:
+                  return 0
+              return 1 + max(measure_depth(d, seen.copy()) for d in deps)
+
+          repo_full = f"{org_name}/{repo_name}"
+          depth = measure_depth(repo_full)
+          if depth > MAX_TRANSITIVE_DEPTH:
+              violations.append(
+                  f"Depth: {repo_full} has transitive depth {depth} "
+                  f"(max allowed: {MAX_TRANSITIVE_DEPTH})"
+              )
+
+          # --- Report ---
+          print(f"Dependency Validation for {current_repo}")
+          print(f"{'=' * 50}")
+          print(f"  Organ: {current_organ}")
+          print(f"  Transitive depth: {depth}/{MAX_TRANSITIVE_DEPTH}")
+          print()
+
           if violations:
-              print("DEPENDENCY VALIDATION FAILED")
-              print("=" * 50)
+              print("FAILED — violations found:")
               for v in violations:
-                  print(f"  violation: {v}")
-              print(f"\nTotal violations: {len(violations)}")
+                  print(f"  - {v}")
+              # Write results for comment step
+              with open('validation-results.txt', 'w') as f:
+                  f.write(f"**Repo:** `{current_repo}` ({current_organ})\n")
+                  f.write(f"**Transitive depth:** {depth}/{MAX_TRANSITIVE_DEPTH}\n\n")
+                  f.write("**Violations:**\n")
+                  for v in violations:
+                      f.write(f"- {v}\n")
               sys.exit(1)
           else:
-              print("DEPENDENCY VALIDATION PASSED")
-              print(f"  Repo: {current_repo}")
-              print(f"  Organ: {current_organ}")
-              print("  No dependency violations detected.")
+              print("PASSED — no violations detected.")
+              with open('validation-results.txt', 'w') as f:
+                  f.write(f"**Repo:** `{current_repo}` ({current_organ})\n")
+                  f.write(f"**Transitive depth:** {depth}/{MAX_TRANSITIVE_DEPTH}\n\n")
+                  f.write("No dependency violations detected.\n")
               sys.exit(0)
           PYEOF
 
@@ -102,11 +169,16 @@ jobs:
         uses: actions/github-script@v7
         with:
           script: |
+            const fs = require('fs');
+            let results = 'Validation completed. See workflow run for details.';
+            try {
+              results = fs.readFileSync('validation-results.txt', 'utf8');
+            } catch (e) {}
             const status = '${{ steps.validate.outcome }}' === 'success' ? 'PASSED' : 'FAILED';
             const emoji = status === 'PASSED' ? '✅' : '❌';
             github.rest.issues.createComment({
               issue_number: context.issue.number,
               owner: context.repo.owner,
               repo: context.repo.repo,
-              body: `## ${emoji} Dependency Validation: ${status}\n\nValidated against central registry and governance rules.\n\nSee [workflow run](${context.serverUrl}/${context.repo.owner}/${context.repo.repo}/actions/runs/${context.runId}) for details.`
+              body: `## ${emoji} Dependency Validation: ${status}\n\n${results}\n\n---\n*[Workflow run](${context.serverUrl}/${context.repo.owner}/${context.repo.repo}/actions/runs/${context.runId})*`
             });

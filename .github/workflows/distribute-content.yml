@@ -1,9 +1,8 @@
 name: Distribute Content
 
-# Skeleton workflow — POSSE automation for ORGAN-V essays
-# TODO: Configure MASTODON_TOKEN secret
-# TODO: Configure DISCORD_WEBHOOK secret
-# TODO: Configure newsletter integration
+# POSSE automation for ORGAN-V essays and announcements
+# Distributes content to configured channels when ready-to-distribute label is applied
+# Requires secrets: MASTODON_TOKEN, DISCORD_WEBHOOK (optional: NEWSLETTER_API_KEY)
 
 on:
   issues:
@@ -18,44 +17,125 @@ jobs:
     steps:
       - uses: actions/checkout@v4
 
-      - name: Extract Essay Metadata
+      - name: Extract Content Metadata
         id: metadata
         run: |
-          TITLE="${{ github.event.issue.title }}"
-          echo "title=${TITLE}" >> $GITHUB_OUTPUT
-          echo "url=https://github.com/${{ github.repository }}/issues/${{ github.event.issue.number }}" >> $GITHUB_OUTPUT
+          python3 << 'PYEOF'
+          import os
+          import re
+
+          title = os.environ.get("ISSUE_TITLE", "New content")
+          body = os.environ.get("ISSUE_BODY", "")
+          number = os.environ.get("ISSUE_NUMBER", "0")
+          repo = os.environ.get("GITHUB_REPO", "")
+
+          # Try to extract excerpt from issue body (first paragraph after any headers)
+          excerpt = title
+          lines = body.strip().split("\n")
+          for line in lines:
+              line = line.strip()
+              if line and not line.startswith("#") and not line.startswith("---"):
+                  excerpt = line[:280]  # Mastodon-friendly length
+                  break
+
+          url = f"https://github.com/{repo}/issues/{number}"
+
+          # Write outputs
+          with open(os.environ["GITHUB_OUTPUT"], "a") as f:
+              f.write(f"title={title}\n")
+              f.write(f"excerpt={excerpt}\n")
+              f.write(f"url={url}\n")
+
+          print(f"Title: {title}")
+          print(f"Excerpt: {excerpt}")
+          print(f"URL: {url}")
+          PYEOF
+        env:
+          ISSUE_TITLE: ${{ github.event.issue.title }}
+          ISSUE_BODY: ${{ github.event.issue.body }}
+          ISSUE_NUMBER: ${{ github.event.issue.number }}
+          GITHUB_REPO: ${{ github.repository }}
 
       - name: Post to Mastodon
+        id: mastodon
         if: env.MASTODON_TOKEN != ''
         env:
           MASTODON_TOKEN: ${{ secrets.MASTODON_TOKEN }}
+          MASTODON_INSTANCE: ${{ vars.MASTODON_INSTANCE || 'https://mastodon.social' }}
         run: |
-          # TODO: Configure Mastodon instance URL
-          echo "Would post to Mastodon: ${{ steps.metadata.outputs.title }}"
-          echo "URL: ${{ steps.metadata.outputs.url }}"
-          # curl https://mastodon.social/api/v1/statuses \
-          #   -H "Authorization: Bearer ${MASTODON_TOKEN}" \
-          #   -F "status=New essay: ${{ steps.metadata.outputs.title }} — ${{ steps.metadata.outputs.url }}"
+          STATUS="${{ steps.metadata.outputs.title }}
+
+          ${{ steps.metadata.outputs.excerpt }}
+
+          ${{ steps.metadata.outputs.url }}
+
+          #organvm #buildinginpublic"
+
+          RESPONSE=$(curl -s -w "\n%{http_code}" \
+            "${MASTODON_INSTANCE}/api/v1/statuses" \
+            -H "Authorization: Bearer ${MASTODON_TOKEN}" \
+            -F "status=${STATUS}" \
+            -F "visibility=public")
+
+          HTTP_CODE=$(echo "$RESPONSE" | tail -1)
+          if [ "$HTTP_CODE" -ge 200 ] && [ "$HTTP_CODE" -lt 300 ]; then
+            echo "mastodon=success" >> $GITHUB_OUTPUT
+            echo "Posted to Mastodon (HTTP ${HTTP_CODE})"
+          else
+            echo "mastodon=failed" >> $GITHUB_OUTPUT
+            echo "Mastodon post failed (HTTP ${HTTP_CODE})"
+          fi
 
       - name: Notify Discord
+        id: discord
         if: env.DISCORD_WEBHOOK != ''
         env:
           DISCORD_WEBHOOK: ${{ secrets.DISCORD_WEBHOOK }}
         run: |
-          # TODO: Configure Discord webhook
-          echo "Would post to Discord: ${{ steps.metadata.outputs.title }}"
-          # curl "${DISCORD_WEBHOOK}" \
-          #   -X POST \
-          #   -H "Content-Type: application/json" \
-          #   -d "{\"content\":\"New essay: ${{ steps.metadata.outputs.title }}\\n${{ steps.metadata.outputs.url }}\"}"
+          PAYLOAD=$(cat << JSONEOF
+          {
+            "embeds": [{
+              "title": "${{ steps.metadata.outputs.title }}",
+              "description": "${{ steps.metadata.outputs.excerpt }}",
+              "url": "${{ steps.metadata.outputs.url }}",
+              "color": 5814783,
+              "footer": {"text": "organvm — building in public"}
+            }]
+          }
+          JSONEOF
+          )
 
-      - name: Log Distribution
+          HTTP_CODE=$(curl -s -o /dev/null -w "%{http_code}" \
+            "${DISCORD_WEBHOOK}" \
+            -X POST \
+            -H "Content-Type: application/json" \
+            -d "${PAYLOAD}")
+
+          if [ "$HTTP_CODE" -ge 200 ] && [ "$HTTP_CODE" -lt 300 ]; then
+            echo "discord=success" >> $GITHUB_OUTPUT
+            echo "Posted to Discord (HTTP ${HTTP_CODE})"
+          else
+            echo "discord=failed" >> $GITHUB_OUTPUT
+            echo "Discord post failed (HTTP ${HTTP_CODE})"
+          fi
+
+      - name: Log Distribution Results
+        if: always()
         uses: actions/github-script@v7
         with:
           script: |
+            const mastodon = '${{ steps.mastodon.outputs.mastodon }}' || 'not configured';
+            const discord = '${{ steps.discord.outputs.discord }}' || 'not configured';
+
+            const channels = [
+              `| Mastodon | ${mastodon === 'success' ? '✅' : mastodon === 'failed' ? '❌' : '⚪'} | ${mastodon} |`,
+              `| Discord | ${discord === 'success' ? '✅' : discord === 'failed' ? '❌' : '⚪'} | ${discord} |`,
+              `| Newsletter | ⚪ | not yet configured |`,
+            ].join('\n');
+
             github.rest.issues.createComment({
               issue_number: context.issue.number,
               owner: context.repo.owner,
               repo: context.repo.repo,
-              body: `## Distribution Triggered\n\n**Channels:**\n- [ ] Mastodon (requires MASTODON_TOKEN)\n- [ ] Discord (requires DISCORD_WEBHOOK)\n- [ ] Newsletter (not yet configured)\n\n---\n*Configure secrets to enable automated distribution.*`
+              body: `## Distribution Report\n\n| Channel | Status | Detail |\n|---------|--------|--------|\n${channels}\n\n---\n*Generated by distribute-content workflow*`
             });

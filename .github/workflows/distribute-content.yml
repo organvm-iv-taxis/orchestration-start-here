@@ -2,7 +2,8 @@ name: Distribute Content
 
 # POSSE automation for ORGAN-V essays and announcements
 # Distributes content to configured channels when ready-to-distribute label is applied
-# Requires secrets: MASTODON_TOKEN, DISCORD_WEBHOOK (optional: NEWSLETTER_API_KEY)
+# Requires secrets: MASTODON_TOKEN, DISCORD_WEBHOOK
+# Optional: LINKEDIN_TOKEN, GHOST_ADMIN_KEY
 
 on:
   issues:
@@ -38,7 +39,13 @@ jobs:
                   excerpt = line[:280]  # Mastodon-friendly length
                   break
 
-          url = f"https://github.com/{repo}/issues/{number}"
+          # Extract essay URL if present (look for links to public-process site)
+          essay_url = f"https://github.com/{repo}/issues/{number}"
+          url_match = re.search(r'https://organvm-v-logos\.github\.io/public-process/[^\s)]+', body)
+          if url_match:
+              essay_url = url_match.group(0)
+
+          url = essay_url
 
           # Write outputs
           with open(os.environ["GITHUB_OUTPUT"], "a") as f:
@@ -119,6 +126,109 @@ jobs:
             echo "Discord post failed (HTTP ${HTTP_CODE})"
           fi
 
+      - name: Post to LinkedIn
+        id: linkedin
+        if: env.LINKEDIN_TOKEN != ''
+        env:
+          LINKEDIN_TOKEN: ${{ secrets.LINKEDIN_TOKEN }}
+          LINKEDIN_PERSON_ID: ${{ vars.LINKEDIN_PERSON_ID }}
+        run: |
+          PAYLOAD=$(cat << JSONEOF
+          {
+            "author": "urn:li:person:${LINKEDIN_PERSON_ID}",
+            "lifecycleState": "PUBLISHED",
+            "specificContent": {
+              "com.linkedin.ugc.ShareContent": {
+                "shareCommentary": {
+                  "text": "${{ steps.metadata.outputs.title }}\n\n${{ steps.metadata.outputs.excerpt }}\n\n#organvm #buildinginpublic #creativetechnology"
+                },
+                "shareMediaCategory": "ARTICLE",
+                "media": [{
+                  "status": "READY",
+                  "originalUrl": "${{ steps.metadata.outputs.url }}",
+                  "title": {
+                    "text": "${{ steps.metadata.outputs.title }}"
+                  }
+                }]
+              }
+            },
+            "visibility": {
+              "com.linkedin.ugc.MemberNetworkVisibility": "PUBLIC"
+            }
+          }
+          JSONEOF
+          )
+
+          HTTP_CODE=$(curl -s -o /dev/null -w "%{http_code}" \
+            "https://api.linkedin.com/v2/ugcPosts" \
+            -X POST \
+            -H "Authorization: Bearer ${LINKEDIN_TOKEN}" \
+            -H "Content-Type: application/json" \
+            -H "X-Restli-Protocol-Version: 2.0.0" \
+            -d "${PAYLOAD}")
+
+          if [ "$HTTP_CODE" -ge 200 ] && [ "$HTTP_CODE" -lt 300 ]; then
+            echo "linkedin=success" >> $GITHUB_OUTPUT
+            echo "Posted to LinkedIn (HTTP ${HTTP_CODE})"
+          else
+            echo "linkedin=failed" >> $GITHUB_OUTPUT
+            echo "LinkedIn post failed (HTTP ${HTTP_CODE})"
+          fi
+
+      - name: Publish to Ghost Newsletter
+        id: ghost
+        if: env.GHOST_ADMIN_KEY != ''
+        env:
+          GHOST_ADMIN_KEY: ${{ secrets.GHOST_ADMIN_KEY }}
+          GHOST_URL: ${{ vars.GHOST_URL }}
+        run: |
+          # Ghost Admin API requires JWT token generation from admin key
+          # Split key into id:secret
+          KEY_ID=$(echo "${GHOST_ADMIN_KEY}" | cut -d: -f1)
+          KEY_SECRET=$(echo "${GHOST_ADMIN_KEY}" | cut -d: -f2)
+
+          # Generate JWT (requires Node.js or Python)
+          TOKEN=$(python3 << 'PYEOF'
+          import hmac, hashlib, time, json, base64
+
+          key_id = "$KEY_ID"
+          key_secret = bytes.fromhex("$KEY_SECRET")
+          iat = int(time.time())
+          header = base64.urlsafe_b64encode(json.dumps({"alg":"HS256","kid":key_id,"typ":"JWT"}).encode()).rstrip(b'=').decode()
+          payload = base64.urlsafe_b64encode(json.dumps({"iat":iat,"exp":iat+300,"aud":"/admin/"}).encode()).rstrip(b'=').decode()
+          signature = base64.urlsafe_b64encode(hmac.new(key_secret, f"{header}.{payload}".encode(), hashlib.sha256).digest()).rstrip(b'=').decode()
+          print(f"{header}.{payload}.{signature}")
+          PYEOF
+          )
+
+          # Create post via Ghost Admin API
+          PAYLOAD=$(cat << JSONEOF
+          {
+            "posts": [{
+              "title": "${{ steps.metadata.outputs.title }}",
+              "html": "<p>${{ steps.metadata.outputs.excerpt }}</p><p><a href='${{ steps.metadata.outputs.url }}'>Read the full essay</a></p>",
+              "status": "draft",
+              "tags": ["organvm", "building-in-public"]
+            }]
+          }
+          JSONEOF
+          )
+
+          HTTP_CODE=$(curl -s -o /dev/null -w "%{http_code}" \
+            "${GHOST_URL}/ghost/api/admin/posts/" \
+            -X POST \
+            -H "Authorization: Ghost ${TOKEN}" \
+            -H "Content-Type: application/json" \
+            -d "${PAYLOAD}")
+
+          if [ "$HTTP_CODE" -ge 200 ] && [ "$HTTP_CODE" -lt 300 ]; then
+            echo "ghost=success" >> $GITHUB_OUTPUT
+            echo "Published to Ghost (HTTP ${HTTP_CODE})"
+          else
+            echo "ghost=failed" >> $GITHUB_OUTPUT
+            echo "Ghost publish failed (HTTP ${HTTP_CODE})"
+          fi
+
       - name: Log Distribution Results
         if: always()
         uses: actions/github-script@v7
@@ -126,11 +236,16 @@ jobs:
           script: |
             const mastodon = '${{ steps.mastodon.outputs.mastodon }}' || 'not configured';
             const discord = '${{ steps.discord.outputs.discord }}' || 'not configured';
+            const linkedin = '${{ steps.linkedin.outputs.linkedin }}' || 'not configured';
+            const ghost = '${{ steps.ghost.outputs.ghost }}' || 'not configured';
+
+            const icon = (s) => s === 'success' ? '✅' : s === 'failed' ? '❌' : '⚪';
 
             const channels = [
-              `| Mastodon | ${mastodon === 'success' ? '✅' : mastodon === 'failed' ? '❌' : '⚪'} | ${mastodon} |`,
-              `| Discord | ${discord === 'success' ? '✅' : discord === 'failed' ? '❌' : '⚪'} | ${discord} |`,
-              `| Newsletter | ⚪ | not yet configured |`,
+              `| Mastodon | ${icon(mastodon)} | ${mastodon} |`,
+              `| Discord | ${icon(discord)} | ${discord} |`,
+              `| LinkedIn | ${icon(linkedin)} | ${linkedin} |`,
+              `| Ghost Newsletter | ${icon(ghost)} | ${ghost} |`,
             ].join('\n');
 
             github.rest.issues.createComment({

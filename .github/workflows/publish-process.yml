@@ -1,8 +1,8 @@
 name: Publish Process
 
-# Skeleton workflow — automates ORGAN-V essay creation from product documentation
-# TODO: Implement extract-process.py and generate-outline.py scripts
-# TODO: Configure ORCHESTRATION_PAT for cross-repo operations
+# Automates ORGAN-V essay creation from product documentation
+# Extracts content from source repo, generates essay outline, creates PR in ORGAN-V
+# Requires ORCHESTRATION_PAT for cross-repo PR creation
 
 on:
   issue_comment:
@@ -26,33 +26,145 @@ jobs:
 
       - name: Extract Source Content
         run: |
-          # TODO: Implement content extraction from source repo
-          # python3 scripts/extract-process.py \
-          #   --source-repo "${{ github.repository }}" \
-          #   --output process-draft.md
-          echo "# Draft Essay" > process-draft.md
-          echo "" >> process-draft.md
-          echo "Source: ${{ github.repository }}" >> process-draft.md
-          echo "Issue: #${{ github.event.issue.number }}" >> process-draft.md
-          echo "" >> process-draft.md
-          echo "TODO: Extract content from source repo README and docs" >> process-draft.md
+          python3 << 'PYEOF'
+          import json
+          import os
+          from datetime import datetime
 
-      - name: Generate Essay Outline
+          source_repo = "${{ github.repository }}"
+          repo_name = source_repo.split("/")[-1] if "/" in source_repo else source_repo
+          issue_title = """${{ github.event.issue.title }}"""
+          issue_body = """${{ github.event.issue.body }}"""
+
+          # Read README if available
+          readme_content = ""
+          for readme_path in ["README.md", "readme.md", "README.rst"]:
+              if os.path.exists(readme_path):
+                  with open(readme_path) as f:
+                      readme_content = f.read()
+                  break
+
+          # Read CHANGELOG if available
+          changelog = ""
+          for cl_path in ["CHANGELOG.md", "CHANGES.md", "HISTORY.md"]:
+              if os.path.exists(cl_path):
+                  with open(cl_path) as f:
+                      changelog = f.read()[:3000]  # first 3K chars
+                  break
+
+          # Build essay draft
+          date = datetime.now().strftime("%Y-%m-%d")
+          slug = repo_name.lower().replace("--", "-").replace(" ", "-")
+
+          draft = f"""---
+          title: "Building {repo_name}: Process and Methodology"
+          author: "@4444j99"
+          date: {date}
+          source_repo: {source_repo}
+          source_issue: ${{{{ github.event.issue.number }}}}
+          tags: [process, building-in-public, {repo_name}]
+          category: process-documentation
+          excerpt: "How we built {repo_name} — architecture decisions, implementation process, and lessons learned."
+          portfolio_relevance: HIGH
+          related_repos: [{source_repo}]
+          reading_time: "15 min"
+          word_count: TBD
+          ---
+
+          # Building {repo_name}: Process and Methodology
+
+          ## Overview
+
+          {readme_content[:2000] if readme_content else f"[Content to be extracted from {source_repo}]"}
+
+          ## Architecture Decisions
+
+          [Document key architectural decisions made during development]
+
+          ## Implementation Process
+
+          [Describe the build process, phases, and iterations]
+
+          ## Challenges and Solutions
+
+          [Key challenges encountered and how they were resolved]
+
+          ## Lessons Learned
+
+          [Insights gained during the development process]
+
+          ## What's Next
+
+          [Future plans and potential improvements]
+
+          ---
+
+          *This essay was initiated from [{source_repo}](https://github.com/{source_repo}).*
+          """
+
+          # Clean up indentation
+          import textwrap
+          draft = textwrap.dedent(draft)
+
+          with open("essay-draft.md", "w") as f:
+              f.write(draft)
+
+          print(f"Draft essay generated: essay-draft.md")
+          print(f"  Source: {source_repo}")
+          print(f"  README extracted: {'yes' if readme_content else 'no'}")
+          print(f"  Changelog extracted: {'yes' if changelog else 'no'}")
+          PYEOF
+
+      - name: Create PR in ORGAN-V
+        if: env.HAS_PAT == 'true'
+        env:
+          HAS_PAT: ${{ secrets.ORCHESTRATION_PAT != '' }}
+          GH_TOKEN: ${{ secrets.ORCHESTRATION_PAT }}
         run: |
-          # TODO: Implement outline generation
-          # python3 scripts/generate-outline.py \
-          #   --content process-draft.md \
-          #   --template templates/essay-structure.md \
-          #   --output essay-outline.md
-          cp process-draft.md essay-outline.md
+          REPO_NAME="${{ github.event.repository.name }}"
+          DATE="$(date +%Y-%m-%d)"
+          BRANCH="essay/from-${REPO_NAME}"
+          ESSAY_PATH="essays/process/${DATE}--${REPO_NAME}.md"
 
-      - name: Comment Draft Link
+          # Clone ORGAN-V repo
+          gh repo clone organvm-v-logos/public-process /tmp/public-process -- --depth=1
+          cd /tmp/public-process
+
+          # Create branch and add essay
+          git checkout -b "${BRANCH}"
+          mkdir -p essays/process
+          cp "${{ github.workspace }}/essay-draft.md" "${ESSAY_PATH}"
+          git add "${ESSAY_PATH}"
+          git commit -m "Draft essay: Process from ${REPO_NAME}"
+          git push origin "${BRANCH}"
+
+          # Create PR
+          gh pr create \
+            --repo organvm-v-logos/public-process \
+            --title "Essay: Building ${REPO_NAME}" \
+            --body "Auto-generated process essay from [${{ github.repository }}](https://github.com/${{ github.repository }}).\n\nSource issue: ${{ github.event.issue.html_url }}\n\n**Status:** Draft — requires human review and expansion." \
+            --label "auto-draft"
+
+      - name: Comment Status
+        if: always()
         uses: actions/github-script@v7
         with:
           script: |
+            const fs = require('fs');
+            const hasPat = process.env.HAS_PAT === 'true';
+            let body;
+
+            if (hasPat) {
+              body = `## Essay Draft Created\n\nA process essay draft has been generated and submitted as a PR to [organvm-v-logos/public-process](https://github.com/organvm-v-logos/public-process).\n\n**Next steps:**\n1. Review the PR in ORGAN-V\n2. Expand sections with specific technical details\n3. Add architectural diagrams if applicable\n4. Ensure word count meets 3,000+ target`;
+            } else {
+              body = `## Essay Draft Generated\n\nA process essay draft has been generated from this repository's documentation.\n\n**Draft sections:**\n- Overview (extracted from README)\n- Architecture Decisions\n- Implementation Process\n- Challenges and Solutions\n- Lessons Learned\n\n**Next steps:**\n1. Configure \`ORCHESTRATION_PAT\` secret to enable automated PR creation\n2. Or manually copy the draft to [organvm-v-logos/public-process](https://github.com/organvm-v-logos/public-process)\n3. Add YAML frontmatter and expand all sections`;
+            }
+
             github.rest.issues.createComment({
               issue_number: context.issue.number,
               owner: context.repo.owner,
               repo: context.repo.repo,
-              body: `## Essay Draft Created\n\nA draft has been generated from this repository's documentation.\n\n**Next steps:**\n1. Review and expand the draft\n2. Add YAML frontmatter (title, author, date, tags, category, excerpt, portfolio_relevance, related_repos, reading_time, word_count)\n3. Submit PR to [organvm-v-logos/public-process](https://github.com/organvm-v-logos/public-process)\n\n---\n*Note: Full automation requires ORCHESTRATION_PAT secret for cross-repo PR creation.*`
+              body: body + '\n\n---\n*Generated by publish-process workflow*'
             });
+        env:
+          HAS_PAT: ${{ secrets.ORCHESTRATION_PAT != '' }}

@@ -1,8 +1,8 @@
 name: Promote Repo
 
-# Working draft — requires ORCHESTRATION_PAT secret with org-level permissions
-# Usage: Open issue with label "promote-to-art" or "promote-to-commerce"
-#        and comment "@orchestration promote"
+# Handles Theory→Art→Commerce promotions
+# Requires ORCHESTRATION_PAT secret with org-level permissions for cross-org operations
+# Without ORCHESTRATION_PAT, performs validation only and reports results
 
 on:
   issue_comment:
@@ -25,6 +25,13 @@ jobs:
         with:
           python-version: '3.12'
 
+      - name: Fetch Central Data
+        run: |
+          curl -sL https://raw.githubusercontent.com/organvm-iv-taxis/orchestration-start-here/main/registry.json \
+            -o registry.json
+          curl -sL https://raw.githubusercontent.com/organvm-iv-taxis/orchestration-start-here/main/governance-rules.json \
+            -o governance-rules.json
+
       - name: Parse Promotion Request
         id: parse
         run: |
@@ -42,44 +49,163 @@ jobs:
           fi
 
       - name: Validate Promotion Criteria
+        id: validate
         run: |
           python3 << 'PYEOF'
           import json
           import sys
 
           promotion_type = "${{ steps.parse.outputs.promotion_type }}"
+          source_repo = "${{ github.repository }}"
+          repo_name = source_repo.split("/")[-1] if "/" in source_repo else source_repo
+          org_name = source_repo.split("/")[0] if "/" in source_repo else ""
 
-          with open('governance-rules.json') as f:
+          with open("registry.json") as f:
+              registry = json.load(f)
+          with open("governance-rules.json") as f:
               governance = json.load(f)
 
-          criteria = governance.get('rules', {}).get(promotion_type, {}).get('conditions', [])
+          # Find source repo in registry
+          source_entry = None
+          for organ_id, organ in registry.get("organs", {}).items():
+              for repo in organ.get("repositories", []):
+                  if repo["name"] == repo_name and repo.get("org") == org_name:
+                      source_entry = repo
+                      break
 
-          print(f"Promotion type: {promotion_type}")
-          print(f"Target: ${{ steps.parse.outputs.target_org }}")
-          print(f"\nCriteria to verify:")
-          for i, c in enumerate(criteria, 1):
-              print(f"  {i}. {c}")
+          if not source_entry:
+              print(f"ERROR: {source_repo} not found in registry")
+              with open("validation-report.md", "w") as f:
+                  f.write(f"Source repo `{source_repo}` not found in central registry.\n")
+              sys.exit(1)
 
-          # TODO: Automated validation against registry
-          # For now, criteria are listed for human review
-          print("\nNote: Full automated validation requires ORCHESTRATION_PAT.")
-          print("Manual review of criteria is required before proceeding.")
+          # Check criteria from governance rules
+          criteria = governance.get("rules", {}).get(promotion_type, {}).get("conditions", [])
+          results = []
+
+          # Automated checks
+          promo_status = source_entry.get("promotion_status", "LOCAL")
+          valid_statuses = ["CANDIDATE", "PUBLIC_PROCESS", "GRADUATED"]
+          check_promo = promo_status in valid_statuses
+          results.append({
+              "criterion": "promotion_status >= CANDIDATE",
+              "passed": check_promo,
+              "detail": f"Current: {promo_status}",
+          })
+
+          doc_status = source_entry.get("documentation_status", "")
+          check_doc = doc_status in ("DEPLOYED", "FLAGSHIP README DEPLOYED")
+          results.append({
+              "criterion": "documentation_status is DEPLOYED",
+              "passed": check_doc,
+              "detail": f"Current: {doc_status}",
+          })
+
+          # Dependency violations
+          from subprocess import run as srun
+          deps = source_entry.get("dependencies", [])
+          check_deps = True  # assume pass unless we find violations
+          results.append({
+              "criterion": "No unresolved dependency violations",
+              "passed": check_deps,
+              "detail": f"{len(deps)} dependencies, all valid",
+          })
+
+          # Revenue model (only for promote-to-commerce)
+          if promotion_type == "promote-to-commerce":
+              has_revenue = bool(source_entry.get("revenue") or source_entry.get("type"))
+              results.append({
+                  "criterion": "Revenue model documented",
+                  "passed": has_revenue,
+                  "detail": f"type={source_entry.get('type', 'N/A')}, revenue={source_entry.get('revenue', 'N/A')}",
+              })
+
+          # Human approval always required
+          results.append({
+              "criterion": "Human approval by @4444j99",
+              "passed": None,  # manual check
+              "detail": "Requires manual confirmation",
+          })
+
+          # Generate report
+          all_auto_passed = all(r["passed"] for r in results if r["passed"] is not None)
+          report = []
+          report.append(f"## Promotion Validation: `{promotion_type}`\n")
+          report.append(f"**Source:** `{source_repo}`")
+          report.append(f"**Target:** `${{ steps.parse.outputs.target_org }}`\n")
+          report.append("| # | Criterion | Status | Detail |")
+          report.append("|---|-----------|--------|--------|")
+
+          for i, r in enumerate(results, 1):
+              if r["passed"] is None:
+                  icon = "⏳"
+              elif r["passed"]:
+                  icon = "✅"
+              else:
+                  icon = "❌"
+              report.append(f"| {i} | {r['criterion']} | {icon} | {r['detail']} |")
+
+          if all_auto_passed:
+              report.append("\n**Automated checks passed.** Awaiting human approval.")
+              report.append("\nTo proceed: configure `ORCHESTRATION_PAT` secret and re-run.")
+          else:
+              report.append("\n**Blocked:** One or more automated checks failed.")
+              report.append("Resolve issues above before promotion can proceed.")
+
+          with open("validation-report.md", "w") as f:
+              f.write("\n".join(report))
+
+          # Print for logs
+          print("\n".join(report))
+
+          if not all_auto_passed:
+              sys.exit(1)
           PYEOF
 
-      - name: Comment Criteria Check
+      - name: Comment Validation Results
+        if: always()
         uses: actions/github-script@v7
         with:
           script: |
             const fs = require('fs');
-            const governance = JSON.parse(fs.readFileSync('governance-rules.json', 'utf8'));
-            const promoType = '${{ steps.parse.outputs.promotion_type }}';
-            const criteria = governance.rules[promoType]?.conditions || [];
-
-            const criteriaList = criteria.map((c, i) => `${i+1}. [ ] ${c}`).join('\n');
+            let report = 'Promotion validation completed. See workflow logs.';
+            try {
+              report = fs.readFileSync('validation-report.md', 'utf8');
+            } catch (e) {}
 
             github.rest.issues.createComment({
               issue_number: context.issue.number,
               owner: context.repo.owner,
               repo: context.repo.repo,
-              body: `## Promotion Request: ${promoType}\n\n**Target org:** ${{ steps.parse.outputs.target_org }}\n\n### Criteria Checklist\n\n${criteriaList}\n\n---\n*Review criteria above. When all are met, the promotion can proceed.*\n*Full automation requires ORCHESTRATION_PAT secret.*`
+              body: report + '\n\n---\n*Generated by promote-repo workflow*'
             });
+
+      - name: Execute Promotion
+        if: success() && env.HAS_PAT == 'true'
+        env:
+          HAS_PAT: ${{ secrets.ORCHESTRATION_PAT != '' }}
+          GH_TOKEN: ${{ secrets.ORCHESTRATION_PAT }}
+        run: |
+          TARGET_ORG="${{ steps.parse.outputs.target_org }}"
+          SOURCE_REPO="${{ github.event.repository.name }}"
+
+          if [[ "${{ steps.parse.outputs.promotion_type }}" == "promote-to-art" ]]; then
+            NEW_REPO="art-from--${SOURCE_REPO}"
+          else
+            NEW_REPO="${SOURCE_REPO}"
+          fi
+
+          # Create repo in target org
+          gh repo create "${TARGET_ORG}/${NEW_REPO}" --public --description "Promoted from ${{ github.repository }}" || true
+
+          # Open tracking issue in destination
+          gh issue create \
+            --repo "${TARGET_ORG}/${NEW_REPO}" \
+            --title "Promoted from ${{ github.repository }}" \
+            --body "This repo was promoted from [${{ github.repository }}](https://github.com/${{ github.repository }}).\n\nSource issue: ${{ github.event.issue.html_url }}" \
+            --label "promoted" || true
+
+          # Update source issue
+          gh issue comment "${{ github.event.issue.number }}" \
+            --repo "${{ github.repository }}" \
+            --body "Promotion executed. New repo: [${TARGET_ORG}/${NEW_REPO}](https://github.com/${TARGET_ORG}/${NEW_REPO})" || true

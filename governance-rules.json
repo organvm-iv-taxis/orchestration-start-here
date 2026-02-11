@@ -1,0 +1,103 @@
+{
+  "version": "1.0",
+  "source": "docs/memory/constitution.md",
+  "last_updated": "2026-02-10",
+  "articles": {
+    "I": {
+      "title": "Registry as Single Source of Truth",
+      "rule": "All repo state lives in registry.json. If reality and registry disagree, update the registry or fix reality.",
+      "enforcement": "automated"
+    },
+    "II": {
+      "title": "Unidirectional Dependencies",
+      "rule": "Flow is I→II→III only. No back-edges. ORGAN-IV orchestrates, ORGAN-V documents, ORGAN-VII amplifies.",
+      "enforcement": "automated",
+      "allowed_dependencies": {
+        "ORGAN-I": [],
+        "ORGAN-II": ["ORGAN-I"],
+        "ORGAN-III": ["ORGAN-I", "ORGAN-II"],
+        "ORGAN-IV": ["ORGAN-I", "ORGAN-II", "ORGAN-III"],
+        "ORGAN-V": ["ORGAN-I", "ORGAN-II", "ORGAN-III", "ORGAN-IV"],
+        "ORGAN-VI": ["ORGAN-I", "ORGAN-II", "ORGAN-III"],
+        "ORGAN-VII": ["ORGAN-V"]
+      }
+    },
+    "III": {
+      "title": "All Eight Organs Visible at Launch",
+      "rule": "Each organ has at least one representative at launch. The eight-organ system must be visible in its entirety.",
+      "enforcement": "audit"
+    },
+    "IV": {
+      "title": "Documentation Precedes Deployment",
+      "rule": "No Phase N+1 until Phase N is complete. Documentation is the deliverable.",
+      "enforcement": "manual"
+    },
+    "V": {
+      "title": "Portfolio-Quality Documentation",
+      "rule": "Every README is a portfolio piece. The Stranger Test applies: a grant reviewer seeing this for the first time should be convinced.",
+      "enforcement": "manual",
+      "minimum_score": 90,
+      "scoring_rubric": "01-readme-audit-framework.md"
+    },
+    "VI": {
+      "title": "Promotion State Machine",
+      "rule": "Repos follow: LOCAL → CANDIDATE → PUBLIC_PROCESS → GRADUATED → ARCHIVED. No state may be skipped.",
+      "enforcement": "automated",
+      "states": ["LOCAL", "CANDIDATE", "PUBLIC_PROCESS", "GRADUATED", "ARCHIVED"],
+      "valid_transitions": {
+        "LOCAL": ["CANDIDATE"],
+        "CANDIDATE": ["PUBLIC_PROCESS"],
+        "PUBLIC_PROCESS": ["GRADUATED"],
+        "GRADUATED": ["ARCHIVED"]
+      }
+    }
+  },
+  "amendments": {
+    "A": {
+      "title": "Bronze Tier Launch Path",
+      "rule": "5 Perfect Repos > 44 Mediocre Repos. Completion is criteria-driven, not time-boxed."
+    },
+    "B": {
+      "title": "Coordination Overhead Budget",
+      "rule": "Budget 10% of phase TE as explicit line item for reconciling parallel AI streams."
+    },
+    "C": {
+      "title": "Registry Schema Completeness",
+      "rule": "registry.json must include dependencies[], promotion_status, tier, and last_validated fields before Phase 2."
+    },
+    "D": {
+      "title": "AI Non-Determinism Acknowledgment",
+      "rule": "All AI-generated deliverables require human review. Budget estimates use scenario banding."
+    }
+  },
+  "quality_gates": {
+    "registry": "Does this deliverable update registry.json? Is the schema satisfied?",
+    "portfolio": "Does this pass the Stranger Test? Score >=90/100 for flagships.",
+    "dependency": "Does this respect I→II→III flow? No back-edges?",
+    "completeness": "0 TBD markers? 0 broken links? No placeholder content?"
+  },
+  "rules": {
+    "promote-to-art": {
+      "source_organ": "ORGAN-I",
+      "target_organ": "ORGAN-II",
+      "conditions": [
+        "Source repo has promotion_status >= CANDIDATE",
+        "Source repo documentation_status is DEPLOYED",
+        "Source repo has comprehensive README (>=2000 words)",
+        "No unresolved dependency violations",
+        "Human approval by @4444j99"
+      ]
+    },
+    "promote-to-commerce": {
+      "source_organ": "ORGAN-II",
+      "target_organ": "ORGAN-III",
+      "conditions": [
+        "Source repo has promotion_status >= CANDIDATE",
+        "Source repo documentation_status is DEPLOYED",
+        "Revenue model documented",
+        "No unresolved dependency violations",
+        "Human approval by @4444j99"
+      ]
+    }
+  }
+}

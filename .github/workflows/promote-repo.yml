@@ -1,0 +1,85 @@
+name: Promote Repo
+
+# Working draft — requires ORCHESTRATION_PAT secret with org-level permissions
+# Usage: Open issue with label "promote-to-art" or "promote-to-commerce"
+#        and comment "@orchestration promote"
+
+on:
+  issue_comment:
+    types: [created]
+
+jobs:
+  promote:
+    if: |
+      contains(github.event.comment.body, '@orchestration promote') &&
+      (contains(join(github.event.issue.labels.*.name), 'promote-to-art') ||
+       contains(join(github.event.issue.labels.*.name), 'promote-to-commerce'))
+    runs-on: ubuntu-latest
+    permissions:
+      issues: write
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Setup Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+
+      - name: Parse Promotion Request
+        id: parse
+        run: |
+          LABELS="${{ join(github.event.issue.labels.*.name, ',') }}"
+          echo "labels=$LABELS" >> $GITHUB_OUTPUT
+
+          if [[ "$LABELS" == *"promote-to-art"* ]]; then
+            echo "promotion_type=promote-to-art" >> $GITHUB_OUTPUT
+            echo "target_organ=ORGAN-II" >> $GITHUB_OUTPUT
+            echo "target_org=organvm-ii-poiesis" >> $GITHUB_OUTPUT
+          elif [[ "$LABELS" == *"promote-to-commerce"* ]]; then
+            echo "promotion_type=promote-to-commerce" >> $GITHUB_OUTPUT
+            echo "target_organ=ORGAN-III" >> $GITHUB_OUTPUT
+            echo "target_org=organvm-iii-ergon" >> $GITHUB_OUTPUT
+          fi
+
+      - name: Validate Promotion Criteria
+        run: |
+          python3 << 'PYEOF'
+          import json
+          import sys
+
+          promotion_type = "${{ steps.parse.outputs.promotion_type }}"
+
+          with open('governance-rules.json') as f:
+              governance = json.load(f)
+
+          criteria = governance.get('rules', {}).get(promotion_type, {}).get('conditions', [])
+
+          print(f"Promotion type: {promotion_type}")
+          print(f"Target: ${{ steps.parse.outputs.target_org }}")
+          print(f"\nCriteria to verify:")
+          for i, c in enumerate(criteria, 1):
+              print(f"  {i}. {c}")
+
+          # TODO: Automated validation against registry
+          # For now, criteria are listed for human review
+          print("\nNote: Full automated validation requires ORCHESTRATION_PAT.")
+          print("Manual review of criteria is required before proceeding.")
+          PYEOF
+
+      - name: Comment Criteria Check
+        uses: actions/github-script@v7
+        with:
+          script: |
+            const fs = require('fs');
+            const governance = JSON.parse(fs.readFileSync('governance-rules.json', 'utf8'));
+            const promoType = '${{ steps.parse.outputs.promotion_type }}';
+            const criteria = governance.rules[promoType]?.conditions || [];
+
+            const criteriaList = criteria.map((c, i) => `${i+1}. [ ] ${c}`).join('\n');
+
+            github.rest.issues.createComment({
+              issue_number: context.issue.number,
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              body: `## Promotion Request: ${promoType}\n\n**Target org:** ${{ steps.parse.outputs.target_org }}\n\n### Criteria Checklist\n\n${criteriaList}\n\n---\n*Review criteria above. When all are met, the promotion can proceed.*\n*Full automation requires ORCHESTRATION_PAT secret.*`
+            });

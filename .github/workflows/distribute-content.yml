@@ -1,0 +1,61 @@
+name: Distribute Content
+
+# Skeleton workflow — POSSE automation for ORGAN-V essays
+# TODO: Configure MASTODON_TOKEN secret
+# TODO: Configure DISCORD_WEBHOOK secret
+# TODO: Configure newsletter integration
+
+on:
+  issues:
+    types: [labeled]
+
+jobs:
+  distribute:
+    if: contains(github.event.label.name, 'ready-to-distribute')
+    runs-on: ubuntu-latest
+    permissions:
+      issues: write
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Extract Essay Metadata
+        id: metadata
+        run: |
+          TITLE="${{ github.event.issue.title }}"
+          echo "title=${TITLE}" >> $GITHUB_OUTPUT
+          echo "url=https://github.com/${{ github.repository }}/issues/${{ github.event.issue.number }}" >> $GITHUB_OUTPUT
+
+      - name: Post to Mastodon
+        if: env.MASTODON_TOKEN != ''
+        env:
+          MASTODON_TOKEN: ${{ secrets.MASTODON_TOKEN }}
+        run: |
+          # TODO: Configure Mastodon instance URL
+          echo "Would post to Mastodon: ${{ steps.metadata.outputs.title }}"
+          echo "URL: ${{ steps.metadata.outputs.url }}"
+          # curl https://mastodon.social/api/v1/statuses \
+          #   -H "Authorization: Bearer ${MASTODON_TOKEN}" \
+          #   -F "status=New essay: ${{ steps.metadata.outputs.title }} — ${{ steps.metadata.outputs.url }}"
+
+      - name: Notify Discord
+        if: env.DISCORD_WEBHOOK != ''
+        env:
+          DISCORD_WEBHOOK: ${{ secrets.DISCORD_WEBHOOK }}
+        run: |
+          # TODO: Configure Discord webhook
+          echo "Would post to Discord: ${{ steps.metadata.outputs.title }}"
+          # curl "${DISCORD_WEBHOOK}" \
+          #   -X POST \
+          #   -H "Content-Type: application/json" \
+          #   -d "{\"content\":\"New essay: ${{ steps.metadata.outputs.title }}\\n${{ steps.metadata.outputs.url }}\"}"
+
+      - name: Log Distribution
+        uses: actions/github-script@v7
+        with:
+          script: |
+            github.rest.issues.createComment({
+              issue_number: context.issue.number,
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              body: `## Distribution Triggered\n\n**Channels:**\n- [ ] Mastodon (requires MASTODON_TOKEN)\n- [ ] Discord (requires DISCORD_WEBHOOK)\n- [ ] Newsletter (not yet configured)\n\n---\n*Configure secrets to enable automated distribution.*`
+            });

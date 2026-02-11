@@ -1,0 +1,112 @@
+name: Validate Dependencies
+
+on:
+  pull_request:
+    paths:
+      - '.meta/dependencies.json'
+      - 'package.json'
+      - 'requirements.txt'
+      - 'Cargo.toml'
+  workflow_dispatch:
+
+jobs:
+  validate:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Setup Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+
+      - name: Fetch Central Registry
+        run: |
+          curl -sL https://raw.githubusercontent.com/organvm-iv-taxis/orchestration-start-here/main/registry.json \
+            -o registry.json
+          curl -sL https://raw.githubusercontent.com/organvm-iv-taxis/orchestration-start-here/main/governance-rules.json \
+            -o governance-rules.json
+
+      - name: Validate Dependencies
+        id: validate
+        run: |
+          python3 << 'PYEOF'
+          import json
+          import os
+          import sys
+
+          # Load registry and governance rules
+          with open('registry.json') as f:
+              registry = json.load(f)
+          with open('governance-rules.json') as f:
+              governance = json.load(f)
+
+          current_repo = os.environ.get('GITHUB_REPOSITORY', '')
+          org_name = current_repo.split('/')[0] if '/' in current_repo else ''
+          repo_name = current_repo.split('/')[1] if '/' in current_repo else ''
+
+          # Map org names to organ IDs
+          org_to_organ = {
+              'organvm-i-theoria': 'ORGAN-I',
+              'organvm-ii-poiesis': 'ORGAN-II',
+              'organvm-iii-ergon': 'ORGAN-III',
+              'organvm-iv-taxis': 'ORGAN-IV',
+              'organvm-v-logos': 'ORGAN-V',
+              'organvm-vi-koinonia': 'ORGAN-VI',
+              'organvm-vii-kerygma': 'ORGAN-VII',
+          }
+
+          current_organ = org_to_organ.get(org_name, 'UNKNOWN')
+          allowed = governance['articles']['II']['allowed_dependencies']
+
+          violations = []
+
+          # Find current repo in registry
+          for organ_id, organ in registry.get('organs', {}).items():
+              for repo in organ.get('repositories', []):
+                  if repo['name'] == repo_name and repo.get('org') == org_name:
+                      deps = repo.get('dependencies', [])
+                      for dep in deps:
+                          dep_org = dep.split('/')[0] if '/' in dep else ''
+                          dep_organ = org_to_organ.get(dep_org, 'UNKNOWN')
+
+                          # Check if dependency direction is allowed
+                          if dep_organ != current_organ:
+                              allowed_targets = allowed.get(current_organ, [])
+                              if dep_organ not in allowed_targets:
+                                  violations.append(
+                                      f"Back-edge: {current_organ} -> {dep_organ} "
+                                      f"({current_repo} depends on {dep})"
+                                  )
+
+          # Report results
+          if violations:
+              print("DEPENDENCY VALIDATION FAILED")
+              print("=" * 50)
+              for v in violations:
+                  print(f"  violation: {v}")
+              print(f"\nTotal violations: {len(violations)}")
+              sys.exit(1)
+          else:
+              print("DEPENDENCY VALIDATION PASSED")
+              print(f"  Repo: {current_repo}")
+              print(f"  Organ: {current_organ}")
+              print("  No dependency violations detected.")
+              sys.exit(0)
+          PYEOF
+
+      - name: Comment Results
+        if: always() && github.event_name == 'pull_request'
+        uses: actions/github-script@v7
+        with:
+          script: |
+            const status = '${{ steps.validate.outcome }}' === 'success' ? 'PASSED' : 'FAILED';
+            const emoji = status === 'PASSED' ? '✅' : '❌';
+            github.rest.issues.createComment({
+              issue_number: context.issue.number,
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              body: `## ${emoji} Dependency Validation: ${status}\n\nValidated against central registry and governance rules.\n\nSee [workflow run](${context.serverUrl}/${context.repo.owner}/${context.repo.repo}/actions/runs/${context.runId}) for details.`
+            });

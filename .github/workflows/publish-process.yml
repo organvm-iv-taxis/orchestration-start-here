@@ -1,0 +1,58 @@
+name: Publish Process
+
+# Skeleton workflow — automates ORGAN-V essay creation from product documentation
+# TODO: Implement extract-process.py and generate-outline.py scripts
+# TODO: Configure ORCHESTRATION_PAT for cross-repo operations
+
+on:
+  issue_comment:
+    types: [created]
+
+jobs:
+  publish:
+    if: |
+      contains(join(github.event.issue.labels.*.name), 'publish-process') &&
+      contains(github.event.comment.body, '@orchestration create essay')
+    runs-on: ubuntu-latest
+    permissions:
+      issues: write
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Setup Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+
+      - name: Extract Source Content
+        run: |
+          # TODO: Implement content extraction from source repo
+          # python3 scripts/extract-process.py \
+          #   --source-repo "${{ github.repository }}" \
+          #   --output process-draft.md
+          echo "# Draft Essay" > process-draft.md
+          echo "" >> process-draft.md
+          echo "Source: ${{ github.repository }}" >> process-draft.md
+          echo "Issue: #${{ github.event.issue.number }}" >> process-draft.md
+          echo "" >> process-draft.md
+          echo "TODO: Extract content from source repo README and docs" >> process-draft.md
+
+      - name: Generate Essay Outline
+        run: |
+          # TODO: Implement outline generation
+          # python3 scripts/generate-outline.py \
+          #   --content process-draft.md \
+          #   --template templates/essay-structure.md \
+          #   --output essay-outline.md
+          cp process-draft.md essay-outline.md
+
+      - name: Comment Draft Link
+        uses: actions/github-script@v7
+        with:
+          script: |
+            github.rest.issues.createComment({
+              issue_number: context.issue.number,
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              body: `## Essay Draft Created\n\nA draft has been generated from this repository's documentation.\n\n**Next steps:**\n1. Review and expand the draft\n2. Add YAML frontmatter (title, author, date, tags, category, excerpt, portfolio_relevance, related_repos, reading_time, word_count)\n3. Submit PR to [organvm-v-logos/public-process](https://github.com/organvm-v-logos/public-process)\n\n---\n*Note: Full automation requires ORCHESTRATION_PAT secret for cross-repo PR creation.*`
+            });

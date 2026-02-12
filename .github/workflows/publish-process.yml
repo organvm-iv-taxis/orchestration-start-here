@@ -17,24 +17,27 @@ jobs:
     permissions:
       issues: write
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@34e114876b0b11c390a56381ad16ebd13914f8d5 # v4
 
       - name: Setup Python
-        uses: actions/setup-python@v5
+        uses: actions/setup-python@a26af69be951a213d495a4c3e4e4022e16d87065 # v5
         with:
           python-version: '3.12'
 
       - name: Extract Source Content
+        env:
+          SOURCE_REPO: ${{ github.repository }}
+          ISSUE_TITLE: ${{ github.event.issue.title }}
+          ISSUE_NUMBER: ${{ github.event.issue.number }}
         run: |
           python3 << 'PYEOF'
-          import json
           import os
+          import textwrap
           from datetime import datetime
 
-          source_repo = "${{ github.repository }}"
+          source_repo = os.environ.get("SOURCE_REPO", "unknown/unknown")
           repo_name = source_repo.split("/")[-1] if "/" in source_repo else source_repo
-          issue_title = """${{ github.event.issue.title }}"""
-          issue_body = """${{ github.event.issue.body }}"""
+          issue_title = os.environ.get("ISSUE_TITLE", "Untitled")
 
           # Read README if available
           readme_content = ""
@@ -49,19 +52,18 @@ jobs:
           for cl_path in ["CHANGELOG.md", "CHANGES.md", "HISTORY.md"]:
               if os.path.exists(cl_path):
                   with open(cl_path) as f:
-                      changelog = f.read()[:3000]  # first 3K chars
+                      changelog = f.read()[:3000]
                   break
 
-          # Build essay draft
           date = datetime.now().strftime("%Y-%m-%d")
-          slug = repo_name.lower().replace("--", "-").replace(" ", "-")
 
-          draft = f"""---
+          draft = textwrap.dedent(f"""\
+          ---
           title: "Building {repo_name}: Process and Methodology"
           author: "@4444j99"
           date: {date}
           source_repo: {source_repo}
-          source_issue: ${{{{ github.event.issue.number }}}}
+          source_issue: {os.environ.get("ISSUE_NUMBER", "0")}
           tags: [process, building-in-public, {repo_name}]
           category: process-documentation
           excerpt: "How we built {repo_name} — architecture decisions, implementation process, and lessons learned."
@@ -100,11 +102,7 @@ jobs:
           ---
 
           *This essay was initiated from [{source_repo}](https://github.com/{source_repo}).*
-          """
-
-          # Clean up indentation
-          import textwrap
-          draft = textwrap.dedent(draft)
+          """)
 
           with open("essay-draft.md", "w") as f:
               f.write(draft)
@@ -126,11 +124,9 @@ jobs:
           BRANCH="essay/from-${REPO_NAME}"
           ESSAY_PATH="essays/process/${DATE}--${REPO_NAME}.md"
 
-          # Clone ORGAN-V repo
           gh repo clone organvm-v-logos/public-process /tmp/public-process -- --depth=1
           cd /tmp/public-process
 
-          # Create branch and add essay
           git checkout -b "${BRANCH}"
           mkdir -p essays/process
           cp "${{ github.workspace }}/essay-draft.md" "${ESSAY_PATH}"
@@ -138,7 +134,6 @@ jobs:
           git commit -m "Draft essay: Process from ${REPO_NAME}"
           git push origin "${BRANCH}"
 
-          # Create PR
           gh pr create \
             --repo organvm-v-logos/public-process \
             --title "Essay: Building ${REPO_NAME}" \
@@ -150,7 +145,6 @@ jobs:
         uses: actions/github-script@v7
         with:
           script: |
-            const fs = require('fs');
             const hasPat = process.env.HAS_PAT === 'true';
             let body;
 

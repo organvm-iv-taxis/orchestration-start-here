@@ -1,0 +1,90 @@
+# seed.yaml — Automation Contract for organvm-iv-taxis/orchestration-start-here
+# Schema: seed/v1.0
+# This file declares what this repo produces, consumes, and how it participates
+# in the autonomous inter-organ system.
+
+schema_version: "1.0"
+organ: IV
+organ_name: Orchestration
+repo: orchestration-start-here
+role: orchestrator
+
+# What this repo produces for other organs
+produces:
+  - type: governance-rules
+    description: "Cross-organ governance policies and dependency validation"
+    format: json
+    consumers: [all]
+  - type: health-reports
+    description: "Weekly registry health audit reports"
+    format: json
+    consumers: [all]
+    schedule: "weekly"
+  - type: promotion-decisions
+    description: "Automated promotion recommendations based on quality gates"
+    format: github-issue
+    consumers: [all]
+
+# What this repo consumes from other organs
+consumes:
+  - type: registry-updates
+    source: any
+    description: "Changes to repo status, new repos, CI results"
+    trigger: on_push
+  - type: essay-notifications
+    source: ORGAN-V
+    description: "New essay publications for distribution coordination"
+    trigger: on_release
+
+# Quality gates — conditions for content flow
+quality_gates:
+  inbound:
+    - name: registry-valid
+      check: "python3 scripts/validate-registry.py"
+      description: "Registry JSON must be valid and internally consistent"
+    - name: no-back-edges
+      check: "python3 scripts/validate-dependencies.py"
+      description: "No ORGAN-III→ORGAN-II or other forbidden dependency edges"
+  outbound:
+    - name: audit-clean
+      check: "No critical issues in latest health audit"
+      description: "Health audit must pass before governance changes propagate"
+
+# Automated agents
+agents:
+  - name: registry-health-auditor
+    trigger: schedule
+    schedule: "0 6 * * 1"  # Weekly Monday 06:00 UTC
+    workflow: .github/workflows/registry-health-audit.yml
+    description: "Validates registry consistency across all 88 repos"
+
+  - name: dependency-validator
+    trigger: on_push
+    paths: ["registry*.json"]
+    workflow: .github/workflows/validate-dependencies.yml
+    description: "Ensures no back-edges in inter-organ dependency graph"
+
+  - name: promotion-recommender
+    trigger: schedule
+    schedule: "0 12 1 * *"  # Monthly 1st at 12:00 UTC
+    workflow: .github/workflows/promotion-check.yml
+    description: "Scans repos for promotion readiness (DESIGN_ONLY→SKELETON→PROTOTYPE→PRODUCTION)"
+
+# Cross-organ event subscriptions
+subscriptions:
+  - event: repo.created
+    source: any
+    action: "Update registry, assign seed.yaml template"
+  - event: ci.passed
+    source: any
+    action: "Check if repo qualifies for promotion"
+  - event: essay.published
+    source: ORGAN-V
+    action: "Trigger ORGAN-VII distribution workflow"
+
+# Metadata
+metadata:
+  created: "2026-02-12"
+  sprint: "GENESIS"
+  maintainer: "@4444j99"
+  documentation: "docs/autonomous-systems-design.md"

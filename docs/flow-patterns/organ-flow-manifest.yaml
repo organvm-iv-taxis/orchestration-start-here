@@ -1,0 +1,214 @@
+version: 1
+name: "omni-dromenon-metasystem-flow"
+description: "Master organ definitions and flow patterns for the 7-organ metasystem."
+
+organs:
+  I:
+    name: "Origin"
+    codename: "THE ORIGIN"
+    github_org: "4444JPP"
+    role: "incubation"
+    description: "The seed repository. Experimental ideas, personal projects, prototypes."
+    status: "active"
+    repo_count: 35
+
+  II:
+    name: "Art-Enactment"
+    codename: "THE ARCHITECT"
+    github_org: "omni-dromenon-machina"
+    role: "creation"
+    description: "Pure artistic expression. Performance systems, synthesis, visuals."
+    status: "active"
+    repo_count: 12
+
+  III:
+    name: "Commerce"
+    codename: "THE GUILD"
+    github_org: "labores-profani-crux"
+    role: "packaging"
+    description: "Production-ready packages. Commercial offerings, stable releases."
+    status: "active"
+    repo_count: 3
+
+  IV:
+    name: "Orchestration"
+    codename: "THE CONDUCTOR"
+    github_org: "TBD"  # Suggested: gubernatio-systematis
+    role: "governance"
+    description: "Meta-coordination. Dreamcatcher, agents, flow enforcement."
+    status: "staging"
+    staging_path: "/Users/4jp/Workspace/ORG-IV-orchestration-staging"
+
+  V:
+    name: "Public Process"
+    codename: "THE INTERFACE"
+    github_org: "TBD"  # May extend labores-profani-crux
+    role: "exposure"
+    description: "Public APIs, SDKs, external developer interfaces."
+    status: "staging"
+    staging_path: "/Users/4jp/Workspace/ORG-V-public-process-staging"
+
+  VI:
+    name: "Community"
+    codename: "THE GARDEN"
+    github_org: "TBD"  # May extend ivviiviivvi
+    role: "cultivation"
+    description: "Community governance, contribution frameworks, salons."
+    status: "staging"
+    staging_path: "/Users/4jp/Workspace/ORG-VI-community-staging"
+
+  VII:
+    name: "Marketing"
+    codename: "THE BEACON"
+    github_org: "TBD"  # Suggested: beacon-routing
+    role: "amplification"
+    description: "Grants, content, press, analytics, market feedback."
+    status: "staging"
+    staging_path: "/Users/4jp/Workspace/ORG-VII-marketing-staging"
+
+# Auxiliary organ (not numbered, but part of ecosystem)
+auxiliary:
+  alchemist:
+    name: "The Alchemist"
+    github_org: "ivviiviivvi"
+    role: "experimental"
+    description: "R&D, experiments, radical prototypes."
+    status: "active"
+    repo_count: 48
+    notes: "May absorb ORG VI (Community) or remain independent."
+
+flows:
+  # Primary creation flow
+  creation:
+    description: "Ideas flow from Origin through Art to packaging."
+    steps:
+      - from: I
+        to: II
+        via: IV
+        artifacts:
+          - "seed.yaml"
+          - "intent-manifests"
+          - "prototype-specs"
+        gate: null  # No gate for incubation→creation
+        description: "Incubated ideas move to artistic realization."
+
+  # Packaging flow
+  packaging:
+    description: "Stable art becomes production-ready packages."
+    steps:
+      - from: II
+        to: III
+        via: IV
+        artifacts:
+          - "stable-releases"
+          - "api-specs"
+          - "documentation"
+        gate: "version-freeze"
+        description: "Only version-frozen releases move to commerce."
+
+  # Exposure flow
+  exposure:
+    description: "Commercial packages become public APIs."
+    steps:
+      - from: III
+        to: V
+        via: IV
+        artifacts:
+          - "public-apis"
+          - "sdk-specs"
+          - "integration-docs"
+        gate: "security-review"
+        description: "All public interfaces must pass security audit."
+
+  # Cultivation flow
+  cultivation:
+    description: "Public APIs enable community participation."
+    steps:
+      - from: V
+        to: VI
+        via: IV
+        artifacts:
+          - "contributor-onboarding"
+          - "api-documentation"
+          - "feedback-loops"
+        gate: "community-approval"
+        description: "Community changes require RFC process."
+
+  # Amplification flow
+  amplification:
+    description: "Community success stories become marketing content."
+    steps:
+      - from: VI
+        to: VII
+        via: IV
+        artifacts:
+          - "success-stories"
+          - "testimonials"
+          - "metrics"
+        gate: "quality-threshold"
+        description: "Only quality content moves to amplification."
+
+  # Feedback flow (completes the cycle)
+  feedback:
+    description: "Market signals return to Origin for next iteration."
+    steps:
+      - from: VII
+        to: I
+        via: IV
+        artifacts:
+          - "market-signals"
+          - "user-research"
+          - "grant-outcomes"
+          - "content-performance"
+        gate: "synthesis-review"
+        description: "Human synthesis required before informing Origin."
+
+# Discovery flow (external perspective)
+discovery_flow:
+  description: "How external users discover and engage with the system."
+  path:
+    - organ: VII
+      action: "Discovers through marketing/content"
+    - organ: V
+      action: "Explores public APIs/documentation"
+    - organ: II
+      action: "Experiences art/performances"
+    - organ: III
+      action: "Uses commercial products"
+    - organ: VI
+      action: "Joins community"
+    - organ: VII
+      action: "Provides feedback completing the loop"
+
+# Orchestration (IV) responsibilities
+orchestration_responsibilities:
+  canonical_index:
+    description: "Maintains master list of all repos across all orgs."
+    location: "metasystem-manifest/4jp-metasystem.yaml"
+
+  schema_governance:
+    description: "Validates seed.yaml for all organs."
+    validator: "dreamcatcher/schema-validator"
+
+  naming_rules:
+    description: "Enforces consistent naming conventions."
+    patterns:
+      repos: "kebab-case"
+      files: "kebab-case or snake_case"
+      classes: "PascalCase"
+      functions: "camelCase"
+
+  dependency_policy:
+    description: "Cross-org import rules."
+    rules:
+      - "Downstream organs may import from upstream."
+      - "Circular dependencies forbidden."
+      - "IV (Orchestration) may observe all organs."
+
+  health_monitoring:
+    description: "Dreamcatcher patrols all organs."
+    agent: "dreamcatcher/watchman"
+
+  flow_enforcement:
+    description: "Gates checked before artifacts move."
+    enforcer: "dreamcatcher/router"

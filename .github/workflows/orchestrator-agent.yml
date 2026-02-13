@@ -1,0 +1,274 @@
+name: Orchestrator Agent
+
+on:
+  schedule:
+    # Weekly Monday 07:00 UTC (one hour after health audit)
+    - cron: '0 7 * * 1'
+  workflow_dispatch:
+
+jobs:
+  orchestrate:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      issues: write
+
+    steps:
+      - name: Checkout orchestration hub
+        uses: actions/checkout@v4
+
+      - name: Setup Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+
+      - name: Install dependencies
+        run: pip install requests pyyaml
+
+      - name: Build system graph from seed.yaml contracts
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          python3 << 'ORCHESTRATOR_SCRIPT'
+          import json
+          import os
+          import subprocess
+          import sys
+          import base64
+          from datetime import datetime
+
+          import yaml
+
+          def gh_api_raw(endpoint):
+              """Call gh api and return raw stdout."""
+              result = subprocess.run(
+                  ['gh', 'api', endpoint],
+                  capture_output=True, text=True
+              )
+              if result.returncode != 0:
+                  return None
+              return result.stdout.strip() if result.stdout.strip() else None
+
+          def fetch_seed_yaml(org, repo):
+              """Fetch and parse seed.yaml from a repo."""
+              raw = gh_api_raw(f'repos/{org}/{repo}/contents/seed.yaml')
+              if not raw:
+                  return None
+              try:
+                  data = json.loads(raw)
+                  content = base64.b64decode(data.get('content', '')).decode('utf-8')
+                  return yaml.safe_load(content)
+              except Exception:
+                  return None
+
+          # Load registry
+          registry_path = 'registry.json'
+          if not os.path.exists(registry_path):
+              registry_path = 'registry-v2.json'
+          if not os.path.exists(registry_path):
+              print("::error::No registry file found")
+              sys.exit(1)
+
+          with open(registry_path) as f:
+              registry = json.load(f)
+
+          now = datetime.utcnow()
+
+          # Collect all repos
+          all_repos = []
+          for organ_key, organ in registry.get('organs', {}).items():
+              for repo in organ.get('repositories', []):
+                  all_repos.append({
+                      'org': repo['org'],
+                      'name': repo['name'],
+                      'organ_key': organ_key,
+                      'impl_status': repo.get('implementation_status', 'DESIGN_ONLY'),
+                      'promotion_status': repo.get('promotion_status', 'LOCAL'),
+                  })
+
+          total = len(all_repos)
+          seeds_found = 0
+          seeds_missing = []
+          seeds_data = {}
+          drift_issues = []
+          orphaned = []
+          validation_errors = []
+
+          # Fetch all seed.yaml files
+          print(f"Fetching seed.yaml from {total} repos...")
+          for r in all_repos:
+              ref = f"{r['org']}/{r['name']}"
+              seed = fetch_seed_yaml(r['org'], r['name'])
+              if seed:
+                  seeds_found += 1
+                  seeds_data[ref] = seed
+
+                  # Check for drift: seed.yaml metadata vs registry
+                  seed_status = seed.get('metadata', {}).get('implementation_status', '')
+                  if seed_status and seed_status != r['impl_status']:
+                      drift_issues.append({
+                          'repo': ref,
+                          'seed_status': seed_status,
+                          'registry_status': r['impl_status'],
+                      })
+              else:
+                  seeds_missing.append(ref)
+
+          # Build producer-consumer graph
+          producers = {}   # repo → list of what it produces
+          consumers = {}   # repo → list of what it consumes
+          edges = []        # (producer, consumer) tuples
+
+          for ref, seed in seeds_data.items():
+              for prod in seed.get('produces', []):
+                  prod_consumers = prod.get('consumers', [])
+                  for consumer_ref in prod_consumers:
+                      if consumer_ref == 'all':
+                          continue
+                      edges.append((ref, consumer_ref))
+                  producers.setdefault(ref, []).append(prod)
+
+              for cons in seed.get('consumes', []):
+                  source = cons.get('source', '')
+                  if source and source not in ('any', 'all'):
+                      edges.append((source, ref))
+                  consumers.setdefault(ref, []).append(cons)
+
+          # Detect orphaned repos (no produces AND no consumes in seed.yaml)
+          for ref, seed in seeds_data.items():
+              has_produces = bool(seed.get('produces'))
+              has_consumes = bool(seed.get('consumes'))
+              is_infra = seed.get('metadata', {}).get('tier') == 'infrastructure'
+              is_archived = seed.get('metadata', {}).get('promotion_status') == 'ARCHIVED'
+              if not has_produces and not has_consumes and not is_infra and not is_archived:
+                  orphaned.append(ref)
+
+          # Validate edges: every referenced repo should exist
+          known_refs = set(f"{r['org']}/{r['name']}" for r in all_repos)
+          for producer, consumer in edges:
+              if producer not in known_refs:
+                  validation_errors.append(f"Unknown producer: {producer}")
+              if consumer not in known_refs:
+                  validation_errors.append(f"Unknown consumer: {consumer}")
+
+          # Generate Mermaid diagram
+          mermaid_lines = ["graph TD"]
+          # Group by organ
+          organ_repos = {}
+          for ref, seed in seeds_data.items():
+              organ = seed.get('organ', '?')
+              organ_repos.setdefault(organ, []).append(ref)
+
+          # Add subgraphs for each organ
+          for organ in sorted(organ_repos.keys()):
+              mermaid_lines.append(f"  subgraph ORGAN-{organ}")
+              for ref in sorted(organ_repos[organ]):
+                  safe_id = ref.replace('/', '__').replace('-', '_').replace('.', '_')
+                  short_name = ref.split('/')[-1]
+                  if len(short_name) > 30:
+                      short_name = short_name[:27] + "..."
+                  mermaid_lines.append(f"    {safe_id}[\"{short_name}\"]")
+              mermaid_lines.append("  end")
+
+          # Add edges
+          for producer, consumer in edges:
+              p_id = producer.replace('/', '__').replace('-', '_').replace('.', '_')
+              c_id = consumer.replace('/', '__').replace('-', '_').replace('.', '_')
+              mermaid_lines.append(f"  {p_id} --> {c_id}")
+
+          mermaid = "\n".join(mermaid_lines)
+
+          # Build issue body
+          coverage_pct = (seeds_found / total * 100) if total > 0 else 0
+
+          body_lines = [
+              "## Orchestrator Agent — System Graph Report",
+              f"**Generated:** {now.isoformat()}Z",
+              f"**Coverage:** {seeds_found}/{total} repos have seed.yaml ({coverage_pct:.1f}%)",
+              f"**Edges:** {len(edges)} producer→consumer relationships",
+              "",
+              "### System Graph (Mermaid)",
+              "",
+              "```mermaid",
+              mermaid,
+              "```",
+              "",
+          ]
+
+          if drift_issues:
+              body_lines.append(f"### Drift Detected ({len(drift_issues)})")
+              body_lines.append("seed.yaml and registry disagree on implementation status:")
+              body_lines.append("")
+              body_lines.append("| Repo | seed.yaml | Registry |")
+              body_lines.append("|------|-----------|----------|")
+              for d in drift_issues:
+                  body_lines.append(f"| `{d['repo']}` | {d['seed_status']} | {d['registry_status']} |")
+              body_lines.append("")
+
+          if orphaned:
+              body_lines.append(f"### Orphaned Repos ({len(orphaned)})")
+              body_lines.append("Repos with no produces and no consumes (isolated nodes):")
+              body_lines.append("")
+              for o in sorted(orphaned):
+                  body_lines.append(f"- `{o}`")
+              body_lines.append("")
+
+          if seeds_missing:
+              body_lines.append(f"### Missing seed.yaml ({len(seeds_missing)})")
+              body_lines.append("")
+              for m in sorted(seeds_missing):
+                  body_lines.append(f"- `{m}`")
+              body_lines.append("")
+
+          if validation_errors:
+              body_lines.append(f"### Validation Errors ({len(validation_errors)})")
+              body_lines.append("")
+              for e in validation_errors:
+                  body_lines.append(f"- {e}")
+              body_lines.append("")
+
+          body_lines.append("### Summary Stats")
+          body_lines.append(f"- Total repos: {total}")
+          body_lines.append(f"- Seeds found: {seeds_found}")
+          body_lines.append(f"- Seeds missing: {len(seeds_missing)}")
+          body_lines.append(f"- Graph edges: {len(edges)}")
+          body_lines.append(f"- Drift issues: {len(drift_issues)}")
+          body_lines.append(f"- Orphaned repos: {len(orphaned)}")
+          body_lines.append(f"- Validation errors: {len(validation_errors)}")
+          body_lines.append("")
+          body_lines.append("---")
+          body_lines.append("*Generated by orchestrator-agent.yml (AUTONOMY Sprint)*")
+
+          body = "\n".join(body_lines)
+          title = f"System Graph — {now.strftime('%Y-%m-%d')}"
+
+          # Create issue
+          result = subprocess.run(
+              ['gh', 'issue', 'create',
+               '--title', title,
+               '--body', body],
+              capture_output=True, text=True
+          )
+
+          if result.returncode == 0:
+              print(f"Issue created: {result.stdout.strip()}")
+          else:
+              print(f"::error::Failed to create issue: {result.stderr}")
+              # Print report to stdout as fallback
+              print(body)
+              sys.exit(1)
+
+          print(f"\nSeeds: {seeds_found}/{total}")
+          print(f"Edges: {len(edges)}")
+          print(f"Drift: {len(drift_issues)}")
+          print(f"Orphaned: {len(orphaned)}")
+
+          ORCHESTRATOR_SCRIPT
+
+      - name: Upload system graph data
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: system-graph
+          path: system-graph.json
+          retention-days: 90

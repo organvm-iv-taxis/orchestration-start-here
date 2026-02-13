@@ -1,0 +1,200 @@
+version: 1
+name: "gate-definitions"
+description: "Definitions for gates that control artifact flow between organs."
+
+gates:
+  version-freeze:
+    id: "version-freeze"
+    description: "Ensures semantic versioning compliance before packaging."
+    applies_to:
+      flow: "packaging"
+      from: II
+      to: III
+    requirements:
+      - id: "semver-valid"
+        description: "Version must be valid semver."
+        check: "automated"
+        validator: "semver-regex"
+      - id: "changelog-updated"
+        description: "CHANGELOG.md must reflect new version."
+        check: "automated"
+        validator: "changelog-parser"
+      - id: "breaking-changes-documented"
+        description: "Breaking changes must be explicitly documented."
+        check: "automated"
+        validator: "breaking-change-detector"
+      - id: "tests-passing"
+        description: "All tests must pass."
+        check: "automated"
+        validator: "ci-pipeline"
+    approval:
+      type: "automated"
+      fallback: "manual-review"
+    artifacts_required:
+      - "package.json with version"
+      - "CHANGELOG.md"
+      - "Test results"
+
+  security-review:
+    id: "security-review"
+    description: "Security audit for public-facing interfaces."
+    applies_to:
+      flow: "exposure"
+      from: III
+      to: V
+    requirements:
+      - id: "dependency-scan"
+        description: "No known vulnerabilities in dependencies."
+        check: "automated"
+        validator: "snyk or npm-audit"
+      - id: "auth-review"
+        description: "Authentication/authorization properly implemented."
+        check: "manual"
+        reviewer: "security-team"
+      - id: "input-validation"
+        description: "All inputs validated and sanitized."
+        check: "automated"
+        validator: "static-analysis"
+      - id: "rate-limiting"
+        description: "Rate limiting configured for all endpoints."
+        check: "automated"
+        validator: "config-validator"
+      - id: "secrets-scan"
+        description: "No hardcoded secrets or credentials."
+        check: "automated"
+        validator: "trufflehog or gitleaks"
+    approval:
+      type: "manual"
+      required_approvers: 1
+      approver_roles: ["security-reviewer", "architect"]
+    artifacts_required:
+      - "Security audit report"
+      - "Penetration test results (if applicable)"
+      - "Dependency manifest"
+
+  community-approval:
+    id: "community-approval"
+    description: "RFC process for public-facing community changes."
+    applies_to:
+      flow: "cultivation"
+      from: V
+      to: VI
+    requirements:
+      - id: "rfc-published"
+        description: "RFC document published for community review."
+        check: "manual"
+        validator: "rfc-template-check"
+      - id: "comment-period"
+        description: "Minimum 7-day comment period observed."
+        check: "automated"
+        validator: "date-validator"
+      - id: "objections-addressed"
+        description: "All blocking objections addressed."
+        check: "manual"
+        reviewer: "rfc-moderator"
+      - id: "vote-threshold"
+        description: "Approval vote threshold met (if required)."
+        check: "automated"
+        validator: "vote-counter"
+    approval:
+      type: "community-vote"
+      quorum: "10% of active contributors"
+      threshold: "66% approval"
+    artifacts_required:
+      - "RFC document"
+      - "Comment summary"
+      - "Vote results (if applicable)"
+
+  quality-threshold:
+    id: "quality-threshold"
+    description: "Metrics-based release criteria for content."
+    applies_to:
+      flow: "amplification"
+      from: VI
+      to: VII
+    requirements:
+      - id: "content-review"
+        description: "Content reviewed by at least one peer."
+        check: "manual"
+        reviewer: "content-team"
+      - id: "brand-compliance"
+        description: "Content follows brand guidelines."
+        check: "manual"
+        validator: "brand-checklist"
+      - id: "accuracy-check"
+        description: "Technical claims verified."
+        check: "manual"
+        reviewer: "technical-reviewer"
+      - id: "engagement-prediction"
+        description: "Content meets minimum engagement prediction."
+        check: "automated"
+        validator: "content-scoring-model"
+    approval:
+      type: "manual"
+      required_approvers: 1
+      approver_roles: ["content-lead", "marketing-lead"]
+    artifacts_required:
+      - "Content piece"
+      - "Peer review comments"
+      - "Brand compliance checklist"
+
+  synthesis-review:
+    id: "synthesis-review"
+    description: "Human synthesis of market feedback before informing Origin."
+    applies_to:
+      flow: "feedback"
+      from: VII
+      to: I
+    requirements:
+      - id: "data-collected"
+        description: "Raw data collected from multiple sources."
+        check: "automated"
+        validator: "data-presence-check"
+      - id: "synthesis-document"
+        description: "Human-written synthesis document created."
+        check: "manual"
+        reviewer: "analyst"
+      - id: "actionable-insights"
+        description: "At least one actionable insight identified."
+        check: "manual"
+        reviewer: "architect"
+      - id: "bias-review"
+        description: "Synthesis reviewed for confirmation bias."
+        check: "manual"
+        reviewer: "peer-analyst"
+    approval:
+      type: "manual"
+      required_approvers: 2
+      approver_roles: ["analyst", "architect"]
+    artifacts_required:
+      - "Raw metrics data"
+      - "User research summaries"
+      - "Synthesis document"
+      - "Recommended actions"
+
+# Gate states
+gate_states:
+  - id: "pending"
+    description: "Gate check not yet started."
+  - id: "in-progress"
+    description: "Gate check underway."
+  - id: "passed"
+    description: "All requirements met, artifact may proceed."
+  - id: "failed"
+    description: "One or more requirements not met."
+  - id: "bypassed"
+    description: "Gate bypassed with manual override (logged)."
+  - id: "expired"
+    description: "Gate approval expired, re-check required."
+
+# Override policy
+override_policy:
+  allowed: true
+  conditions:
+    - "Emergency hotfix with architect approval"
+    - "Time-critical grant deadline with explicit documentation"
+  requirements:
+    - "Written justification"
+    - "Architect sign-off"
+    - "Post-hoc review scheduled"
+  logging: "All overrides logged to knowledge graph"

@@ -1,0 +1,191 @@
+name: Distribution Agent
+
+# ORGAN-VII coordination agent. Checks for essays and announcements
+# that need distribution, validates distribution channels are healthy,
+# and reports on POSSE coverage.
+
+on:
+  schedule:
+    # Weekly Wednesday at 10:00 UTC (mid-week distribution window)
+    - cron: '0 10 * * 3'
+  workflow_dispatch:
+
+jobs:
+  distribute:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      issues: write
+
+    steps:
+      - name: Checkout orchestration hub
+        uses: actions/checkout@v4
+
+      - name: Setup Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+
+      - name: Install dependencies
+        run: pip install requests
+
+      - name: Run distribution audit
+        env:
+          GH_TOKEN: ${{ secrets.CROSS_ORG_TOKEN || secrets.GITHUB_TOKEN }}
+        run: |
+          python3 << 'DISTRIBUTION_AGENT'
+          import json
+          import os
+          import subprocess
+          import sys
+          from datetime import datetime
+
+          import requests
+
+          def gh_api(endpoint):
+              result = subprocess.run(
+                  ['gh', 'api', endpoint],
+                  capture_output=True, text=True
+              )
+              if result.returncode != 0:
+                  return None
+              try:
+                  return json.loads(result.stdout)
+              except json.JSONDecodeError:
+                  return result.stdout.strip() if result.stdout.strip() else None
+
+          now = datetime.utcnow()
+
+          # ── 1. Check POSSE channel health ──────────────────────────
+          channels = {}
+
+          # Jekyll site / RSS feed
+          try:
+              rss_resp = requests.get(
+                  'https://organvm-v-logos.github.io/public-process/feed.xml',
+                  timeout=10
+              )
+              channels['rss'] = {
+                  'status': 'healthy' if rss_resp.status_code == 200 else 'degraded',
+                  'http_code': rss_resp.status_code,
+                  'content_length': len(rss_resp.content),
+              }
+          except Exception as e:
+              channels['rss'] = {'status': 'down', 'error': str(e)}
+
+          # Jekyll site main page
+          try:
+              site_resp = requests.get(
+                  'https://organvm-v-logos.github.io/public-process/',
+                  timeout=10
+              )
+              channels['jekyll_site'] = {
+                  'status': 'healthy' if site_resp.status_code == 200 else 'degraded',
+                  'http_code': site_resp.status_code,
+              }
+          except Exception as e:
+              channels['jekyll_site'] = {'status': 'down', 'error': str(e)}
+
+          # ── 2. Count essays and check for undistributed ──────────────
+          posts = gh_api('repos/organvm-v-logos/public-process/contents/_posts')
+          total_essays = len(posts) if posts else 0
+
+          # Check essay-detected issues (open = not yet distributed)
+          open_issues = gh_api(
+              'repos/organvm-iv-taxis/orchestration-start-here/issues?labels=essay-detected&state=open&per_page=100'
+          )
+          undistributed = len(open_issues) if open_issues else 0
+
+          # Check distributed issues
+          closed_issues = gh_api(
+              'repos/organvm-iv-taxis/orchestration-start-here/issues?labels=ready-to-distribute&state=closed&per_page=100'
+          )
+          distributed = len(closed_issues) if closed_issues else 0
+
+          # ── 3. Check ORGAN-VII repo health ──────────────────────────
+          organ_vii_repos = ['social-automation', 'distribution-strategy']
+          repo_health = {}
+          for repo_name in organ_vii_repos:
+              runs = gh_api(
+                  f'repos/organvm-vii-kerygma/{repo_name}/actions/runs?per_page=1'
+              )
+              if runs and runs.get('workflow_runs'):
+                  latest = runs['workflow_runs'][0]
+                  repo_health[repo_name] = {
+                      'last_run': latest.get('created_at', 'unknown'),
+                      'conclusion': latest.get('conclusion', 'unknown'),
+                  }
+              else:
+                  repo_health[repo_name] = {'last_run': 'none', 'conclusion': 'n/a'}
+
+          # ── 4. Build report ──────────────────────────────────────────
+          body_lines = [
+              "## Distribution Agent — POSSE Audit Report",
+              f"**Generated:** {now.isoformat()}Z",
+              "",
+              "### Channel Health",
+              "",
+              "| Channel | Status | Details |",
+              "|---------|--------|---------|",
+          ]
+
+          for ch_name, ch_data in channels.items():
+              status = ch_data.get('status', 'unknown')
+              status_icon = '🟢' if status == 'healthy' else '🟡' if status == 'degraded' else '🔴'
+              details = f"HTTP {ch_data.get('http_code', '?')}" if 'http_code' in ch_data else ch_data.get('error', '?')
+              body_lines.append(f"| {ch_name} | {status_icon} {status} | {details} |")
+
+          body_lines.extend([
+              "",
+              "### Essay Distribution Coverage",
+              "",
+              f"- **Total essays in _posts/:** {total_essays}",
+              f"- **Detected (open issues):** {undistributed}",
+              f"- **Distributed (closed issues):** {distributed}",
+              f"- **Coverage:** {(distributed / total_essays * 100) if total_essays > 0 else 0:.0f}%",
+              "",
+              "### ORGAN-VII Repository Health",
+              "",
+              "| Repo | Last Run | Result |",
+              "|------|----------|--------|",
+          ])
+
+          for repo_name, health in repo_health.items():
+              conclusion = health.get('conclusion', 'n/a')
+              icon = '✅' if conclusion == 'success' else '⚠️' if conclusion == 'n/a' else '❌'
+              body_lines.append(
+                  f"| `{repo_name}` | {health.get('last_run', 'never')} | {icon} {conclusion} |"
+              )
+
+          if undistributed > 0 and open_issues:
+              body_lines.extend([
+                  "",
+                  "### Pending Distribution",
+                  "These essays have been detected but not yet distributed:",
+                  "",
+              ])
+              for issue in open_issues:
+                  body_lines.append(f"- [{issue['title']}]({issue['html_url']})")
+
+          body_lines.extend([
+              "",
+              "---",
+              "*Generated by distribution-agent.yml (AUTONOMY Sprint Phase E)*",
+          ])
+
+          body = "\n".join(body_lines)
+          title = f"Distribution Audit — {now.strftime('%Y-%m-%d')}"
+
+          result = subprocess.run(
+              ['gh', 'issue', 'create', '--title', title, '--body', body],
+              capture_output=True, text=True
+          )
+
+          if result.returncode == 0:
+              print(f"Issue created: {result.stdout.strip()}")
+          else:
+              print(f"::error::Failed to create issue: {result.stderr}")
+              print(body)
+              sys.exit(1)
+
+          DISTRIBUTION_AGENT

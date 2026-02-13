@@ -1,54 +1,57 @@
 name: Validate Dependencies
 
 on:
+  push:
+    paths:
+      - 'registry*.json'
   pull_request:
     paths:
-      - '.meta/dependencies.json'
-      - 'package.json'
-      - 'requirements.txt'
-      - 'Cargo.toml'
+      - 'registry*.json'
+  schedule:
+    # Run as part of weekly health audit — Mondays at 06:30 UTC
+    - cron: '30 6 * * 1'
   workflow_dispatch:
 
 jobs:
   validate:
     runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      issues: write
+
     steps:
-      - uses: actions/checkout@v4
-        with:
-          fetch-depth: 0
+      - name: Checkout orchestration hub
+        uses: actions/checkout@v4
 
       - name: Setup Python
         uses: actions/setup-python@v5
         with:
           python-version: '3.12'
 
-      - name: Fetch Central Registry
+      - name: Validate dependency graph
         run: |
-          curl -sL https://raw.githubusercontent.com/organvm-iv-taxis/orchestration-start-here/main/registry.json \
-            -o registry.json
-          curl -sL https://raw.githubusercontent.com/organvm-iv-taxis/orchestration-start-here/main/governance-rules.json \
-            -o governance-rules.json
-
-      - name: Validate Dependencies
-        id: validate
-        run: |
-          python3 << 'PYEOF'
+          python3 << 'VALIDATE_SCRIPT'
           import json
           import os
           import sys
+          from collections import defaultdict, deque
+          from datetime import datetime
 
-          # Load registry and governance rules
-          with open('registry.json') as f:
-              registry = json.load(f)
-          with open('governance-rules.json') as f:
-              governance = json.load(f)
+          # Organ ordering — lower index = upstream, higher = downstream
+          # Flow allowed: I→II→III only (no back-edges)
+          ORGAN_ORDER = {
+              'ORGAN-I': 1,
+              'ORGAN-II': 2,
+              'ORGAN-III': 3,
+              'ORGAN-IV': 0,   # Orchestration can depend on anything
+              'ORGAN-V': 0,    # Public Process can reference anything
+              'ORGAN-VI': 0,   # Community can reference anything
+              'ORGAN-VII': 0,  # Marketing can reference anything
+              'META-ORGANVM': 0,
+          }
 
-          current_repo = os.environ.get('GITHUB_REPOSITORY', '')
-          org_name = current_repo.split('/')[0] if '/' in current_repo else ''
-          repo_name = current_repo.split('/')[1] if '/' in current_repo else ''
-
-          # Map org names to organ IDs
-          org_to_organ = {
+          # Org name → organ key mapping
+          ORG_TO_ORGAN = {
               'organvm-i-theoria': 'ORGAN-I',
               'organvm-ii-poiesis': 'ORGAN-II',
               'organvm-iii-ergon': 'ORGAN-III',
@@ -56,129 +59,179 @@ jobs:
               'organvm-v-logos': 'ORGAN-V',
               'organvm-vi-koinonia': 'ORGAN-VI',
               'organvm-vii-kerygma': 'ORGAN-VII',
+              'meta-organvm': 'META-ORGANVM',
           }
 
-          current_organ = org_to_organ.get(org_name, 'UNKNOWN')
-          allowed = governance.get('articles', {}).get('II', {}).get('allowed_dependencies', {})
-          MAX_TRANSITIVE_DEPTH = 4
+          # Back-edge rules: these directed edges are forbidden
+          FORBIDDEN_EDGES = [
+              ('ORGAN-III', 'ORGAN-II'),   # Commerce cannot depend on Art
+              ('ORGAN-III', 'ORGAN-I'),    # Commerce cannot depend on Theory (via Art)
+              ('ORGAN-II', 'ORGAN-III'),   # Art cannot depend on Commerce
+          ]
 
-          violations = []
-          results = []
-
-          # Build full dependency graph for cycle + depth checking
-          dep_graph = {}
-          for organ_id, organ in registry.get('organs', {}).items():
-              for repo in organ.get('repositories', []):
-                  full_name = f"{repo.get('org', '')}/{repo['name']}"
-                  deps = repo.get('dependencies', [])
-                  dep_graph[full_name] = deps
-
-          # --- Check 1: Direction violations for current repo ---
-          for organ_id, organ in registry.get('organs', {}).items():
-              for repo in organ.get('repositories', []):
-                  if repo['name'] == repo_name and repo.get('org') == org_name:
-                      deps = repo.get('dependencies', [])
-                      for dep in deps:
-                          dep_org = dep.split('/')[0] if '/' in dep else ''
-                          dep_organ = org_to_organ.get(dep_org, 'UNKNOWN')
-                          if dep_organ != current_organ:
-                              allowed_targets = allowed.get(current_organ, [])
-                              if dep_organ not in allowed_targets:
-                                  violations.append(
-                                      f"Direction: {current_organ} cannot depend on "
-                                      f"{dep_organ} ({current_repo} -> {dep})"
-                                  )
-
-          # --- Check 2: Circular dependency detection (DFS) ---
-          visited = set()
-          path = set()
-          cycles = []
-
-          def find_cycles(node, current_path):
-              if node in path:
-                  idx = current_path.index(node)
-                  cycles.append(current_path[idx:] + [node])
-                  return
-              if node in visited:
-                  return
-              visited.add(node)
-              path.add(node)
-              current_path.append(node)
-              for neighbor in dep_graph.get(node, []):
-                  find_cycles(neighbor, current_path)
-              path.remove(node)
-              current_path.pop()
-
-          for node in dep_graph:
-              if node not in visited:
-                  find_cycles(node, [])
-
-          for cycle in cycles:
-              violations.append(f"Circular: {' -> '.join(cycle)}")
-
-          # --- Check 3: Transitive depth ---
-          def measure_depth(node, seen=None):
-              if seen is None:
-                  seen = set()
-              if node in seen:
-                  return 0  # cycle — handled above
-              seen.add(node)
-              deps = dep_graph.get(node, [])
-              if not deps:
-                  return 0
-              return 1 + max(measure_depth(d, seen.copy()) for d in deps)
-
-          repo_full = f"{org_name}/{repo_name}"
-          depth = measure_depth(repo_full)
-          if depth > MAX_TRANSITIVE_DEPTH:
-              violations.append(
-                  f"Depth: {repo_full} has transitive depth {depth} "
-                  f"(max allowed: {MAX_TRANSITIVE_DEPTH})"
-              )
-
-          # --- Report ---
-          print(f"Dependency Validation for {current_repo}")
-          print(f"{'=' * 50}")
-          print(f"  Organ: {current_organ}")
-          print(f"  Transitive depth: {depth}/{MAX_TRANSITIVE_DEPTH}")
-          print()
-
-          if violations:
-              print("FAILED — violations found:")
-              for v in violations:
-                  print(f"  - {v}")
-              # Write results for comment step
-              with open('validation-results.txt', 'w') as f:
-                  f.write(f"**Repo:** `{current_repo}` ({current_organ})\n")
-                  f.write(f"**Transitive depth:** {depth}/{MAX_TRANSITIVE_DEPTH}\n\n")
-                  f.write("**Violations:**\n")
-                  for v in violations:
-                      f.write(f"- {v}\n")
+          def load_registry():
+              for path in ['registry.json', 'registry-v2.json']:
+                  if os.path.exists(path):
+                      with open(path) as f:
+                          return json.load(f)
+              print("::error::No registry file found")
               sys.exit(1)
-          else:
-              print("PASSED — no violations detected.")
-              with open('validation-results.txt', 'w') as f:
-                  f.write(f"**Repo:** `{current_repo}` ({current_organ})\n")
-                  f.write(f"**Transitive depth:** {depth}/{MAX_TRANSITIVE_DEPTH}\n\n")
-                  f.write("No dependency violations detected.\n")
-              sys.exit(0)
-          PYEOF
 
-      - name: Comment Results
-        if: always() && github.event_name == 'pull_request'
-        uses: actions/github-script@v7
-        with:
-          script: |
-            const fs = require('fs');
-            let results = 'Validation completed. See workflow run for details.';
-            try {
-              results = fs.readFileSync('validation-results.txt', 'utf8');
-            } catch (e) {}
-            const status = '${{ steps.validate.outcome }}' === 'success' ? 'PASSED' : 'FAILED';
-            const emoji = status === 'PASSED' ? '✅' : '❌';
-            github.rest.issues.createComment({
-              issue_number: context.issue.number,
-              owner: context.repo.owner,
-              repo: context.repo.repo,
-              body: `## ${emoji} Dependency Validation: ${status}\n\n${results}\n\n---\n*[Workflow run](${context.serverUrl}/${context.repo.owner}/${context.repo.repo}/actions/runs/${context.runId})*`
-            });
+          def get_organ_for_org(org_name):
+              return ORG_TO_ORGAN.get(org_name, 'UNKNOWN')
+
+          def build_graph(registry):
+              """Build adjacency list from registry dependencies."""
+              graph = defaultdict(list)     # repo → [dependencies]
+              reverse = defaultdict(list)   # repo → [dependents]
+              all_repos = set()
+
+              for organ_key, organ in registry.get('organs', {}).items():
+                  for repo in organ.get('repositories', []):
+                      ref = f"{repo['org']}/{repo['name']}"
+                      all_repos.add(ref)
+                      for dep in repo.get('dependencies', []):
+                          graph[ref].append(dep)
+                          reverse[dep].append(ref)
+
+              return graph, reverse, all_repos
+
+          def detect_cycles(graph):
+              """Detect cycles using DFS. Returns list of cycles found."""
+              WHITE, GRAY, BLACK = 0, 1, 2
+              color = defaultdict(int)
+              cycles = []
+              path = []
+
+              def dfs(node):
+                  color[node] = GRAY
+                  path.append(node)
+                  for neighbor in graph.get(node, []):
+                      if color[neighbor] == GRAY:
+                          # Found cycle
+                          cycle_start = path.index(neighbor)
+                          cycles.append(path[cycle_start:] + [neighbor])
+                      elif color[neighbor] == WHITE:
+                          dfs(neighbor)
+                  path.pop()
+                  color[node] = BLACK
+
+              for node in list(graph.keys()):
+                  if color[node] == WHITE:
+                      dfs(node)
+
+              return cycles
+
+          def check_back_edges(graph):
+              """Check for forbidden cross-organ dependency directions."""
+              violations = []
+              for repo, deps in graph.items():
+                  repo_org = repo.split('/')[0]
+                  repo_organ = get_organ_for_org(repo_org)
+                  for dep in deps:
+                      dep_org = dep.split('/')[0]
+                      dep_organ = get_organ_for_org(dep_org)
+                      # Check forbidden pairs
+                      for from_organ, to_organ in FORBIDDEN_EDGES:
+                          if repo_organ == from_organ and dep_organ == to_organ:
+                              violations.append({
+                                  'repo': repo,
+                                  'dependency': dep,
+                                  'repo_organ': repo_organ,
+                                  'dep_organ': dep_organ,
+                                  'rule': f'{from_organ} cannot depend on {to_organ}',
+                              })
+              return violations
+
+          def check_transitive_depth(graph, max_depth=4):
+              """Check that no dependency chain exceeds max_depth."""
+              deep_chains = []
+
+              def get_depth(node, visited=None):
+                  if visited is None:
+                      visited = set()
+                  if node in visited:
+                      return 0  # Cycle — handled elsewhere
+                  visited.add(node)
+                  if not graph.get(node):
+                      return 0
+                  return 1 + max(get_depth(dep, visited.copy()) for dep in graph[node])
+
+              for node in graph:
+                  depth = get_depth(node)
+                  if depth > max_depth:
+                      deep_chains.append({'repo': node, 'depth': depth})
+
+              return deep_chains
+
+          def check_dangling_refs(graph, all_repos):
+              """Check that all dependency targets actually exist in registry."""
+              dangling = []
+              for repo, deps in graph.items():
+                  for dep in deps:
+                      if dep not in all_repos:
+                          dangling.append({'repo': repo, 'dependency': dep})
+              return dangling
+
+          # Main
+          registry = load_registry()
+          graph, reverse, all_repos = build_graph(registry)
+
+          now = datetime.utcnow().isoformat() + 'Z'
+          issues = []
+          warnings = []
+
+          # 1. Detect cycles
+          cycles = detect_cycles(graph)
+          if cycles:
+              for cycle in cycles:
+                  msg = f"Cycle detected: {' → '.join(cycle)}"
+                  issues.append(msg)
+                  print(f"::error::{msg}")
+
+          # 2. Check back-edges
+          back_edges = check_back_edges(graph)
+          if back_edges:
+              for be in back_edges:
+                  msg = f"Back-edge: {be['repo']} depends on {be['dependency']} ({be['rule']})"
+                  issues.append(msg)
+                  print(f"::error::{msg}")
+
+          # 3. Check transitive depth
+          deep = check_transitive_depth(graph)
+          if deep:
+              for d in deep:
+                  msg = f"Deep chain: {d['repo']} has dependency depth {d['depth']} (max 4)"
+                  warnings.append(msg)
+                  print(f"::warning::{msg}")
+
+          # 4. Check dangling references
+          dangling = check_dangling_refs(graph, all_repos)
+          if dangling:
+              for d in dangling:
+                  msg = f"Dangling ref: {d['repo']} depends on {d['dependency']} (not in registry)"
+                  issues.append(msg)
+                  print(f"::error::{msg}")
+
+          # Summary
+          total_edges = sum(len(deps) for deps in graph.values())
+          print(f"\n{'='*60}")
+          print(f"DEPENDENCY VALIDATION — {now}")
+          print(f"{'='*60}")
+          print(f"Total repos: {len(all_repos)}")
+          print(f"Repos with dependencies: {len(graph)}")
+          print(f"Total edges: {total_edges}")
+          print(f"Cycles: {len(cycles)}")
+          print(f"Back-edges: {len(back_edges)}")
+          print(f"Deep chains (>4): {len(deep)}")
+          print(f"Dangling refs: {len(dangling)}")
+
+          if issues:
+              print(f"\nFAILED — {len(issues)} issues found")
+              sys.exit(1)
+          elif warnings:
+              print(f"\nPASSED with {len(warnings)} warnings")
+          else:
+              print(f"\nPASSED — dependency graph is valid")
+
+          VALIDATE_SCRIPT

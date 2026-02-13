@@ -1,0 +1,178 @@
+name: Registry Health Audit
+
+on:
+  schedule:
+    # Run weekly on Mondays at 06:00 UTC
+    - cron: '0 6 * * 1'
+  workflow_dispatch:
+    inputs:
+      audit_scope:
+        description: 'Scope of audit (full or quick)'
+        required: false
+        default: 'quick'
+        type: choice
+        options:
+          - quick
+          - full
+
+jobs:
+  audit:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      issues: write
+
+    steps:
+      - name: Checkout orchestration hub
+        uses: actions/checkout@v4
+
+      - name: Setup Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+
+      - name: Install dependencies
+        run: pip install requests
+
+      - name: Run registry health audit
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          AUDIT_SCOPE: ${{ inputs.audit_scope || 'quick' }}
+        run: |
+          python3 << 'AUDIT_SCRIPT'
+          import json
+          import os
+          import subprocess
+          import sys
+          from datetime import datetime
+
+          def run_gh(args):
+              result = subprocess.run(
+                  ['gh', 'api'] + args,
+                  capture_output=True, text=True
+              )
+              if result.returncode != 0:
+                  return None
+              return json.loads(result.stdout) if result.stdout.strip() else None
+
+          # Load registry
+          registry_path = 'registry.json'
+          if not os.path.exists(registry_path):
+              print("::warning::registry.json not found, checking registry-v2.json")
+              registry_path = 'registry-v2.json'
+
+          if not os.path.exists(registry_path):
+              print("::error::No registry file found")
+              sys.exit(1)
+
+          with open(registry_path) as f:
+              registry = json.load(f)
+
+          # Audit results
+          report = {
+              'timestamp': datetime.utcnow().isoformat() + 'Z',
+              'total_repos': 0,
+              'accessible': 0,
+              'inaccessible': 0,
+              'status_counts': {},
+              'organs_checked': 0,
+              'issues': [],
+              'warnings': []
+          }
+
+          scope = os.environ.get('AUDIT_SCOPE', 'quick')
+
+          # Count repos and validate structure
+          for organ_key, organ in registry.get('organs', {}).items():
+              report['organs_checked'] += 1
+              repos = organ.get('repositories', [])
+              declared_count = organ.get('repository_count', 0)
+              actual_count = len(repos)
+
+              if declared_count != actual_count:
+                  report['issues'].append(
+                      f"{organ_key}: declared {declared_count} repos but has {actual_count} entries"
+                  )
+
+              for repo in repos:
+                  report['total_repos'] += 1
+                  status = repo.get('implementation_status', 'UNKNOWN')
+                  report['status_counts'][status] = report['status_counts'].get(status, 0) + 1
+
+                  # Quick mode: just validate structure
+                  # Full mode: also check GitHub API
+                  if scope == 'full':
+                      org_name = repo.get('org', '')
+                      repo_name = repo.get('name', '')
+                      if org_name and repo_name:
+                          data = run_gh([f'repos/{org_name}/{repo_name}', '--jq', '.full_name'])
+                          if data:
+                              report['accessible'] += 1
+                          else:
+                              report['inaccessible'] += 1
+                              report['warnings'].append(
+                                  f"Cannot access {org_name}/{repo_name}"
+                              )
+
+          # Validate status distribution
+          declared_dist = registry.get('implementation_status_distribution', {})
+          if declared_dist:
+              for status, count in declared_dist.items():
+                  actual = report['status_counts'].get(status, 0)
+                  if count != actual:
+                      report['issues'].append(
+                          f"Status distribution mismatch: {status} declared={count} actual={actual}"
+                      )
+
+          # Validate total
+          declared_total = registry.get('summary', {}).get('total_repos', 0)
+          if declared_total != report['total_repos']:
+              report['issues'].append(
+                  f"Total repos mismatch: declared={declared_total} actual={report['total_repos']}"
+              )
+
+          # Generate report
+          print("=" * 60)
+          print(f"REGISTRY HEALTH AUDIT — {report['timestamp']}")
+          print(f"Scope: {scope}")
+          print("=" * 60)
+          print(f"Total repos: {report['total_repos']}")
+          print(f"Organs checked: {report['organs_checked']}")
+          print(f"Status distribution: {json.dumps(report['status_counts'], indent=2)}")
+
+          if scope == 'full':
+              print(f"Accessible: {report['accessible']}")
+              print(f"Inaccessible: {report['inaccessible']}")
+
+          if report['issues']:
+              print(f"\n{'!'*60}")
+              print(f"ISSUES FOUND: {len(report['issues'])}")
+              for issue in report['issues']:
+                  print(f"  - {issue}")
+                  print(f"::error::{issue}")
+          else:
+              print("\nNo issues found. Registry is consistent.")
+
+          if report['warnings']:
+              print(f"\nWARNINGS: {len(report['warnings'])}")
+              for warning in report['warnings']:
+                  print(f"  - {warning}")
+                  print(f"::warning::{warning}")
+
+          # Write report artifact
+          with open('audit-report.json', 'w') as f:
+              json.dump(report, f, indent=2)
+
+          # Exit with error if issues found
+          if report['issues']:
+              sys.exit(1)
+
+          AUDIT_SCRIPT
+
+      - name: Upload audit report
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: registry-health-audit
+          path: audit-report.json
+          retention-days: 90

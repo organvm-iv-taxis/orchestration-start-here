@@ -1,0 +1,242 @@
+name: Promotion Recommender
+
+on:
+  schedule:
+    # Monthly on the 1st at 08:00 UTC
+    - cron: '0 8 1 * *'
+  workflow_dispatch:
+
+jobs:
+  recommend:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      issues: write
+
+    steps:
+      - name: Checkout orchestration hub
+        uses: actions/checkout@v4
+
+      - name: Setup Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+
+      - name: Install dependencies
+        run: pip install requests pyyaml
+
+      - name: Evaluate promotion candidates
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          python3 << 'PROMOTION_SCRIPT'
+          import json
+          import os
+          import subprocess
+          import sys
+          from datetime import datetime, timedelta
+
+          def gh_api(endpoint, jq_filter=None):
+              """Call gh api and return parsed JSON."""
+              cmd = ['gh', 'api', endpoint]
+              if jq_filter:
+                  cmd += ['--jq', jq_filter]
+              result = subprocess.run(cmd, capture_output=True, text=True)
+              if result.returncode != 0:
+                  return None
+              try:
+                  return json.loads(result.stdout) if result.stdout.strip() else None
+              except json.JSONDecodeError:
+                  return result.stdout.strip() if result.stdout.strip() else None
+
+          def check_repo_basics(org, name):
+              """Check if a repo has README and LICENSE."""
+              readme = gh_api(f'repos/{org}/{name}/readme')
+              license_file = gh_api(f'repos/{org}/{name}/license')
+              return {
+                  'has_readme': readme is not None,
+                  'has_license': license_file is not None,
+              }
+
+          def get_ci_status(org, name):
+              """Check latest CI workflow run status."""
+              runs = gh_api(f'repos/{org}/{name}/actions/runs?per_page=1')
+              if not runs or not runs.get('workflow_runs'):
+                  return None
+              latest = runs['workflow_runs'][0]
+              return {
+                  'conclusion': latest.get('conclusion'),
+                  'created_at': latest.get('created_at'),
+              }
+
+          def get_readme_size(org, name):
+              """Get README word count approximation from size."""
+              readme = gh_api(f'repos/{org}/{name}/readme')
+              if not readme:
+                  return 0
+              size_bytes = readme.get('size', 0)
+              # Rough estimate: 1 byte ≈ 0.75 words for markdown
+              return int(size_bytes * 0.18)  # Conservative estimate
+
+          # Load registry
+          registry_path = 'registry.json'
+          if not os.path.exists(registry_path):
+              registry_path = 'registry-v2.json'
+          if not os.path.exists(registry_path):
+              print("::error::No registry file found")
+              sys.exit(1)
+
+          with open(registry_path) as f:
+              registry = json.load(f)
+
+          now = datetime.utcnow()
+          candidates = []
+          stale = []
+
+          for organ_key, organ in registry.get('organs', {}).items():
+              for repo in organ.get('repositories', []):
+                  org_name = repo.get('org', '')
+                  repo_name = repo.get('name', '')
+                  impl_status = repo.get('implementation_status', 'DESIGN_ONLY')
+                  promotion_status = repo.get('promotion_status', '')
+                  last_validated = repo.get('last_validated', '')
+
+                  # Skip archived repos
+                  if promotion_status == 'ARCHIVED':
+                      continue
+
+                  full_ref = f"{org_name}/{repo_name}"
+
+                  # Check for staleness (PRODUCTION repos not validated in 30+ days)
+                  if impl_status == 'PRODUCTION' and last_validated:
+                      try:
+                          validated_date = datetime.fromisoformat(last_validated)
+                          days_since = (now - validated_date).days
+                          if days_since > 30:
+                              stale.append({
+                                  'repo': full_ref,
+                                  'organ': organ_key,
+                                  'days_stale': days_since,
+                                  'last_validated': last_validated,
+                              })
+                      except ValueError:
+                          pass
+
+                  # Evaluate promotion readiness
+                  recommendation = None
+
+                  if impl_status == 'DESIGN_ONLY':
+                      # DESIGN_ONLY → SKELETON: has README + LICENSE + at least one file
+                      basics = check_repo_basics(org_name, repo_name)
+                      if basics['has_readme'] and basics['has_license']:
+                          recommendation = {
+                              'repo': full_ref,
+                              'organ': organ_key,
+                              'current': 'DESIGN_ONLY',
+                              'proposed': 'SKELETON',
+                              'reason': 'Has README and LICENSE',
+                              'evidence': basics,
+                          }
+
+                  elif impl_status == 'SKELETON':
+                      # SKELETON → PROTOTYPE: has CI green
+                      ci = get_ci_status(org_name, repo_name)
+                      if ci and ci.get('conclusion') == 'success':
+                          recommendation = {
+                              'repo': full_ref,
+                              'organ': organ_key,
+                              'current': 'SKELETON',
+                              'proposed': 'PROTOTYPE',
+                              'reason': 'CI passing',
+                              'evidence': ci,
+                          }
+
+                  elif impl_status == 'PROTOTYPE':
+                      # PROTOTYPE → PRODUCTION: README >2,000 words, CI green 7+ days
+                      ci = get_ci_status(org_name, repo_name)
+                      readme_words = get_readme_size(org_name, repo_name)
+                      ci_passing = ci and ci.get('conclusion') == 'success'
+                      readme_ok = readme_words > 2000
+
+                      if ci_passing and readme_ok:
+                          recommendation = {
+                              'repo': full_ref,
+                              'organ': organ_key,
+                              'current': 'PROTOTYPE',
+                              'proposed': 'PRODUCTION',
+                              'reason': f'README ~{readme_words} words, CI passing',
+                              'evidence': {'readme_words': readme_words, 'ci': ci},
+                          }
+
+                  if recommendation:
+                      candidates.append(recommendation)
+
+          # Build issue body
+          body_lines = [
+              f"## Promotion Recommender Report",
+              f"**Generated:** {now.isoformat()}Z",
+              f"**Scope:** All 8 organs, {registry.get('summary', {}).get('total_repos', '?')} repos",
+              "",
+          ]
+
+          if candidates:
+              body_lines.append(f"### Promotion Candidates ({len(candidates)})")
+              body_lines.append("")
+              body_lines.append("| Repo | Organ | Current | Proposed | Reason |")
+              body_lines.append("|------|-------|---------|----------|--------|")
+              for c in candidates:
+                  body_lines.append(
+                      f"| `{c['repo']}` | {c['organ']} | {c['current']} | **{c['proposed']}** | {c['reason']} |"
+                  )
+              body_lines.append("")
+          else:
+              body_lines.append("### No promotion candidates found")
+              body_lines.append("")
+
+          if stale:
+              body_lines.append(f"### Stale Repos ({len(stale)})")
+              body_lines.append("Repos with `last_validated` > 30 days ago:")
+              body_lines.append("")
+              body_lines.append("| Repo | Organ | Days Stale | Last Validated |")
+              body_lines.append("|------|-------|------------|----------------|")
+              for s in stale:
+                  body_lines.append(
+                      f"| `{s['repo']}` | {s['organ']} | {s['days_stale']} | {s['last_validated']} |"
+                  )
+              body_lines.append("")
+
+          body_lines.append("---")
+          body_lines.append("*Generated by promotion-recommender.yml (AUTONOMY Sprint)*")
+
+          body = "\n".join(body_lines)
+          title = f"Promotion Recommendations — {now.strftime('%B %Y')}"
+
+          # Create issue
+          result = subprocess.run(
+              ['gh', 'issue', 'create',
+               '--title', title,
+               '--body', body,
+               '--label', 'automation,promotion'],
+              capture_output=True, text=True
+          )
+
+          if result.returncode == 0:
+              print(f"Issue created: {result.stdout.strip()}")
+          else:
+              # Labels might not exist, try without
+              result = subprocess.run(
+                  ['gh', 'issue', 'create',
+                   '--title', title,
+                   '--body', body],
+                  capture_output=True, text=True
+              )
+              if result.returncode == 0:
+                  print(f"Issue created: {result.stdout.strip()}")
+              else:
+                  print(f"::error::Failed to create issue: {result.stderr}")
+                  sys.exit(1)
+
+          print(f"\nCandidates: {len(candidates)}")
+          print(f"Stale repos: {len(stale)}")
+
+          PROMOTION_SCRIPT

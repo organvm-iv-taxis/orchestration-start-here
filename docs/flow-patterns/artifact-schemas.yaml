@@ -1,0 +1,287 @@
+version: 1
+name: "artifact-schemas"
+description: "Schemas for artifacts that flow between organs."
+
+# Artifact categories
+categories:
+  intent:
+    description: "Documents expressing purpose and direction."
+    examples: ["seed.yaml", "intent-manifests", "RFCs"]
+
+  code:
+    description: "Executable source code and configurations."
+    examples: ["packages", "modules", "configs"]
+
+  documentation:
+    description: "Human-readable explanations and guides."
+    examples: ["READMEs", "API docs", "tutorials"]
+
+  metrics:
+    description: "Quantitative data and measurements."
+    examples: ["analytics", "test results", "performance data"]
+
+  content:
+    description: "Marketing and communication materials."
+    examples: ["blog posts", "press releases", "social content"]
+
+# Artifact definitions
+artifacts:
+  # Intent artifacts
+  seed-yaml:
+    id: "seed.yaml"
+    category: "intent"
+    description: "Automation contract defining project scope and AI access."
+    schema:
+      required_fields:
+        - "version"
+        - "project.name"
+        - "project.description"
+        - "automation_contract"
+      optional_fields:
+        - "domain"
+        - "architecture"
+        - "growth_objectives"
+        - "dreamcatcher"
+        - "knowledge_graph"
+    validation: "yaml-schema-validator"
+    flows_in:
+      - flow: "creation"
+        from: I
+        to: II
+
+  intent-manifest:
+    id: "intent-manifest"
+    category: "intent"
+    description: "High-level description of a new feature or capability."
+    schema:
+      required_fields:
+        - "title"
+        - "problem_statement"
+        - "proposed_solution"
+        - "success_criteria"
+      optional_fields:
+        - "constraints"
+        - "alternatives_considered"
+        - "dependencies"
+    format: "markdown"
+    flows_in:
+      - flow: "creation"
+        from: I
+        to: II
+
+  # Code artifacts
+  stable-release:
+    id: "stable-release"
+    category: "code"
+    description: "Version-tagged release ready for production use."
+    schema:
+      required_fields:
+        - "version (semver)"
+        - "changelog"
+        - "package manifest"
+        - "license"
+      optional_fields:
+        - "migration guide"
+        - "deprecation notices"
+    validation: "semver-check + license-check"
+    flows_in:
+      - flow: "packaging"
+        from: II
+        to: III
+
+  api-spec:
+    id: "api-spec"
+    category: "code"
+    description: "OpenAPI or GraphQL specification for APIs."
+    schema:
+      required_fields:
+        - "openapi or graphql version"
+        - "info.title"
+        - "info.version"
+        - "paths or types"
+      optional_fields:
+        - "servers"
+        - "security schemes"
+        - "examples"
+    format: "yaml or graphql"
+    validation: "openapi-validator or graphql-validator"
+    flows_in:
+      - flow: "packaging"
+        from: II
+        to: III
+      - flow: "exposure"
+        from: III
+        to: V
+
+  # Documentation artifacts
+  public-api-doc:
+    id: "public-api-doc"
+    category: "documentation"
+    description: "Developer-facing API documentation."
+    schema:
+      required_fields:
+        - "overview"
+        - "authentication"
+        - "endpoints/operations"
+        - "error codes"
+      optional_fields:
+        - "quickstart"
+        - "tutorials"
+        - "SDKexamples"
+    format: "markdown or redoc"
+    flows_in:
+      - flow: "exposure"
+        from: III
+        to: V
+
+  contributor-guide:
+    id: "contributor-guide"
+    category: "documentation"
+    description: "Guide for community contributors."
+    schema:
+      required_fields:
+        - "getting_started"
+        - "development_setup"
+        - "contribution_process"
+        - "code_of_conduct_reference"
+      optional_fields:
+        - "architecture_overview"
+        - "good_first_issues"
+        - "mentorship_program"
+    format: "markdown"
+    flows_in:
+      - flow: "cultivation"
+        from: V
+        to: VI
+
+  # Metrics artifacts
+  test-results:
+    id: "test-results"
+    category: "metrics"
+    description: "Automated test execution results."
+    schema:
+      required_fields:
+        - "test_suite"
+        - "pass_count"
+        - "fail_count"
+        - "coverage_percentage"
+      optional_fields:
+        - "performance_benchmarks"
+        - "regression_details"
+    format: "json or junit-xml"
+    flows_in:
+      - flow: "packaging"
+        gate: "version-freeze"
+
+  analytics-report:
+    id: "analytics-report"
+    category: "metrics"
+    description: "Usage and engagement metrics."
+    schema:
+      required_fields:
+        - "period"
+        - "key_metrics"
+        - "trends"
+      optional_fields:
+        - "segments"
+        - "anomalies"
+        - "recommendations"
+    format: "json or markdown"
+    flows_in:
+      - flow: "feedback"
+        from: VII
+        to: I
+
+  # Content artifacts
+  success-story:
+    id: "success-story"
+    category: "content"
+    description: "Community or user success story for marketing."
+    schema:
+      required_fields:
+        - "title"
+        - "summary"
+        - "challenge"
+        - "solution"
+        - "outcome"
+      optional_fields:
+        - "quotes"
+        - "metrics"
+        - "media_assets"
+    format: "markdown"
+    flows_in:
+      - flow: "amplification"
+        from: VI
+        to: VII
+
+  market-signal:
+    id: "market-signal"
+    category: "content"
+    description: "Synthesized market feedback for strategic planning."
+    schema:
+      required_fields:
+        - "signal_type"
+        - "source"
+        - "summary"
+        - "relevance_score"
+      optional_fields:
+        - "supporting_data"
+        - "recommended_actions"
+        - "urgency"
+    format: "yaml or json"
+    flows_in:
+      - flow: "feedback"
+        from: VII
+        to: I
+
+  grant-application:
+    id: "grant-application"
+    category: "content"
+    description: "Grant or prize submission package."
+    schema:
+      required_fields:
+        - "grant_name"
+        - "submission_deadline"
+        - "project_description"
+        - "budget"
+        - "team"
+      optional_fields:
+        - "supporting_materials"
+        - "letters_of_support"
+        - "previous_work"
+    format: "varies by grant"
+    flows_in:
+      - internal to VII
+    flows_out:
+      - external submission
+
+# Artifact lifecycle
+lifecycle:
+  states:
+    - id: "draft"
+      description: "Work in progress, not ready for flow."
+    - id: "review"
+      description: "Ready for review before gate check."
+    - id: "approved"
+      description: "Passed gate, ready to flow."
+    - id: "published"
+      description: "Delivered to destination organ."
+    - id: "archived"
+      description: "No longer active, preserved for reference."
+
+  transitions:
+    - from: "draft"
+      to: "review"
+      trigger: "author-submit"
+    - from: "review"
+      to: "approved"
+      trigger: "gate-pass"
+    - from: "review"
+      to: "draft"
+      trigger: "gate-fail"
+    - from: "approved"
+      to: "published"
+      trigger: "flow-execute"
+    - from: "published"
+      to: "archived"
+      trigger: "superseded"

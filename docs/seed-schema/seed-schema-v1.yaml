@@ -1,0 +1,73 @@
+version: 1
+
+project:
+  name: "omni-dromenon-machina"
+  codename: "universal-orchestrator"
+  description: "The central nervous system of the 4jp Metasystem."
+  owners:
+    - handle: "4jp"
+      role: "architect"
+  repo:
+    monorepo: false
+    package_manager: "npm"
+    type: "orchestrator"
+
+domain:
+  problem_statement: >
+    Coordinate autonomous development, real-time artistic performance, and
+    metasystem health across 7+ distributed repositories.
+  personas:
+    - id: "watchman"
+      description: "Autonomous process that monitors drift and dispatches agents."
+
+architecture:
+  style: "microservices"
+  tech_stack:
+    backend: "Node.js 20 (Express)"
+    frontend: "React 18 (Vite)"
+    infra: "Google Cloud Run"
+    database: "Redis"
+
+coding_standards:
+  language: "TypeScript"
+  style:
+    formatter: "prettier"
+    linter: "eslint"
+
+growth_objectives:
+  roadmap_epics:
+    - id: "dreamcatcher-v1"
+      title: "Asynchronous Sovereignty"
+      description: "Enable the system to self-repair and grow while the operator sleeps."
+      modules: ["core-engine/src/dreamcatcher"]
+
+dreamcatcher:
+  enabled: true
+  schedule: "continuous"
+  budget:
+    max_loops: 50
+    max_files_touched: 10
+  providers:
+    architect: "claude-3-5-sonnet"
+    builder: "gpt-4o"
+    critic: "gemini-1.5-pro"
+
+automation_contract:
+  ai_access:
+    read_paths: ["core-engine/src/**", "performance-sdk/src/**"]
+    write_paths: ["core-engine/src/dreamcatcher/**"]
+    disallowed_writes: ["4jp-metasystem.yaml", ".env"]
+
+knowledge_graph:
+  enabled: true
+  db_path: "/Users/4jp/.metasystem/metastore.db"
+  auto_index: true
+  integration:
+    query_before_work: true      # Agents check KG for past solutions
+    log_decisions: true           # Log all architectural decisions
+    log_file_changes: true        # Track all file modifications
+    cross_project_learning: true  # Learn from patterns in other projects
+  documentation:
+    auto_generate: true
+    output_dir: "/Users/4jp/Documents"
+    update_frequency: "daily"    # daily | weekly | on_change

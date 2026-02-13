@@ -1,0 +1,161 @@
+name: Essay Monitor
+
+# Watches ORGAN-V public-process for new essays and surfaces them
+# for distribution coordination. Creates an issue per new essay
+# with the ready-to-distribute label to trigger distribute-content.yml.
+
+on:
+  schedule:
+    # Daily at 09:00 UTC
+    - cron: '0 9 * * *'
+  workflow_dispatch:
+
+jobs:
+  monitor:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      issues: write
+
+    steps:
+      - name: Checkout orchestration hub
+        uses: actions/checkout@v4
+
+      - name: Setup Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+
+      - name: Check for new essays
+        env:
+          GH_TOKEN: ${{ secrets.CROSS_ORG_TOKEN || secrets.GITHUB_TOKEN }}
+        run: |
+          python3 << 'ESSAY_MONITOR'
+          import json
+          import os
+          import subprocess
+          import sys
+          from datetime import datetime, timedelta
+
+          def gh_api(endpoint):
+              result = subprocess.run(
+                  ['gh', 'api', endpoint],
+                  capture_output=True, text=True
+              )
+              if result.returncode != 0:
+                  return None
+              try:
+                  return json.loads(result.stdout)
+              except json.JSONDecodeError:
+                  return None
+
+          def get_existing_essay_issues():
+              """Get titles of existing essay-monitor issues to avoid duplicates."""
+              issues = gh_api('repos/organvm-iv-taxis/orchestration-start-here/issues?labels=essay-detected&state=all&per_page=100')
+              if not issues:
+                  return set()
+              return {i.get('title', '') for i in issues}
+
+          def create_issue(title, body, labels):
+              """Create a GitHub issue."""
+              cmd = ['gh', 'issue', 'create', '--title', title, '--body', body]
+              for label in labels:
+                  cmd.extend(['--label', label])
+              result = subprocess.run(cmd, capture_output=True, text=True)
+              return result.returncode == 0, result.stdout.strip()
+
+          # Fetch _posts directory listing from ORGAN-V
+          posts = gh_api('repos/organvm-v-logos/public-process/contents/_posts')
+          if not posts:
+              print("Could not fetch _posts from public-process. Using GITHUB_TOKEN may lack cross-org access.")
+              print("Set CROSS_ORG_TOKEN secret for cross-org monitoring.")
+              sys.exit(0)
+
+          # Parse essay metadata
+          now = datetime.utcnow()
+          lookback_days = 7  # Check essays from last 7 days
+          cutoff = now - timedelta(days=lookback_days)
+
+          essays = []
+          for post in posts:
+              name = post.get('name', '')
+              if not name.endswith('.md'):
+                  continue
+              # Parse date from filename: YYYY-MM-DD-title.md
+              parts = name.split('-', 3)
+              if len(parts) < 4:
+                  continue
+              try:
+                  post_date = datetime(int(parts[0]), int(parts[1]), int(parts[2]))
+              except (ValueError, IndexError):
+                  continue
+
+              if post_date >= cutoff:
+                  # Extract human-readable title
+                  slug = parts[3].replace('.md', '').replace('-', ' ').title()
+                  essays.append({
+                      'filename': name,
+                      'date': post_date.strftime('%Y-%m-%d'),
+                      'title': slug,
+                      'url': f"https://organvm-v-logos.github.io/public-process/{post_date.strftime('%Y/%m/%d')}/{parts[3].replace('.md', '')}/",
+                      'github_url': post.get('html_url', ''),
+                  })
+
+          if not essays:
+              print(f"No new essays in the last {lookback_days} days.")
+              sys.exit(0)
+
+          # Check which essays we've already surfaced
+          existing = get_existing_essay_issues()
+          new_essays = [e for e in essays if f"Essay Detected: {e['title']}" not in existing]
+
+          if not new_essays:
+              print(f"Found {len(essays)} recent essays, all already tracked.")
+              sys.exit(0)
+
+          print(f"Found {len(new_essays)} new essays to surface.")
+
+          # Ensure labels exist
+          for label_name in ['essay-detected', 'ready-to-distribute']:
+              subprocess.run(
+                  ['gh', 'label', 'create', label_name, '--color', '0E8A16',
+                   '--description', f'Auto-created by essay-monitor'],
+                  capture_output=True, text=True
+              )
+
+          # Create issues for new essays
+          created = 0
+          for essay in new_essays:
+              title = f"Essay Detected: {essay['title']}"
+              body = f"""## New Essay Published
+
+**Title:** {essay['title']}
+**Date:** {essay['date']}
+**URL:** {essay['url']}
+**Source:** [{essay['filename']}]({essay['github_url']})
+
+### Distribution Checklist
+
+- [ ] Review essay content
+- [ ] Prepare social media excerpt (280 chars)
+- [ ] Add `ready-to-distribute` label to trigger POSSE distribution
+- [ ] Verify Mastodon post
+- [ ] Verify Discord notification
+
+### Auto-Generated Context
+
+This issue was created by the essay-monitor agent. Adding the `ready-to-distribute` label will trigger the distribute-content workflow.
+
+---
+*Generated by essay-monitor.yml (AUTONOMY Sprint Phase E)*"""
+
+              ok, url = create_issue(title, body, ['essay-detected'])
+              if ok:
+                  print(f"  Created: {title} → {url}")
+                  created += 1
+              else:
+                  print(f"  Failed: {title}")
+
+          print(f"\nCreated {created}/{len(new_essays)} essay issues.")
+
+          ESSAY_MONITOR

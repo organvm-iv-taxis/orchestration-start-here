@@ -1,0 +1,126 @@
+# /Users/4jp/Workspace/omni-dromenon-machina/4jp-metasystem.yaml
+
+version: 1
+name: "4jp-metasystem"
+description: >
+  Meta-system for autonomous development orchestration.
+  omni-dromenon-machina orchestrates development across managed workspaces.
+
+components:
+  orchestrator:
+    name: "omni-dromenon-machina"
+    path: "./omni-dromenon-machina"
+    type: "autonomous-orchestrator"
+    capabilities:
+      - "multi-agent-development"
+      - "github-integration"
+      - "project-scaffolding"
+      - "code-generation"
+      - "quality-enforcement"
+
+  workspaces:
+    - name: "life-my--midst--in"
+      path: "../../life-my--midst--in"
+      type: "monorepo"
+      status: "active"
+      remote_org: "ivviiviivvi" # The Alchemist (Identity)
+      genome: "../../life-my--midst--in/seed.yaml"
+      orchestration:
+        enabled: true
+        agent_access: true
+        ci_integration: true
+      tech_stack:
+        - "typescript"
+        - "next.js"
+        - "postgresql"
+        - "neo4j"
+      dependencies:
+        - "omni-dromenon-machina"
+
+    - name: "gamified-coach-interface"
+      path: "../../gamified-coach-interface"
+      type: "web-app"
+      status: "active"
+      remote_org: "labores-profani-crux" # The Guild (Strategy)
+      genome: "../../gamified-coach-interface/seed.yaml"
+      description: "Gamified fitness coaching platform with 3D interface"
+      tech_stack:
+        - "react"
+        - "vite"
+        - "three.js"
+        - "python"
+      dependencies:
+        - "omni-dromenon-machina"
+
+    - name: "my--father-mother"
+      path: "../../my--father-mother"
+      type: "tool"
+      status: "active"
+      remote_org: "4444JPP" # The Origin (Ancestry)
+      genome: "../../my--father-mother/seed.yaml"
+      description: "Local clipboard manager and memory augmentation"
+      tech_stack:
+        - "python"
+        - "sqlite"
+
+    - name: "mail_automation"
+      path: "../../mail_automation"
+      type: "automation"
+      status: "active"
+      remote_org: "4444JPP" # The Origin (Personal Comms)
+      genome: "../../mail_automation/seed.yaml"
+      description: "Gmail automation and labeling scripts"
+      tech_stack:
+        - "python"
+        - "applescript"
+
+    - name: "trade-perpetual-future"
+      path: "../../trade-perpetual-future"
+      type: "web-dapp"
+      status: "production"
+      remote_org: "labores-profani-crux" # The Guild (Resource)
+      genome: "../../trade-perpetual-future/seed.yaml"
+      description: "Solana-based perpetual futures trading platform"
+      tech_stack:
+        - "react"
+        - "solana"
+        - "drift-protocol"
+      dependencies:
+        - "omni-dromenon-machina"
+
+    - name: "enterprise-plugin"
+      path: "../../enterprise-plugin"
+      type: "plugin"
+      status: "active"
+      description: "Example plugin for enterprise capabilities"
+      tech_stack:
+        - "typescript"
+
+    - name: "mcp-servers"
+      path: "../../mcp-servers"
+      type: "infrastructure"
+      status: "active"
+      description: "Local Model Context Protocol servers"
+      tech_stack:
+        - "javascript"
+
+relationships:
+  - source: "omni-dromenon-machina"
+    target: "life-my--midst--in"
+    relationship: "orchestrates"
+    description: "Autonomous multi-agent development and maintenance"
+
+  - source: "omni-dromenon-machina"
+    target: "gamified-coach-interface"
+    relationship: "monitors"
+    description: "Performance tracking and strategic analysis"
+
+  - source: "omni-dromenon-machina"
+    target: "trade-perpetual-future"
+    relationship: "monitors"
+    description: "Security and uptime monitoring"
+
+metadata:
+  created: "2025-12-27"
+  owner: "4jp"
+  purpose: "Autonomous identity system development ecosystem"

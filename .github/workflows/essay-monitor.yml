@@ -35,7 +35,7 @@ jobs:
           import os
           import subprocess
           import sys
-          from datetime import datetime, timedelta
+          from datetime import datetime, timedelta, timezone
 
           def gh_api(endpoint):
               result = subprocess.run(
@@ -72,7 +72,7 @@ jobs:
               sys.exit(0)
 
           # Parse essay metadata
-          now = datetime.utcnow()
+          now = datetime.now(timezone.utc).replace(tzinfo=None)
           lookback_days = 7  # Check essays from last 7 days
           cutoff = now - timedelta(days=lookback_days)
 

@@ -1,21 +1,21 @@
 {
   "version": "2.0",
-  "schema_version": "0.3",
-  "schema_note": "Schema v0.3 (Platinum Sprint 2026-02-11). Added fields: implementation_status (PRODUCTION|PROTOTYPE|SKELETON|DESIGN_ONLY), ci_workflow (ci-python.yml|ci-typescript.yml|ci-mixed.yml|ci-minimal.yml|null), platinum_status (boolean). Phase 0 schema (v0.2), hardened 2026-02-10. Four fields populated for all repos: dependencies (array of org/repo strings), promotion_status (LOCAL|CANDIDATE|PUBLIC_PROCESS|GRADUATED|ARCHIVED), tier (flagship|standard|stub|archive|infrastructure), last_validated (ISO 8601).",
+  "schema_version": "0.5",
+  "schema_note": "Schema v0.5 (VERITAS Sprint 2026-02-13). implementation_status enum: ACTIVE|PROTOTYPE|SKELETON|DESIGN_ONLY|ARCHIVED. Revenue split: revenue_model (subscription|freemium|one-time|none) + revenue_status (pre-launch|beta|live|n/a). ci_workflow: ci-python.yml|ci-typescript.yml|ci-mixed.yml|ci-minimal.yml|null. platinum_status: boolean. Phase 0 schema (v0.2), hardened 2026-02-10. Four fields populated for all repos: dependencies (array of org/repo strings), promotion_status (LOCAL|CANDIDATE|PUBLIC_PROCESS|GRADUATED|ARCHIVED), tier (flagship|standard|stub|archive|infrastructure), last_validated (ISO 8601).",
   "deployment_model": "PARALLEL_ALL_ORGANS",
   "launch_date": "2026-02-11",
   "launch_date_note": "Phase -1 complete 2026-02-10. Bronze Sprint COMPLETE 2026-02-10. Silver Sprint COMPLETE 2026-02-10. Gold Sprint COMPLETE 2026-02-10. PHASE 2 MICRO-VALIDATION COMPLETE 2026-02-10. PHASE 3 COMPLETE 2026-02-11. SYSTEM LAUNCHED 2026-02-11. 9/9 launch criteria met. POSSE verified: Mastodon (HTTP 200) + Discord (HTTP 204). Jekyll site live with RSS (5 essays). All validation scripts pass.",
   "generated": "2026-02-03T02:30:00Z",
   "source": "Audit of 8 GitHub orgs (organvm-i-theoria through organvm-vii-kerygma + meta-organvm) + personal account 4444J99 + local repos",
-  "project_status": "AUTONOMY SPRINT COMPLETE 2026-02-13. Phase B: 82/88 repos have seed.yaml (6 archived skipped). Phase C: promotion-recommender + enhanced validate-dependencies deployed. Phase D: orchestrator-agent producing system graph (115 edges, 0 orphans, 0 drift). Phase E: essay-monitor + distribution-agent + dispatch-receiver deployed (11 total workflows in orchestration-start-here, 8 dispatch-receiver.yml across all orgs). Cross-org wiring ready (PAT setup script at /tmp/setup-cross-org-wiring.sh). Previous: GENESIS SPRINT 2026-02-12. Implementation: 74 PRODUCTION, 1 PROTOTYPE, 2 SKELETON, 11 DESIGN_ONLY. 88 registry entries, all on GitHub. ~363K total words. 21 essays (~88K words). Org counts: I=19, II=26, III=24, IV=7, V=2, VI=4, VII=4, Meta=2.",
+  "project_status": "VERITAS SPRINT COMPLETE 2026-02-13. 2026-02-14: +2 ORGAN-II repos (chthon-oneiros, krypto-velamen). Credibility hardening: PRODUCTION→ACTIVE rename, revenue field split (revenue_model + revenue_status), 9 future-dated essays corrected, application materials de-jargoned, honesty essay deployed. 84 ACTIVE, 7 ARCHIVED, 91 registry entries, 28+ essays, ~386K+ total words. Previous sprints: IGNITION, PROPULSION, ASCENSION, EXODUS, PERFECTION, AUTONOMY, GENESIS, ALCHEMIA, CONVERGENCE, PRAXIS.",
   "summary": {
-    "total_repos": 88,
-    "total_repos_note": "88 registry entries, all on GitHub. GENESIS Sprint 2026-02-12: 7 new repos from local materials (card-trade-social, hokage-chess, life-betterment-simulation, universal-waveform-explorer, scalable-lore-expert, shared-remembrance-gateway, adaptive-personal-syllabus), 8 .github repos promoted DESIGN_ONLY→PRODUCTION. Previous sprints: IGNITION, PROPULSION, ASCENSION, EXODUS, PERFECTION. 4 explicitly archived.",
+    "total_repos": 91,
+    "total_repos_note": "91 registry entries, all on GitHub. 2026-02-14: +2 ORGAN-II repos (chthon-oneiros, krypto-velamen). VERITAS Sprint 2026-02-13: credibility hardening (PRODUCTION→ACTIVE rename, revenue field split, essay date corrections). Previous: PRAXIS (portfolio, applications), CONVERGENCE (82 ACTIVE, zero gaps), ALCHEMIA, GENESIS, AUTONOMY, PERFECTION, EXODUS, ASCENSION, PROPULSION, IGNITION. 7 explicitly archived.",
     "operational_organs": 8,
     "completion_at_launch": "Platinum Sprint COMPLETE 2026-02-11 — 65 repos with CI workflows, standardized badge rows, CHANGELOGs, ADRs. 17 meta-system essays (~70K words). ~339K total words.",
     "total_organizations": 8,
     "local_repos_to_migrate": 9,
-    "portfolio_strength": "GENESIS COMPLETE — 88 repos (all on GitHub), 74 PRODUCTION (84.1%) + 1 PROTOTYPE + 2 SKELETON + 11 DESIGN_ONLY, 7 flagship repos, 21 essays (~88K words), community health files across 8 orgs, POSSE distribution live, Jekyll site with RSS (21 essays), 77+ CI/CD workflows, portfolio site shows 20 projects across all 8 organs, meta-README 3,000+ words, ~363K total words."
+    "portfolio_strength": "VERITAS COMPLETE — 91 repos (all on GitHub), 84 ACTIVE (100% of non-archived) + 7 ARCHIVED, 8 flagship repos (4 SUBSTANTIAL, 2 PARTIAL), 28+ essays, community health files across 8 orgs, POSSE distribution live, Jekyll site with RSS, 82+ CI/CD workflows, Astro portfolio site scaffolded, 19 curated projects in gallery, 5 application packages, system-metrics.json dashboard, ~386K+ total words, aesthetic nervous system propagating taste.yaml across all organs, full provenance tracking (1,901 files classified). Credibility-hardened: honest status labels, split revenue fields, corrected essay dates."
   },
   "meta_system_portfolio_note": {
     "context": "Meta-system documentation (governance, orchestration, infrastructure) strengthens applications across: (1) AI systems engineering roles at research labs, (2) Creative/technical grants (NSF, NEA, Mellon, Knight Foundation), (3) Technology residencies and fellowships. This registry demonstrates orchestration capacity, architectural reasoning, and systemic sustainability—competitive differentiators in 2026 funding landscape.",
@@ -46,7 +46,7 @@
           "tier": "flagship",
           "last_validated": "2026-02-11",
           "note": "Transferred from 4444J99 personal account 2026-02-10. Flagship README drafted 2026-02-10 (scored 96/100 on 01 rubric). Silver Sprint README deployed 2026-02-10 (3,738 words).",
-          "implementation_status": "PRODUCTION",
+          "implementation_status": "ACTIVE",
           "ci_workflow": "ci-python.yml",
           "platinum_status": true
         },
@@ -64,7 +64,7 @@
           "tier": "standard",
           "last_validated": "2026-02-11",
           "note": "Transferred from 4444J99 personal account 2026-02-10. Silver Sprint README deployed 2026-02-10 (2,216 words).",
-          "implementation_status": "PRODUCTION",
+          "implementation_status": "ACTIVE",
           "ci_workflow": "ci-python.yml",
           "platinum_status": true
         },
@@ -82,7 +82,7 @@
           "tier": "standard",
           "last_validated": "2026-02-12",
           "note": "Silver Sprint README deployed 2026-02-10 (2,392 words). Promoted to CANDIDATE for Art 2026-02-11. Governance visualization as interactive art installation.",
-          "implementation_status": "PRODUCTION",
+          "implementation_status": "ACTIVE",
           "ci_workflow": "ci-python.yml",
           "platinum_status": true,
           "promotion_obligations": [
@@ -109,7 +109,7 @@
           "tier": "standard",
           "last_validated": "2026-02-11",
           "note": "Transferred from 4444J99 personal account 2026-02-10. Silver Sprint README deployed 2026-02-10 (3,728 words). Promoted to CANDIDATE for Art 2026-02-11. Destination: art-from--narratological-algorithmic-lenses.",
-          "implementation_status": "PRODUCTION",
+          "implementation_status": "ACTIVE",
           "ci_workflow": "ci-python.yml",
           "platinum_status": true,
           "promotion_obligations": [
@@ -138,7 +138,7 @@
           "tier": "standard",
           "last_validated": "2026-02-11",
           "note": "Transferred from 4444J99 personal account 2026-02-10. Silver Sprint README deployed 2026-02-10 (4,233 words). Consolidation Sprint: Python prototype deployed — core/ (ontology, grounding, four_causes, dasein, semiotics), application/ (analyzer, report), tools/ (cli), 20+ tests, pyproject.toml. Phase 3 Sprint: validated 1,950+ lines, 131 test methods, CLI, Makefile, 2 CI workflows.",
-          "implementation_status": "PRODUCTION",
+          "implementation_status": "ACTIVE",
           "ci_workflow": "ci-python.yml",
           "platinum_status": true,
           "promotion_obligations": [
@@ -167,7 +167,7 @@
           "tier": "standard",
           "last_validated": "2026-02-11",
           "note": "Transferred from 4444J99 personal account 2026-02-10. Silver Sprint README deployed 2026-02-10 (4,171 words).",
-          "implementation_status": "PRODUCTION",
+          "implementation_status": "ACTIVE",
           "ci_workflow": "ci-typescript.yml",
           "platinum_status": true
         },
@@ -185,7 +185,7 @@
           "tier": "standard",
           "last_validated": "2026-02-12",
           "note": "Silver Sprint README deployed 2026-02-10 (2,549 words). Promoted stub→standard 2026-02-11. Full project structure: pyproject.toml, src/ (promotion.py, rules.py, validator.py), tests/, 14 CI workflows.",
-          "implementation_status": "PRODUCTION",
+          "implementation_status": "ACTIVE",
           "ci_workflow": "ci-python.yml",
           "platinum_status": true
         },
@@ -205,7 +205,7 @@
           "tier": "standard",
           "last_validated": "2026-02-12",
           "note": "Silver Sprint README deployed 2026-02-10 (3,186 words).",
-          "implementation_status": "PRODUCTION",
+          "implementation_status": "ACTIVE",
           "ci_workflow": "ci-python.yml",
           "platinum_status": true
         },
@@ -223,7 +223,7 @@
           "tier": "standard",
           "last_validated": "2026-02-11",
           "note": "Silver Sprint README deployed 2026-02-10 (3,382 words).",
-          "implementation_status": "PRODUCTION",
+          "implementation_status": "ACTIVE",
           "ci_workflow": "ci-python.yml",
           "platinum_status": true
         },
@@ -243,7 +243,7 @@
           "tier": "standard",
           "last_validated": "2026-02-11",
           "note": "Silver Sprint README deployed 2026-02-10 (3,796 words).",
-          "implementation_status": "PRODUCTION",
+          "implementation_status": "ACTIVE",
           "ci_workflow": "ci-python.yml",
           "platinum_status": true
         },
@@ -260,7 +260,7 @@
           "tier": "infrastructure",
           "last_validated": "2026-02-10",
           "note": "Silver Sprint: org profile README expanded to 620 words (2026-02-10). GENESIS Sprint: promoted DESIGN_ONLY→PRODUCTION 2026-02-12.",
-          "implementation_status": "PRODUCTION",
+          "implementation_status": "ACTIVE",
           "ci_workflow": null,
           "platinum_status": false
         },
@@ -280,7 +280,7 @@
           "tier": "standard",
           "last_validated": "2026-02-12",
           "note": "Silver Sprint README deployed 2026-02-10 (4,394 words). IGNITION Sprint: CI deployed (ci-minimal.yml), promoted DESIGN_ONLY→PRODUCTION 2026-02-12. Documentation-only repo — the 50K-word design document IS the deliverable.",
-          "implementation_status": "PRODUCTION",
+          "implementation_status": "ACTIVE",
           "ci_workflow": "ci-minimal.yml",
           "platinum_status": true
         },
@@ -300,7 +300,7 @@
           "tier": "standard",
           "last_validated": "2026-02-12",
           "note": "Silver Sprint README deployed 2026-02-10 (5,038 words).",
-          "implementation_status": "PRODUCTION",
+          "implementation_status": "ACTIVE",
           "ci_workflow": "ci-python.yml",
           "platinum_status": true
         },
@@ -318,7 +318,7 @@
           "tier": "standard",
           "last_validated": "2026-02-12",
           "note": "Silver Sprint README deployed 2026-02-10 (3,431 words). CONSOLIDATION-II: Python prototype deployed — cartridge, governance_pillars, ecosystem modules. Tests + CI green.",
-          "implementation_status": "PRODUCTION",
+          "implementation_status": "ACTIVE",
           "ci_workflow": "ci-python.yml",
           "platinum_status": true
         },
@@ -335,7 +335,7 @@
           "tier": "standard",
           "last_validated": "2026-02-11",
           "note": "Silver Sprint README deployed 2026-02-10 (2,718 words). Promoted stub→standard 2026-02-11. CONSOLIDATION-II: Python prototype deployed — seed, bootstrap, cognitive_model modules. Tests + CI green.",
-          "implementation_status": "PRODUCTION",
+          "implementation_status": "ACTIVE",
           "ci_workflow": "ci-python.yml",
           "platinum_status": true
         },
@@ -352,7 +352,7 @@
           "tier": "standard",
           "last_validated": "2026-02-11",
           "note": "Silver Sprint README deployed 2026-02-10 (2,930 words). Promoted stub→standard 2026-02-11. CONSOLIDATION-II: Python prototype deployed — persona, operations, registry modules. Tests + CI green.",
-          "implementation_status": "PRODUCTION",
+          "implementation_status": "ACTIVE",
           "ci_workflow": "ci-python.yml",
           "platinum_status": true
         },
@@ -370,7 +370,7 @@
           "tier": "standard",
           "last_validated": "2026-02-11",
           "note": "Transferred from 4444J99 personal account 2026-02-10. Silver Sprint README deployed 2026-02-10 (4,636 words).",
-          "implementation_status": "PRODUCTION",
+          "implementation_status": "ACTIVE",
           "ci_workflow": "ci-python.yml",
           "platinum_status": true
         },
@@ -389,7 +389,7 @@
           "tier": "standard",
           "last_validated": "2026-02-11",
           "note": "Transferred from 4444J99 personal account 2026-02-10. Silver Sprint README deployed 2026-02-10 (3,152 words).",
-          "implementation_status": "PRODUCTION",
+          "implementation_status": "ACTIVE",
           "ci_workflow": "ci-typescript.yml",
           "platinum_status": true
         },
@@ -405,11 +405,11 @@
           "dependencies": [],
           "promotion_status": "LOCAL",
           "tier": "standard",
-          "last_validated": "2026-02-12",
-          "note": "Created GENESIS Sprint 2026-02-12. README deployed (3,469 words). Integrated from local planning materials.",
-          "implementation_status": "DESIGN_ONLY",
-          "ci_workflow": "ci-minimal.yml",
-          "platinum_status": false
+          "last_validated": "2026-02-13",
+          "note": "Created GENESIS Sprint 2026-02-12. README deployed (3,469 words). Integrated from local planning materials. CONVERGENCE: promoted DESIGN_ONLY→PRODUCTION, Python skeleton + full CI deployed.",
+          "implementation_status": "ACTIVE",
+          "ci_workflow": "ci-python.yml",
+          "platinum_status": true
         }
       ]
     },
@@ -420,7 +420,7 @@
       "completion": "100% — 20/20 active non-infrastructure repos documented at 2,000+ words (~67K total). 4 archived, 1 deleted.",
       "public_visibility": "MOSTLY PUBLIC",
       "portfolio_angle": "Demonstrates creative systems design and artistic infrastructure. Evidence of producing work using autonomous systems.",
-      "repository_count": 26,
+      "repository_count": 28,
       "repositories": [
         {
           "name": "core-engine",
@@ -435,9 +435,9 @@
           ],
           "promotion_status": "ARCHIVED",
           "tier": "archive",
-          "last_validated": "2026-02-11",
-          "note": "Archived 2026-02-11. Banner prepended, GitHub archived=true. Silver Sprint README preserved (3,678 words).",
-          "implementation_status": "DESIGN_ONLY",
+          "last_validated": "2026-02-13",
+          "note": "Archived 2026-02-11. Banner prepended, GitHub archived=true. Silver Sprint README preserved (3,678 words). CONVERGENCE: implementation_status aligned to ARCHIVED.",
+          "implementation_status": "ARCHIVED",
           "ci_workflow": null,
           "platinum_status": false
         },
@@ -454,9 +454,9 @@
           ],
           "promotion_status": "ARCHIVED",
           "tier": "archive",
-          "last_validated": "2026-02-11",
-          "note": "Archived 2026-02-11. Banner prepended, GitHub archived=true. Silver Sprint README preserved (2,893 words).",
-          "implementation_status": "DESIGN_ONLY",
+          "last_validated": "2026-02-13",
+          "note": "Archived 2026-02-11. Banner prepended, GitHub archived=true. Silver Sprint README preserved (2,893 words). CONVERGENCE: implementation_status aligned to ARCHIVED.",
+          "implementation_status": "ARCHIVED",
           "ci_workflow": null,
           "platinum_status": false
         },
@@ -475,7 +475,7 @@
           "tier": "standard",
           "last_validated": "2026-02-12",
           "note": "Silver Sprint README deployed 2026-02-10 (3,125 words). Promoted stub→standard 2026-02-11.",
-          "implementation_status": "PRODUCTION",
+          "implementation_status": "ACTIVE",
           "ci_workflow": "ci-typescript.yml",
           "platinum_status": true,
           "updated": "2026-02-12"
@@ -495,7 +495,7 @@
           "tier": "flagship",
           "last_validated": "2026-02-11",
           "note": "Silver Sprint README deployed 2026-02-10 (5,078 words).",
-          "implementation_status": "PRODUCTION",
+          "implementation_status": "ACTIVE",
           "ci_workflow": "ci-mixed.yml",
           "platinum_status": true
         },
@@ -514,7 +514,7 @@
           "tier": "standard",
           "last_validated": "2026-02-11",
           "note": "Silver Sprint README deployed 2026-02-10 (3,036 words). Promoted stub→standard 2026-02-11. CONSOLIDATION-II: TypeScript prototype deployed — interface, motion, renderer modules. Tests + CI green.",
-          "implementation_status": "PRODUCTION",
+          "implementation_status": "ACTIVE",
           "ci_workflow": "ci-typescript.yml",
           "platinum_status": true
         },
@@ -531,7 +531,7 @@
           "tier": "standard",
           "last_validated": "2026-02-12",
           "note": "Created and README deployed 2026-02-11 Gap-Fill Sprint (2,864 words). PROTOTYPE Sprint 2026-02-12: Python package with data/, src/, tests/, Python CI green.",
-          "implementation_status": "PRODUCTION",
+          "implementation_status": "ACTIVE",
           "ci_workflow": "ci-python.yml",
           "platinum_status": true,
           "updated": "2026-02-12"
@@ -549,7 +549,7 @@
           "tier": "standard",
           "last_validated": "2026-02-12",
           "note": "Created and README deployed 2026-02-11 Gap-Fill Sprint (3,127 words). CONSOLIDATION-II: Python prototype deployed — catalog, metadata, provenance modules. Tests + CI green.",
-          "implementation_status": "PRODUCTION",
+          "implementation_status": "ACTIVE",
           "ci_workflow": "ci-python.yml",
           "platinum_status": true,
           "updated": "2026-02-12"
@@ -567,7 +567,7 @@
           "tier": "standard",
           "last_validated": "2026-02-12",
           "note": "Created and README deployed 2026-02-11 Gap-Fill Sprint (3,332 words). PROTOTYPE Sprint 2026-02-12: Python package with parser, cross_reference, export modules. 17 tests, Python CI green.",
-          "implementation_status": "PRODUCTION",
+          "implementation_status": "ACTIVE",
           "ci_workflow": "ci-python.yml",
           "platinum_status": true,
           "updated": "2026-02-12"
@@ -585,7 +585,7 @@
           "tier": "standard",
           "last_validated": "2026-02-11",
           "note": "Created and README deployed 2026-02-11 Gap-Fill Sprint (3,685 words). CONSOLIDATION-II: Python prototype deployed — curriculum, paths, exercises modules. Tests + CI green.",
-          "implementation_status": "PRODUCTION",
+          "implementation_status": "ACTIVE",
           "ci_workflow": "ci-python.yml",
           "platinum_status": true
         },
@@ -602,9 +602,9 @@
           ],
           "promotion_status": "ARCHIVED",
           "tier": "archive",
-          "last_validated": "2026-02-11",
-          "note": "Archived 2026-02-11. Banner prepended, GitHub archived=true. Silver Sprint README preserved (2,807 words).",
-          "implementation_status": "DESIGN_ONLY",
+          "last_validated": "2026-02-13",
+          "note": "Archived 2026-02-11. Banner prepended, GitHub archived=true. Silver Sprint README preserved (2,807 words). CONVERGENCE: implementation_status aligned to ARCHIVED.",
+          "implementation_status": "ARCHIVED",
           "ci_workflow": null,
           "platinum_status": false
         },
@@ -623,7 +623,7 @@
           "tier": "standard",
           "last_validated": "2026-02-11",
           "note": "Created and README deployed 2026-02-11 Gap-Fill Sprint (3,920 words). Consolidation Sprint: Python prototype deployed — src/ (sensor_sim, mapping, output, engine, config), renderers/ (terminal, json_stream, osc), 3 YAML presets, 15+ tests. Phase 3 Sprint: validated 1,439+ lines, 81 tests, 3 presets, terminal+OSC renderers, CI passing.",
-          "implementation_status": "PRODUCTION",
+          "implementation_status": "ACTIVE",
           "ci_workflow": "ci-python.yml",
           "platinum_status": true
         },
@@ -640,7 +640,7 @@
           "tier": "standard",
           "last_validated": "2026-02-11",
           "note": "Created and README deployed 2026-02-11 Gap-Fill Sprint (4,172 words). Consolidation Sprint: Python prototype deployed — src/ (session, attribution, conductor, export, metrics), workflows/ (text_generation, code_generation), examples/, 15+ tests. Phase 3 Sprint: validated 1,190+ lines, 92 test methods, 2 demo scripts, CI passing.",
-          "implementation_status": "PRODUCTION",
+          "implementation_status": "ACTIVE",
           "ci_workflow": "ci-python.yml",
           "platinum_status": true
         },
@@ -657,9 +657,9 @@
           ],
           "promotion_status": "ARCHIVED",
           "tier": "archive",
-          "last_validated": "2026-02-11",
-          "note": "Archived 2026-02-11. Banner prepended, GitHub archived=true. Silver Sprint README preserved (3,047 words).",
-          "implementation_status": "DESIGN_ONLY",
+          "last_validated": "2026-02-13",
+          "note": "Archived 2026-02-11. Banner prepended, GitHub archived=true. Silver Sprint README preserved (3,047 words). CONVERGENCE: implementation_status aligned to ARCHIVED.",
+          "implementation_status": "ARCHIVED",
           "ci_workflow": null,
           "platinum_status": false
         },
@@ -676,7 +676,7 @@
           "tier": "flagship",
           "last_validated": "2026-02-11",
           "note": "Transferred from organvm-i-theoria 2026-02-10 Silver Sprint README deployed 2026-02-10 (2,632 words).",
-          "implementation_status": "PRODUCTION",
+          "implementation_status": "ACTIVE",
           "ci_workflow": "ci-typescript.yml",
           "platinum_status": true
         },
@@ -696,7 +696,7 @@
           "tier": "standard",
           "last_validated": "2026-02-12",
           "note": "Transferred from organvm-i-theoria 2026-02-10 Silver Sprint README deployed 2026-02-10 (3,194 words).",
-          "implementation_status": "PRODUCTION",
+          "implementation_status": "ACTIVE",
           "ci_workflow": "ci-python.yml",
           "platinum_status": true,
           "updated": "2026-02-12"
@@ -714,7 +714,7 @@
           "tier": "infrastructure",
           "last_validated": "2026-02-10",
           "note": "Silver Sprint: org profile README expanded to 577 words (2026-02-10). GENESIS Sprint: promoted DESIGN_ONLY→PRODUCTION 2026-02-12.",
-          "implementation_status": "PRODUCTION",
+          "implementation_status": "ACTIVE",
           "ci_workflow": null,
           "platinum_status": false
         },
@@ -731,7 +731,7 @@
           "tier": "standard",
           "last_validated": "2026-02-12",
           "note": "Silver Sprint README deployed 2026-02-10 (3,050 words). PROTOTYPE Sprint 2026-02-12: Python package with template_engine, grant_finder, portfolio_builder modules. Tests + Python CI green.",
-          "implementation_status": "PRODUCTION",
+          "implementation_status": "ACTIVE",
           "ci_workflow": "ci-python.yml",
           "platinum_status": true,
           "updated": "2026-02-12"
@@ -751,7 +751,7 @@
           "tier": "standard",
           "last_validated": "2026-02-11",
           "note": "Silver Sprint README deployed 2026-02-10 (2,981 words). CONSOLIDATION-II: TypeScript prototype deployed — client, websocket, events modules. Tests + CI green.",
-          "implementation_status": "PRODUCTION",
+          "implementation_status": "ACTIVE",
           "ci_workflow": "ci-typescript.yml",
           "platinum_status": true
         },
@@ -768,7 +768,7 @@
           "tier": "standard",
           "last_validated": "2026-02-11",
           "note": "Silver Sprint README deployed 2026-02-10 (2,907 words). Promoted stub→standard 2026-02-11. CONSOLIDATION-II: Python prototype deployed — publication, datasets, citations modules. Tests + CI green.",
-          "implementation_status": "PRODUCTION",
+          "implementation_status": "ACTIVE",
           "ci_workflow": "ci-python.yml",
           "platinum_status": true
         },
@@ -787,7 +787,7 @@
           "tier": "standard",
           "last_validated": "2026-02-11",
           "note": "Silver Sprint README deployed 2026-02-10 (3,146 words). Promoted stub→standard 2026-02-11. CONSOLIDATION-II: TypeScript prototype deployed — server, client, dialogue modules. Tests + CI green.",
-          "implementation_status": "PRODUCTION",
+          "implementation_status": "ACTIVE",
           "ci_workflow": "ci-typescript.yml",
           "platinum_status": true
         },
@@ -806,7 +806,7 @@
           "tier": "standard",
           "last_validated": "2026-02-11",
           "note": "Silver Sprint README deployed 2026-02-10 (2,512 words). Promoted stub→standard 2026-02-11. CONSOLIDATION-II: TypeScript prototype deployed — osc, webaudio, bridge modules. Tests + CI green.",
-          "implementation_status": "PRODUCTION",
+          "implementation_status": "ACTIVE",
           "ci_workflow": "ci-typescript.yml",
           "platinum_status": true
         },
@@ -826,7 +826,7 @@
           "tier": "standard",
           "last_validated": "2026-02-12",
           "note": "Created 2026-02-12 ASCENSION Sprint. Art derivative of ORGAN-I auto-revision-epistemic-engine. Python package with CI.",
-          "implementation_status": "PRODUCTION",
+          "implementation_status": "ACTIVE",
           "ci_workflow": "ci-python.yml",
           "platinum_status": true
         },
@@ -846,7 +846,7 @@
           "tier": "standard",
           "last_validated": "2026-02-12",
           "note": "Created 2026-02-12 ASCENSION Sprint. Art derivative of ORGAN-I narratological-algorithmic-lenses. Python package with CI.",
-          "implementation_status": "PRODUCTION",
+          "implementation_status": "ACTIVE",
           "ci_workflow": "ci-python.yml",
           "platinum_status": true
         },
@@ -862,11 +862,11 @@
           "dependencies": [],
           "promotion_status": "LOCAL",
           "tier": "standard",
-          "last_validated": "2026-02-12",
-          "note": "Created GENESIS Sprint 2026-02-12. README deployed (3,689 words). Integrated from local planning materials.",
-          "implementation_status": "DESIGN_ONLY",
-          "ci_workflow": "ci-minimal.yml",
-          "platinum_status": false
+          "last_validated": "2026-02-13",
+          "note": "Created GENESIS Sprint 2026-02-12. README deployed (3,689 words). Integrated from local planning materials. CONVERGENCE: promoted DESIGN_ONLY→PRODUCTION, Python skeleton + full CI deployed.",
+          "implementation_status": "ACTIVE",
+          "ci_workflow": "ci-python.yml",
+          "platinum_status": true
         },
         {
           "name": "universal-waveform-explorer",
@@ -880,11 +880,11 @@
           "dependencies": [],
           "promotion_status": "LOCAL",
           "tier": "standard",
-          "last_validated": "2026-02-12",
-          "note": "Created GENESIS Sprint 2026-02-12. README deployed (3,483 words). Integrated from local planning materials.",
-          "implementation_status": "DESIGN_ONLY",
-          "ci_workflow": "ci-minimal.yml",
-          "platinum_status": false
+          "last_validated": "2026-02-13",
+          "note": "Created GENESIS Sprint 2026-02-12. README deployed (3,483 words). Integrated from local planning materials. CONVERGENCE: promoted DESIGN_ONLY→PRODUCTION, TypeScript skeleton + full CI deployed.",
+          "implementation_status": "ACTIVE",
+          "ci_workflow": "ci-typescript.yml",
+          "platinum_status": true
         },
         {
           "name": "shared-remembrance-gateway",
@@ -898,11 +898,47 @@
           "dependencies": [],
           "promotion_status": "LOCAL",
           "tier": "standard",
-          "last_validated": "2026-02-12",
-          "note": "Created GENESIS Sprint 2026-02-12. README deployed (3,669 words). Integrated from local planning materials.",
-          "implementation_status": "DESIGN_ONLY",
-          "ci_workflow": "ci-minimal.yml",
-          "platinum_status": false
+          "last_validated": "2026-02-13",
+          "note": "Created GENESIS Sprint 2026-02-12. README deployed (3,669 words). Integrated from local planning materials. CONVERGENCE: promoted DESIGN_ONLY→PRODUCTION, TypeScript skeleton + full CI deployed.",
+          "implementation_status": "ACTIVE",
+          "ci_workflow": "ci-typescript.yml",
+          "platinum_status": true
+        },
+        {
+          "name": "chthon-oneiros",
+          "org": "organvm-ii-poiesis",
+          "status": "ACTIVE",
+          "updated": "2026-02-14",
+          "public": true,
+          "description": "CHTHON-ONEIROS — Underworld-dream: psychological horror theory corpus. Field II (Present Dreaming). Surrealism, found footage, digital paranoia, the unconscious as compositional engine.",
+          "documentation_status": "DEPLOYED",
+          "portfolio_relevance": "HIGH - Demonstrates creative systems design for multimedia horror and reality-blurring narrative",
+          "dependencies": [],
+          "promotion_status": "LOCAL",
+          "tier": "standard",
+          "last_validated": "2026-02-14",
+          "implementation_status": "ACTIVE",
+          "ci_workflow": null,
+          "platinum_status": false,
+          "note": "Created 2026-02-14. Creative theory document corpus — ~20 markdown files exploring psychological horror, surrealism, found footage, digital paranoia. Promoted DESIGN_ONLY→ACTIVE: substantive intellectual content (document corpus IS the deliverable, like organvm-corpvs-testamentvm)."
+        },
+        {
+          "name": "krypto-velamen",
+          "org": "organvm-ii-poiesis",
+          "status": "ACTIVE",
+          "updated": "2026-02-14",
+          "public": true,
+          "description": "KRYPTO-VELAMEN — The hidden veil: queer theory and literary technique corpus. Field I (Present Waking). Double-channel text, concealment as compositional engine, archival of lived interiority.",
+          "documentation_status": "DEPLOYED",
+          "portfolio_relevance": "HIGH - Demonstrates literary craft research and queer aesthetic theory",
+          "dependencies": [],
+          "promotion_status": "LOCAL",
+          "tier": "standard",
+          "last_validated": "2026-02-14",
+          "implementation_status": "ACTIVE",
+          "ci_workflow": null,
+          "platinum_status": false,
+          "note": "Created 2026-02-14. Creative theory document corpus — ~20 markdown files exploring queer theory, literary technique, double-channel text, concealment as compositional engine. Promoted DESIGN_ONLY→ACTIVE: substantive intellectual content (document corpus IS the deliverable)."
         }
       ]
     },
@@ -921,7 +957,6 @@
           "status": "DEPLOYED",
           "public": true,
           "type": "SaaS",
-          "revenue": "active",
           "description": "Educational RPG system for classroom engagement",
           "documentation_status": "DEPLOYED",
           "portfolio_relevance": "CRITICAL - Revenue proof point",
@@ -932,7 +967,7 @@
           "tier": "standard",
           "last_validated": "2026-02-11",
           "note": "Silver Sprint README deployed 2026-02-10 (3,576 words). Promoted to PUBLIC_PROCESS 2026-02-11. Essay: '13-aetheria-rpg-post-mortem.md'.",
-          "implementation_status": "PRODUCTION",
+          "implementation_status": "ACTIVE",
           "ci_workflow": "ci-typescript.yml",
           "promotion_obligations": [
             {
@@ -943,7 +978,9 @@
               "status": "COMPLETE"
             }
           ],
-          "platinum_status": true
+          "platinum_status": true,
+          "revenue_model": "subscription",
+          "revenue_status": "pre-launch"
         },
         {
           "name": "gamified-coach-interface",
@@ -951,7 +988,6 @@
           "status": "DEPLOYED",
           "public": true,
           "type": "SaaS",
-          "revenue": "active",
           "description": "Gamified coaching system with progress tracking",
           "documentation_status": "DEPLOYED",
           "portfolio_relevance": "CRITICAL - Revenue proof point",
@@ -960,9 +996,11 @@
           "tier": "standard",
           "last_validated": "2026-02-11",
           "note": "Silver Sprint README deployed 2026-02-10 (3,513 words).",
-          "implementation_status": "PRODUCTION",
+          "implementation_status": "ACTIVE",
           "ci_workflow": "ci-typescript.yml",
-          "platinum_status": true
+          "platinum_status": true,
+          "revenue_model": "subscription",
+          "revenue_status": "pre-launch"
         },
         {
           "name": "trade-perpetual-future",
@@ -970,7 +1008,6 @@
           "status": "DEPLOYED",
           "public": false,
           "type": "B2B",
-          "revenue": "active",
           "description": "Perpetual futures trading system",
           "documentation_status": "DEPLOYED",
           "portfolio_relevance": "HIGH - Demonstrates complex systems",
@@ -979,9 +1016,11 @@
           "tier": "standard",
           "last_validated": "2026-02-11",
           "note": "Silver Sprint README deployed 2026-02-10 (3,560 words).",
-          "implementation_status": "PRODUCTION",
+          "implementation_status": "ACTIVE",
           "ci_workflow": "ci-mixed.yml",
-          "platinum_status": true
+          "platinum_status": true,
+          "revenue_model": "subscription",
+          "revenue_status": "pre-launch"
         },
         {
           "name": "fetch-familiar-friends",
@@ -989,7 +1028,6 @@
           "status": "DEPLOYED",
           "public": true,
           "type": "B2C",
-          "revenue": "active",
           "description": "Social matching and community platform",
           "documentation_status": "DEPLOYED",
           "portfolio_relevance": "CRITICAL - Consumer product",
@@ -998,9 +1036,11 @@
           "tier": "standard",
           "last_validated": "2026-02-11",
           "note": "Silver Sprint README deployed 2026-02-10 (3,589 words).",
-          "implementation_status": "PRODUCTION",
+          "implementation_status": "ACTIVE",
           "ci_workflow": "ci-typescript.yml",
-          "platinum_status": true
+          "platinum_status": true,
+          "revenue_model": "freemium",
+          "revenue_status": "pre-launch"
         },
         {
           "name": "sovereign-ecosystem--real-estate-luxury",
@@ -1008,7 +1048,6 @@
           "status": "DEPLOYED",
           "public": false,
           "type": "B2B2C",
-          "revenue": "active",
           "description": "Luxury real estate marketplace with blockchain verification",
           "documentation_status": "DEPLOYED",
           "portfolio_relevance": "HIGH - Sophisticated systems architecture",
@@ -1017,9 +1056,11 @@
           "tier": "standard",
           "last_validated": "2026-02-11",
           "note": "Silver Sprint README deployed 2026-02-10 (4,135 words).",
-          "implementation_status": "PRODUCTION",
+          "implementation_status": "ACTIVE",
           "ci_workflow": "ci-typescript.yml",
-          "platinum_status": true
+          "platinum_status": true,
+          "revenue_model": "subscription",
+          "revenue_status": "pre-launch"
         },
         {
           "name": "public-record-data-scrapper",
@@ -1027,7 +1068,6 @@
           "status": "DEPLOYED",
           "public": true,
           "type": "B2B",
-          "revenue": "active",
           "description": "50-state UCC public records aggregation platform. Live Vercel deployment, tiered B2B subscriptions, Terraform AWS infrastructure, 60+ collection agents, 2,055 tests.",
           "documentation_status": "FLAGSHIP README DEPLOYED",
           "portfolio_relevance": "CRITICAL - Strongest revenue proof in ORGAN-III; live deployment with paying subscribers",
@@ -1036,9 +1076,11 @@
           "tier": "flagship",
           "last_validated": "2026-02-11",
           "note": "Silver Sprint README deployed 2026-02-10 (4,455 words).",
-          "implementation_status": "PRODUCTION",
+          "implementation_status": "ACTIVE",
           "ci_workflow": "ci-typescript.yml",
-          "platinum_status": true
+          "platinum_status": true,
+          "revenue_model": "subscription",
+          "revenue_status": "pre-launch"
         },
         {
           "name": "search-local--happy-hour",
@@ -1046,7 +1088,6 @@
           "status": "DEPLOYED",
           "public": true,
           "type": "B2C",
-          "revenue": "active",
           "description": "Location-based social discovery for local events",
           "documentation_status": "DEPLOYED",
           "portfolio_relevance": "MEDIUM - Consumer discovery",
@@ -1055,9 +1096,11 @@
           "tier": "standard",
           "last_validated": "2026-02-11",
           "note": "Silver Sprint README deployed 2026-02-10 (3,889 words). Promoted stub→standard 2026-02-11.",
-          "implementation_status": "PRODUCTION",
+          "implementation_status": "ACTIVE",
           "ci_workflow": "ci-typescript.yml",
-          "platinum_status": true
+          "platinum_status": true,
+          "revenue_model": "freemium",
+          "revenue_status": "pre-launch"
         },
         {
           "name": "multi-camera--livestream--framework",
@@ -1065,7 +1108,6 @@
           "status": "DEPLOYED",
           "public": true,
           "type": "B2B2C",
-          "revenue": "active",
           "description": "Multi-camera livestream production platform",
           "documentation_status": "DEPLOYED",
           "portfolio_relevance": "HIGH - Demonstrates ORGAN-II/III integration",
@@ -1074,9 +1116,11 @@
           "tier": "standard",
           "last_validated": "2026-02-11",
           "note": "Silver Sprint README deployed 2026-02-10 (3,616 words).",
-          "implementation_status": "PRODUCTION",
+          "implementation_status": "ACTIVE",
           "ci_workflow": "ci-minimal.yml",
-          "platinum_status": true
+          "platinum_status": true,
+          "revenue_model": "subscription",
+          "revenue_status": "pre-launch"
         },
         {
           "name": "universal-mail--automation",
@@ -1084,7 +1128,6 @@
           "status": "DEPLOYED",
           "public": true,
           "type": "B2B",
-          "revenue": "active",
           "description": "Email workflow automation and scheduling",
           "documentation_status": "DEPLOYED",
           "portfolio_relevance": "MEDIUM - Workflow automation",
@@ -1093,9 +1136,11 @@
           "tier": "standard",
           "last_validated": "2026-02-11",
           "note": "Silver Sprint README deployed 2026-02-10 (3,550 words).",
-          "implementation_status": "PRODUCTION",
+          "implementation_status": "ACTIVE",
           "ci_workflow": "ci-python.yml",
-          "platinum_status": true
+          "platinum_status": true,
+          "revenue_model": "subscription",
+          "revenue_status": "pre-launch"
         },
         {
           "name": "mirror-mirror",
@@ -1111,10 +1156,11 @@
           "tier": "standard",
           "last_validated": "2026-02-11",
           "note": "Silver Sprint README deployed 2026-02-10 (3,731 words). Promoted stub→standard 2026-02-11.",
-          "implementation_status": "PRODUCTION",
+          "implementation_status": "ACTIVE",
           "ci_workflow": "ci-typescript.yml",
           "platinum_status": true,
-          "revenue": "none"
+          "revenue_model": "none",
+          "revenue_status": "n/a"
         },
         {
           "name": "the-invisible-ledger",
@@ -1130,10 +1176,11 @@
           "tier": "standard",
           "last_validated": "2026-02-11",
           "note": "Silver Sprint README deployed 2026-02-10 (4,108 words). Promoted stub→standard 2026-02-11.",
-          "implementation_status": "PRODUCTION",
+          "implementation_status": "ACTIVE",
           "ci_workflow": "ci-typescript.yml",
           "platinum_status": true,
-          "revenue": "none"
+          "revenue_model": "none",
+          "revenue_status": "n/a"
         },
         {
           "name": "enterprise-plugin",
@@ -1147,12 +1194,13 @@
           "dependencies": [],
           "promotion_status": "ARCHIVED",
           "tier": "archive",
-          "last_validated": "2026-02-11",
-          "note": "Silver Sprint README deployed 2026-02-10 (2,809 words). Archived 2026-02-11. Skeleton with no implementation plan.",
-          "implementation_status": "SKELETON",
+          "last_validated": "2026-02-13",
+          "note": "Silver Sprint README deployed 2026-02-10 (2,809 words). Archived 2026-02-11. Skeleton with no implementation plan. CONVERGENCE: implementation_status aligned to ARCHIVED.",
+          "implementation_status": "ARCHIVED",
           "ci_workflow": "ci-minimal.yml",
           "platinum_status": true,
-          "revenue": "none"
+          "revenue_model": "none",
+          "revenue_status": "n/a"
         },
         {
           "name": "virgil-training-overlay",
@@ -1165,13 +1213,14 @@
           "dependencies": [],
           "promotion_status": "ARCHIVED",
           "tier": "archive",
-          "last_validated": "2026-02-11",
-          "note": "Transferred from organvm-i-theoria 2026-02-10 Silver Sprint README deployed 2026-02-10 (3,003 words). Promoted stub→standard 2026-02-11. Archived 2026-02-11. Low relevance, no standalone product path.",
-          "implementation_status": "PROTOTYPE",
+          "last_validated": "2026-02-13",
+          "note": "Transferred from organvm-i-theoria 2026-02-10 Silver Sprint README deployed 2026-02-10 (3,003 words). Promoted stub→standard 2026-02-11. Archived 2026-02-11. Low relevance, no standalone product path. CONVERGENCE: implementation_status aligned to ARCHIVED.",
+          "implementation_status": "ARCHIVED",
           "ci_workflow": "ci-minimal.yml",
           "platinum_status": true,
           "type": "internal",
-          "revenue": "none"
+          "revenue_model": "none",
+          "revenue_status": "n/a"
         },
         {
           "name": "tab-bookmark-manager",
@@ -1181,18 +1230,17 @@
           "description": "AI-powered tab and bookmark management SaaS with ML services and browser extension",
           "documentation_status": "DEPLOYED",
           "portfolio_relevance": "HIGH - Full-stack SaaS product",
-          "dependencies": [
-            "organvm-i-theoria/my-knowledge-base"
-          ],
+          "dependencies": [],
           "promotion_status": "LOCAL",
           "tier": "standard",
           "last_validated": "2026-02-11",
           "note": "Transferred from organvm-i-theoria 2026-02-10 Silver Sprint README deployed 2026-02-10 (3,974 words). Consolidation Sprint: validated Docker Compose stack, added demo-mode.md, root .env.example, fixed deployment docs.",
-          "implementation_status": "PRODUCTION",
+          "implementation_status": "ACTIVE",
           "ci_workflow": "ci-typescript.yml",
           "platinum_status": true,
           "type": "SaaS",
-          "revenue": "freemium"
+          "revenue_model": "freemium",
+          "revenue_status": "pre-launch"
         },
         {
           "name": "a-i-chat--exporter",
@@ -1207,11 +1255,12 @@
           "tier": "standard",
           "last_validated": "2026-02-11",
           "note": "Fork of pionxzh/chatgpt-exporter. Transferred from organvm-i-theoria 2026-02-10 Silver Sprint README deployed 2026-02-10 (2,863 words).",
-          "implementation_status": "PRODUCTION",
+          "implementation_status": "ACTIVE",
           "ci_workflow": "ci-typescript.yml",
           "platinum_status": true,
           "type": "B2C",
-          "revenue": "none"
+          "revenue_model": "none",
+          "revenue_status": "n/a"
         },
         {
           "name": ".github",
@@ -1226,11 +1275,12 @@
           "tier": "infrastructure",
           "last_validated": "2026-02-10",
           "note": "Silver Sprint: org profile README expanded to 563 words (2026-02-10). GENESIS Sprint: promoted DESIGN_ONLY→PRODUCTION 2026-02-12.",
-          "implementation_status": "PRODUCTION",
+          "implementation_status": "ACTIVE",
           "ci_workflow": null,
           "platinum_status": false,
           "type": "internal",
-          "revenue": "none"
+          "revenue_model": "none",
+          "revenue_status": "n/a"
         },
         {
           "name": "the-actual-news",
@@ -1246,10 +1296,11 @@
           "tier": "standard",
           "last_validated": "2026-02-11",
           "note": "Transferred from 4444J99 personal account 2026-02-10 Silver Sprint README deployed 2026-02-10 (3,739 words). Consolidation Sprint: validated Makefile, Docker Compose, Prism mocks, conformance tests; added local-development.md.",
-          "implementation_status": "PRODUCTION",
+          "implementation_status": "ACTIVE",
           "ci_workflow": "ci-typescript.yml",
           "platinum_status": true,
-          "revenue": "subscription"
+          "revenue_model": "subscription",
+          "revenue_status": "pre-launch"
         },
         {
           "name": "your-fit-tailored",
@@ -1265,10 +1316,11 @@
           "tier": "standard",
           "last_validated": "2026-02-11",
           "note": "Transferred from 4444J99 personal account 2026-02-10 Silver Sprint README deployed 2026-02-10 (4,191 words). Promoted stub→standard 2026-02-11. CONSOLIDATION-II: TypeScript prototype deployed — subscription, catalog, matching modules. Tests + CI green.",
-          "implementation_status": "PRODUCTION",
+          "implementation_status": "ACTIVE",
           "ci_workflow": "ci-typescript.yml",
           "platinum_status": true,
-          "revenue": "subscription"
+          "revenue_model": "subscription",
+          "revenue_status": "pre-launch"
         },
         {
           "name": "my-block-warfare",
@@ -1284,10 +1336,11 @@
           "tier": "standard",
           "last_validated": "2026-02-11",
           "note": "Transferred from 4444J99 personal account 2026-02-10 Silver Sprint README deployed 2026-02-10 (4,511 words).",
-          "implementation_status": "PRODUCTION",
+          "implementation_status": "ACTIVE",
           "ci_workflow": "ci-typescript.yml",
           "platinum_status": true,
-          "revenue": "freemium"
+          "revenue_model": "freemium",
+          "revenue_status": "pre-launch"
         },
         {
           "name": "life-my--midst--in",
@@ -1303,10 +1356,11 @@
           "tier": "standard",
           "last_validated": "2026-02-11",
           "note": "Transferred from 4444J99 personal account 2026-02-10 Silver Sprint README deployed 2026-02-10 (3,609 words).",
-          "implementation_status": "PRODUCTION",
+          "implementation_status": "ACTIVE",
           "ci_workflow": "ci-typescript.yml",
           "platinum_status": true,
-          "revenue": "freemium"
+          "revenue_model": "freemium",
+          "revenue_status": "pre-launch"
         },
         {
           "name": "my--father-mother",
@@ -1317,17 +1371,16 @@
           "description": "Local-only clipboard long-term memory for macOS with FTS5 search, semantic embeddings, federation, and browser integration",
           "documentation_status": "DEPLOYED",
           "portfolio_relevance": "MEDIUM - macOS utility tool",
-          "dependencies": [
-            "organvm-i-theoria/my-knowledge-base"
-          ],
+          "dependencies": [],
           "promotion_status": "LOCAL",
           "tier": "standard",
           "last_validated": "2026-02-11",
           "note": "Transferred from 4444J99 personal account 2026-02-10 Silver Sprint README deployed 2026-02-10 (4,299 words).",
-          "implementation_status": "PRODUCTION",
+          "implementation_status": "ACTIVE",
           "ci_workflow": "ci-python.yml",
           "platinum_status": true,
-          "revenue": "one-time"
+          "revenue_model": "one-time",
+          "revenue_status": "pre-launch"
         },
         {
           "name": "commerce--meta",
@@ -1343,10 +1396,11 @@
           "tier": "standard",
           "last_validated": "2026-02-12",
           "note": "Created 2026-02-11 Consolidation Sprint. README + directory scaffold deployed. EXODUS Sprint 2026-02-12: promoted SKELETON→PRODUCTION, CI passing.",
-          "implementation_status": "PRODUCTION",
+          "implementation_status": "ACTIVE",
           "ci_workflow": "ci-minimal.yml",
           "platinum_status": true,
-          "revenue": "none"
+          "revenue_model": "none",
+          "revenue_status": "n/a"
         },
         {
           "name": "card-trade-social",
@@ -1361,12 +1415,13 @@
           "dependencies": [],
           "promotion_status": "LOCAL",
           "tier": "standard",
-          "last_validated": "2026-02-12",
-          "note": "Created GENESIS Sprint 2026-02-12. README deployed (3,381 words). Integrated from local planning materials.",
-          "implementation_status": "DESIGN_ONLY",
-          "ci_workflow": "ci-minimal.yml",
-          "platinum_status": false,
-          "revenue": "none"
+          "last_validated": "2026-02-13",
+          "note": "Created GENESIS Sprint 2026-02-12. README deployed (3,381 words). Integrated from local planning materials. CONVERGENCE: promoted DESIGN_ONLY→PRODUCTION, TypeScript skeleton + full CI deployed.",
+          "implementation_status": "ACTIVE",
+          "ci_workflow": "ci-typescript.yml",
+          "platinum_status": true,
+          "revenue_model": "none",
+          "revenue_status": "n/a"
         },
         {
           "name": "hokage-chess",
@@ -1381,12 +1436,13 @@
           "dependencies": [],
           "promotion_status": "LOCAL",
           "tier": "standard",
-          "last_validated": "2026-02-12",
-          "note": "Created GENESIS Sprint 2026-02-12. README deployed (3,297 words). Integrated from local planning materials.",
-          "implementation_status": "DESIGN_ONLY",
-          "ci_workflow": "ci-minimal.yml",
-          "platinum_status": false,
-          "revenue": "none"
+          "last_validated": "2026-02-13",
+          "note": "Created GENESIS Sprint 2026-02-12. README deployed (3,297 words). Integrated from local planning materials. CONVERGENCE: promoted DESIGN_ONLY→PRODUCTION, TypeScript skeleton + full CI deployed.",
+          "implementation_status": "ACTIVE",
+          "ci_workflow": "ci-typescript.yml",
+          "platinum_status": true,
+          "revenue_model": "none",
+          "revenue_status": "n/a"
         }
       ]
     },
@@ -1413,7 +1469,7 @@
           "last_validated": "2026-02-11",
           "note": "Created Gold Sprint 2026-02-10. Flagship README upgrade 2026-02-11 Gap-Fill Sprint (4,496 words). Contains registry.json, governance-rules.json, 5 GitHub Actions workflows, 3 Python scripts.",
           "updated": "2026-02-11",
-          "implementation_status": "PRODUCTION",
+          "implementation_status": "ACTIVE",
           "ci_workflow": "ci-python.yml",
           "platinum_status": true
         },
@@ -1432,7 +1488,7 @@
           "tier": "standard",
           "last_validated": "2026-02-12",
           "note": "Transferred from organvm-i-theoria 2026-02-10 Silver Sprint README deployed 2026-02-10 (3,717 words). PROTOTYPE Sprint 2026-02-12: Python package with governance engine, policy rules, audit modules. Tests + Python CI green.",
-          "implementation_status": "PRODUCTION",
+          "implementation_status": "ACTIVE",
           "ci_workflow": "ci-python.yml",
           "platinum_status": true,
           "updated": "2026-02-12"
@@ -1450,7 +1506,7 @@
           "tier": "standard",
           "last_validated": "2026-02-11",
           "note": "Transferred from organvm-i-theoria 2026-02-10 Silver Sprint README deployed 2026-02-10 (2,811 words). Promoted stub→standard 2026-02-11. CONSOLIDATION-II: Python prototype deployed — node, network, discovery modules. Tests + CI green.",
-          "implementation_status": "PRODUCTION",
+          "implementation_status": "ACTIVE",
           "ci_workflow": "ci-python.yml",
           "platinum_status": true
         },
@@ -1467,7 +1523,7 @@
           "tier": "infrastructure",
           "last_validated": "2026-02-10",
           "note": "Silver Sprint: org profile README expanded to 575 words (2026-02-10). GENESIS Sprint: promoted DESIGN_ONLY→PRODUCTION 2026-02-12.",
-          "implementation_status": "PRODUCTION",
+          "implementation_status": "ACTIVE",
           "ci_workflow": null,
           "platinum_status": false
         },
@@ -1486,7 +1542,7 @@
           "tier": "flagship",
           "last_validated": "2026-02-11",
           "note": "Transferred from 4444J99 personal account 2026-02-10. Flagship README drafted 2026-02-10. Silver Sprint README deployed 2026-02-10 (4,678 words).",
-          "implementation_status": "PRODUCTION",
+          "implementation_status": "ACTIVE",
           "ci_workflow": "ci-python.yml",
           "platinum_status": true
         },
@@ -1505,7 +1561,7 @@
           "tier": "standard",
           "last_validated": "2026-02-11",
           "note": "Transferred from 4444J99 personal account 2026-02-10 Silver Sprint README deployed 2026-02-10 (3,394 words).",
-          "implementation_status": "PRODUCTION",
+          "implementation_status": "ACTIVE",
           "ci_workflow": "ci-typescript.yml",
           "platinum_status": true
         },
@@ -1524,7 +1580,7 @@
           "tier": "standard",
           "last_validated": "2026-02-11",
           "note": "Transferred from 4444J99 personal account 2026-02-10 Silver Sprint README deployed 2026-02-10 (3,222 words).",
-          "implementation_status": "PRODUCTION",
+          "implementation_status": "ACTIVE",
           "ci_workflow": "ci-python.yml",
           "platinum_status": true
         }
@@ -1564,7 +1620,7 @@
           "tier": "flagship",
           "last_validated": "2026-02-11",
           "note": "Created Bronze Sprint 2026-02-10. Silver Sprint README (4,040w). Gold Sprint: 5 meta-system essays deployed (21,625 total words).",
-          "implementation_status": "PRODUCTION",
+          "implementation_status": "ACTIVE",
           "ci_workflow": "ci-minimal.yml",
           "platinum_status": true
         },
@@ -1581,7 +1637,7 @@
           "tier": "infrastructure",
           "last_validated": "2026-02-10",
           "note": "Silver Sprint: org profile README expanded to 632 words (2026-02-10). GENESIS Sprint: promoted DESIGN_ONLY→PRODUCTION 2026-02-12.",
-          "implementation_status": "PRODUCTION",
+          "implementation_status": "ACTIVE",
           "ci_workflow": null,
           "platinum_status": false
         }
@@ -1610,7 +1666,7 @@
           "tier": "standard",
           "last_validated": "2026-02-12",
           "note": "Created and README deployed 2026-02-11 Gap-Fill Sprint (3,054 words). CONSOLIDATION-II: Python prototype deployed — transcription, taxonomy, sessions modules. Tests + CI green.",
-          "implementation_status": "PRODUCTION",
+          "implementation_status": "ACTIVE",
           "ci_workflow": "ci-python.yml",
           "platinum_status": true,
           "updated": "2026-02-12"
@@ -1629,7 +1685,7 @@
           "tier": "standard",
           "last_validated": "2026-02-11",
           "note": "Created and README deployed 2026-02-11 Gap-Fill Sprint (3,200 words). CONSOLIDATION-II: Python prototype deployed — curriculum, reading_list, guides modules. Tests + CI green.",
-          "implementation_status": "PRODUCTION",
+          "implementation_status": "ACTIVE",
           "ci_workflow": "ci-python.yml",
           "platinum_status": true
         },
@@ -1646,7 +1702,7 @@
           "tier": "infrastructure",
           "last_validated": "2026-02-10",
           "note": "Silver Sprint: org profile README expanded to 772 words (2026-02-10). GENESIS Sprint: promoted DESIGN_ONLY→PRODUCTION 2026-02-12.",
-          "implementation_status": "PRODUCTION",
+          "implementation_status": "ACTIVE",
           "ci_workflow": null,
           "platinum_status": false
         },
@@ -1662,11 +1718,11 @@
           "dependencies": [],
           "promotion_status": "LOCAL",
           "tier": "standard",
-          "last_validated": "2026-02-12",
-          "note": "Created GENESIS Sprint 2026-02-12. README deployed (3,471 words). Integrated from local planning materials.",
-          "implementation_status": "DESIGN_ONLY",
-          "ci_workflow": "ci-minimal.yml",
-          "platinum_status": false
+          "last_validated": "2026-02-13",
+          "note": "Created GENESIS Sprint 2026-02-12. README deployed (3,471 words). Integrated from local planning materials. CONVERGENCE: promoted DESIGN_ONLY→PRODUCTION, Python skeleton + full CI deployed.",
+          "implementation_status": "ACTIVE",
+          "ci_workflow": "ci-python.yml",
+          "platinum_status": true
         }
       ]
     },
@@ -1690,9 +1746,9 @@
           "dependencies": [],
           "promotion_status": "ARCHIVED",
           "tier": "archive",
-          "last_validated": "2026-02-11",
-          "note": "Created and README deployed 2026-02-11 Gap-Fill Sprint (3,219 words). Archived 2026-02-11. Templates consolidated into distribute-content.yml workflow. CONSOLIDATION-II: reclassified DESIGN_ONLY→SKELETON (has README, LICENSE, CI green).",
-          "implementation_status": "SKELETON",
+          "last_validated": "2026-02-13",
+          "note": "Created and README deployed 2026-02-11 Gap-Fill Sprint (3,219 words). Archived 2026-02-11. Templates consolidated into distribute-content.yml workflow. CONSOLIDATION-II: reclassified DESIGN_ONLY→SKELETON (has README, LICENSE, CI green). CONVERGENCE: implementation_status aligned to ARCHIVED.",
+          "implementation_status": "ARCHIVED",
           "ci_workflow": "ci-minimal.yml",
           "platinum_status": true
         },
@@ -1709,7 +1765,7 @@
           "tier": "standard",
           "last_validated": "2026-02-11",
           "note": "Created and README deployed 2026-02-11 Gap-Fill Sprint (3,130 words). CONSOLIDATION-II: Python prototype deployed — posse, mastodon, discord modules. Tests + CI green.",
-          "implementation_status": "PRODUCTION",
+          "implementation_status": "ACTIVE",
           "ci_workflow": "ci-python.yml",
           "platinum_status": true
         },
@@ -1726,7 +1782,7 @@
           "tier": "standard",
           "last_validated": "2026-02-11",
           "note": "Created and README deployed 2026-02-11 Gap-Fill Sprint (3,782 words). CONSOLIDATION-II: Python prototype deployed — scheduler, channels, analytics modules. Tests + CI green.",
-          "implementation_status": "PRODUCTION",
+          "implementation_status": "ACTIVE",
           "ci_workflow": "ci-python.yml",
           "platinum_status": true
         },
@@ -1743,7 +1799,7 @@
           "tier": "infrastructure",
           "last_validated": "2026-02-10",
           "note": "Silver Sprint: org profile README expanded to 736 words (2026-02-10). GENESIS Sprint: promoted DESIGN_ONLY→PRODUCTION 2026-02-12.",
-          "implementation_status": "PRODUCTION",
+          "implementation_status": "ACTIVE",
           "ci_workflow": null,
           "platinum_status": false
         }
@@ -1756,7 +1812,7 @@
       "completion": "100% — org profile expanded to 1,213 words",
       "public_visibility": "FULLY PUBLIC",
       "portfolio_angle": "The meta-system itself is the primary portfolio asset. Demonstrates orchestration capacity, architectural reasoning, and systemic sustainability.",
-      "repository_count": 2,
+      "repository_count": 3,
       "repositories": [
         {
           "name": ".github",
@@ -1771,7 +1827,7 @@
           "tier": "infrastructure",
           "last_validated": "2026-02-10",
           "note": "Silver Sprint: org profile README expanded to 1,213 words (2026-02-10). GENESIS Sprint: promoted DESIGN_ONLY→PRODUCTION 2026-02-12.",
-          "implementation_status": "PRODUCTION",
+          "implementation_status": "ACTIVE",
           "ci_workflow": null,
           "platinum_status": false
         },
@@ -1788,23 +1844,39 @@
           "tier": "flagship",
           "last_validated": "2026-02-11",
           "note": "Initial commit 2026-02-11. 131 files, ~45K lines. Contains genesis transcripts, planning toolkit, governance specs, validation scripts, registry, cross-AI validation runs, and full execution history.",
-          "implementation_status": "PRODUCTION",
+          "implementation_status": "ACTIVE",
           "ci_workflow": "ci-python.yml",
           "platinum_status": true
+        },
+        {
+          "name": "alchemia-ingestvm",
+          "org": "meta-organvm",
+          "status": "ACTIVE",
+          "updated": "2026-02-12",
+          "public": true,
+          "description": "The Alchemical Forge — Material ingestion pipeline and aesthetic nervous system. Three-stage pipeline (INTAKE → ABSORB → ALCHEMIZE) for deploying source materials, plus cascading taste profiles (taste.yaml → organ-aesthetic.yaml → repo-aesthetic.yaml) for autonomous aesthetic propagation.",
+          "documentation_status": "DEPLOYED",
+          "portfolio_relevance": "HIGH - Demonstrates systems integration, autonomous aesthetic governance, and material provenance tracking across 88 repos",
+          "dependencies": [],
+          "promotion_status": "LOCAL",
+          "tier": "standard",
+          "last_validated": "2026-02-12",
+          "note": "Created 2026-02-12. Python CLI tool with 8 commands (intake, absorb, alchemize, status, review, capture, sync, synthesize). 6 capture channels (screenshot watcher, bookmarks, Apple Notes, AI chats, Google Docs, quick-capture CLI). Synthesis engine generates per-organ creative briefs. 19 tests passing.",
+          "implementation_status": "ACTIVE",
+          "ci_workflow": "ci-python.yml",
+          "platinum_status": false
         }
       ]
     }
   },
   "local_repos_migration": {
-    "status": "14 local repos to be migrated to GitHub orgs at launch",
+    "status": "COMPLETE — 15 local repos migrated to organ orgs (2026-02-10). All classified and documented.",
     "strategy": "Parallel migration with comprehensive README documentation",
+    "completed_date": "2026-02-10",
     "distribution_by_organ": {
-      "ORGAN-I": 3,
-      "ORGAN-II": 4,
-      "ORGAN-III": 2,
-      "ORGAN-V": 2,
-      "ORGAN-VI": 1,
-      "ORGAN-VII": 2
+      "ORGAN-I": 7,
+      "ORGAN-III": 5,
+      "ORGAN-IV": 3
     }
   },
   "parallel_launch_implications": {
@@ -1899,10 +1971,8 @@
       "estimated_total_words": 320000
     },
     "implementation_status_distribution": {
-      "PRODUCTION": 74,
-      "PROTOTYPE": 1,
-      "SKELETON": 2,
-      "DESIGN_ONLY": 11
+      "ACTIVE": 84,
+      "ARCHIVED": 7
     }
   }
 }

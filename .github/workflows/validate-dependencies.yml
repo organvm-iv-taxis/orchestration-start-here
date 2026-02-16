@@ -35,7 +35,7 @@ jobs:
           import os
           import sys
           from collections import defaultdict, deque
-          from datetime import datetime
+          from datetime import datetime, timezone
 
           # Organ ordering — lower index = upstream, higher = downstream
           # Flow allowed: I→II→III only (no back-edges)
@@ -177,7 +177,7 @@ jobs:
           registry = load_registry()
           graph, reverse, all_repos = build_graph(registry)
 
-          now = datetime.utcnow().isoformat() + 'Z'
+          now = datetime.now(timezone.utc).isoformat()
           issues = []
           warnings = []
 

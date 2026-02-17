@@ -1590,10 +1590,10 @@
       "name": "Public Process",
       "description": "Essays, marginalia, process documentation, building in public, RSS/newsletter, audience engagement",
       "launch_status": "OPERATIONAL",
-      "completion": "100% — 1/1 non-infrastructure repo documented (4,040 words) + org profile expanded",
+      "completion": "100% — 5/5 non-infrastructure repos (public-process flagship + essay-pipeline, analytics-engine, editorial-standards, reading-observatory standard). 40 essays, ~130K words. LOGOS Sprint 2026-02-17.",
       "public_visibility": "FULLY PUBLIC",
       "portfolio_angle": "PRIMARY AMPLIFICATION LAYER. Converts meta-system documentation into thought leadership and audience engagement. Essays about the eight-organ system itself become portfolio material. Central for Grant funding (Knight Foundation, Mellon, NEA) and thought leadership positioning.",
-      "repository_count": 2,
+      "repository_count": 6,
       "repositories": [
         {
           "name": "public-process",
@@ -1639,6 +1639,81 @@
           "note": "Silver Sprint: org profile README expanded to 632 words (2026-02-10). GENESIS Sprint: promoted DESIGN_ONLY→PRODUCTION 2026-02-12.",
           "implementation_status": "ACTIVE",
           "ci_workflow": null,
+          "platinum_status": false
+        },
+        {
+          "name": "essay-pipeline",
+          "org": "organvm-v-logos",
+          "status": "ACTIVE",
+          "public": true,
+          "description": "Essay automation engine: monitors, validators, generators, frontmatter schema enforcement for the ORGAN-V discourse layer",
+          "documentation_status": "STANDARD README DEPLOYED",
+          "portfolio_relevance": "HIGH - Autonomous essay pipeline demonstrating CI/CD for content",
+          "dependencies": [
+            "organvm-v-logos/public-process",
+            "organvm-v-logos/editorial-standards"
+          ],
+          "promotion_status": "LOCAL",
+          "tier": "standard",
+          "last_validated": "2026-02-17",
+          "note": "LOGOS Sprint 2026-02-17. Essay monitor, narrator, validator, indexer pipeline.",
+          "implementation_status": "SKELETON",
+          "ci_workflow": "ci-minimal.yml",
+          "platinum_status": false
+        },
+        {
+          "name": "analytics-engine",
+          "org": "organvm-v-logos",
+          "status": "ACTIVE",
+          "public": true,
+          "description": "Engagement tracking: GoatCounter API integration, metrics aggregation, audience dashboards for ORGAN-V",
+          "documentation_status": "STANDARD README DEPLOYED",
+          "portfolio_relevance": "MEDIUM - Privacy-first analytics infrastructure",
+          "dependencies": [
+            "organvm-v-logos/public-process"
+          ],
+          "promotion_status": "LOCAL",
+          "tier": "standard",
+          "last_validated": "2026-02-17",
+          "note": "LOGOS Sprint 2026-02-17. GoatCounter client, aggregator, dashboard generator.",
+          "implementation_status": "SKELETON",
+          "ci_workflow": "ci-minimal.yml",
+          "platinum_status": false
+        },
+        {
+          "name": "editorial-standards",
+          "org": "organvm-v-logos",
+          "status": "ACTIVE",
+          "public": true,
+          "description": "Style guide, voice/tone rules, quality rubrics, essay templates, frontmatter schema spec for ORGAN-V",
+          "documentation_status": "STANDARD README DEPLOYED",
+          "portfolio_relevance": "MEDIUM - Editorial governance as institutional infrastructure",
+          "dependencies": [],
+          "promotion_status": "LOCAL",
+          "tier": "standard",
+          "last_validated": "2026-02-17",
+          "note": "LOGOS Sprint 2026-02-17. Voice guide, structure templates, quality rubric, frontmatter schema.",
+          "implementation_status": "SKELETON",
+          "ci_workflow": "ci-minimal.yml",
+          "platinum_status": false
+        },
+        {
+          "name": "reading-observatory",
+          "org": "organvm-v-logos",
+          "status": "ACTIVE",
+          "public": true,
+          "description": "Curated reading lists, bibliography management, RSS aggregation from relevant external sources for ORGAN-V",
+          "documentation_status": "STANDARD README DEPLOYED",
+          "portfolio_relevance": "MEDIUM - Intellectual context curation for the discourse layer",
+          "dependencies": [
+            "organvm-v-logos/essay-pipeline"
+          ],
+          "promotion_status": "LOCAL",
+          "tier": "standard",
+          "last_validated": "2026-02-17",
+          "note": "LOGOS Sprint 2026-02-17. Bibliographies, OPML feeds, feed aggregator.",
+          "implementation_status": "SKELETON",
+          "ci_workflow": "ci-minimal.yml",
           "platinum_status": false
         }
       ]
@@ -1894,7 +1969,7 @@
     "ORGAN-II": "LOCKED — 20/20 active repos documented + 4 archived + 1 deleted + community health files. Gap-Fill Sprint: 6 new repos created, 5 stubs promoted to standard.",
     "ORGAN-III": "LOCKED — 20/20 repos documented + community health files. 0 broken links, 0 TBD markers.",
     "ORGAN-IV": "LOCKED — 6/6 repos documented + orchestration-start-here + community health files. 0 broken links.",
-    "ORGAN-V": "LOCKED — 1 repo + 5 meta-system essays (21.6K words) + community health files. 0 broken links.",
+    "ORGAN-V": "OPERATIONAL — 6 repos (1 flagship + 4 standard + 1 infrastructure). 40 essays (~130K words). LOGOS Sprint: essay-pipeline, analytics-engine, editorial-standards, reading-observatory created 2026-02-17.",
     "ORGAN-VI": "LOCKED — 2/2 repos documented at 2,000+ words + org profile (772w) + community health files. Gap-Fill Sprint: 2 repos created and documented.",
     "ORGAN-VII": "LOCKED — 3/3 repos documented at 2,000+ words + org profile (736w) + community health files. Gap-Fill Sprint: 3 repos created and documented.",
     "META-ORGANVM": "LOCKED — org profile (1,213w). .github repo confirmed.",

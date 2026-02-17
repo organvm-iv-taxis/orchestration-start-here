@@ -33,6 +33,7 @@ jobs:
           python3 << 'ESSAY_MONITOR'
           import json
           import os
+          import re
           import subprocess
           import sys
           from datetime import datetime, timedelta, timezone
@@ -49,12 +50,51 @@ jobs:
               except json.JSONDecodeError:
                   return None
 
+          def gh_api_raw(endpoint):
+              """Fetch raw content from GitHub API."""
+              result = subprocess.run(
+                  ['gh', 'api', endpoint, '-H', 'Accept: application/vnd.github.raw+json'],
+                  capture_output=True, text=True
+              )
+              if result.returncode != 0:
+                  return None
+              return result.stdout
+
+          def parse_frontmatter(content):
+              """Extract YAML frontmatter from Jekyll markdown."""
+              match = re.match(r'^---\s*\n(.*?)\n---', content, re.DOTALL)
+              if not match:
+                  return {}
+              fm = {}
+              for line in match.group(1).split('\n'):
+                  line = line.strip()
+                  if ':' not in line or line.startswith('#'):
+                      continue
+                  key, _, value = line.partition(':')
+                  key = key.strip()
+                  value = value.strip().strip('"').strip("'")
+                  if value.startswith('[') and value.endswith(']'):
+                      value = [v.strip().strip('"').strip("'") for v in value[1:-1].split(',')]
+                  fm[key] = value
+              return fm
+
           def get_existing_essay_issues():
               """Get titles of existing essay-monitor issues to avoid duplicates."""
-              issues = gh_api('repos/organvm-iv-taxis/orchestration-start-here/issues?labels=essay-detected&state=all&per_page=100')
-              if not issues:
-                  return set()
-              return {i.get('title', '') for i in issues}
+              titles = set()
+              page = 1
+              while True:
+                  issues = gh_api(
+                      f'repos/organvm-iv-taxis/orchestration-start-here/issues'
+                      f'?labels=essay-detected&state=all&per_page=100&page={page}'
+                  )
+                  if not issues:
+                      break
+                  for i in issues:
+                      titles.add(i.get('title', ''))
+                  if len(issues) < 100:
+                      break
+                  page += 1
+              return titles
 
           def create_issue(title, body, labels):
               """Create a GitHub issue."""
@@ -71,9 +111,9 @@ jobs:
               print("Set CROSS_ORG_TOKEN secret for cross-org monitoring.")
               sys.exit(0)
 
-          # Parse essay metadata
+          # Parse essay metadata — only essays from the last 7 days
           now = datetime.now(timezone.utc).replace(tzinfo=None)
-          lookback_days = 7  # Check essays from last 7 days
+          lookback_days = 7
           cutoff = now - timedelta(days=lookback_days)
 
           essays = []
@@ -81,7 +121,6 @@ jobs:
               name = post.get('name', '')
               if not name.endswith('.md'):
                   continue
-              # Parse date from filename: YYYY-MM-DD-title.md
               parts = name.split('-', 3)
               if len(parts) < 4:
                   continue
@@ -91,13 +130,12 @@ jobs:
                   continue
 
               if post_date >= cutoff:
-                  # Extract human-readable title
-                  slug = parts[3].replace('.md', '').replace('-', ' ').title()
+                  slug = parts[3].replace('.md', '')
                   essays.append({
                       'filename': name,
                       'date': post_date.strftime('%Y-%m-%d'),
-                      'title': slug,
-                      'url': f"https://organvm-v-logos.github.io/public-process/{post_date.strftime('%Y/%m/%d')}/{parts[3].replace('.md', '')}/",
+                      'slug': slug,
+                      'api_path': post.get('path', f'_posts/{name}'),
                       'github_url': post.get('html_url', ''),
                   })
 
@@ -107,13 +145,6 @@ jobs:
 
           # Check which essays we've already surfaced
           existing = get_existing_essay_issues()
-          new_essays = [e for e in essays if f"Essay Detected: {e['title']}" not in existing]
-
-          if not new_essays:
-              print(f"Found {len(essays)} recent essays, all already tracked.")
-              sys.exit(0)
-
-          print(f"Found {len(new_essays)} new essays to surface.")
 
           # Ensure labels exist
           for label_name in ['essay-detected', 'ready-to-distribute']:
@@ -123,16 +154,41 @@ jobs:
                   capture_output=True, text=True
               )
 
-          # Create issues for new essays
+          # Create issues for new essays (with frontmatter enrichment)
           created = 0
-          for essay in new_essays:
-              title = f"Essay Detected: {essay['title']}"
-              body = "\n".join([
+          for essay in essays:
+              # Fetch raw content for frontmatter
+              raw = gh_api_raw(f"repos/organvm-v-logos/public-process/contents/{essay['api_path']}")
+              fm = parse_frontmatter(raw) if raw else {}
+
+              title = fm.get('title', essay['slug'].replace('-', ' ').title())
+              issue_title = f"Essay Detected: {title}"
+
+              if issue_title in existing:
+                  continue
+
+              excerpt = fm.get('excerpt', fm.get('description', ''))
+              tags = fm.get('tags', [])
+              if isinstance(tags, str):
+                  tags = [t.strip() for t in tags.split(',')]
+              category = fm.get('category', fm.get('categories', ''))
+              reading_time = fm.get('reading_time', '')
+              essay_url = (
+                  f"https://organvm-v-logos.github.io/public-process/"
+                  f"{essay['date'].replace('-', '/')}/{essay['slug']}/"
+              )
+
+              tags_str = ', '.join(tags) if isinstance(tags, list) else str(tags)
+              body_lines = [
                   "## New Essay Published",
                   "",
-                  f"**Title:** {essay['title']}",
+                  f"**Title:** {title}",
                   f"**Date:** {essay['date']}",
-                  f"**URL:** {essay['url']}",
+                  f"**URL:** {essay_url}",
+                  f"**Excerpt:** {excerpt}" if excerpt else None,
+                  f"**Tags:** {tags_str}" if tags_str else None,
+                  f"**Category:** {category}" if category else None,
+                  f"**Reading Time:** {reading_time}" if reading_time else None,
                   f"**Source:** [{essay['filename']}]({essay['github_url']})",
                   "",
                   "### Distribution Status",
@@ -141,16 +197,17 @@ jobs:
                   "The `ready-to-distribute` label triggers `distribute-content.yml` automatically.",
                   "",
                   "---",
-                  "*Generated by essay-monitor.yml (AUTOMATA Sprint)*",
-              ])
+                  "*Generated by essay-monitor.yml (DISTRIBUTIO Sprint)*",
+              ]
+              body = "\n".join(line for line in body_lines if line is not None)
 
-              ok, url = create_issue(title, body, ['essay-detected', 'ready-to-distribute'])
+              ok, url = create_issue(issue_title, body, ['essay-detected', 'ready-to-distribute'])
               if ok:
-                  print(f"  Created: {title} → {url}")
+                  print(f"  Created: {issue_title} → {url}")
                   created += 1
               else:
-                  print(f"  Failed: {title}")
+                  print(f"  Failed: {issue_title}")
 
-          print(f"\nCreated {created}/{len(new_essays)} essay issues.")
+          print(f"\nProcessed {len(essays)} recent essays, created {created} new issues.")
 
           ESSAY_MONITOR

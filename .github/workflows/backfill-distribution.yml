@@ -1,0 +1,231 @@
+name: Backfill Essay Distribution
+
+# Drip-feeds the existing essay backlog to the distribution pipeline.
+# Creates 1 issue per run (3/week at cron pace). Each issue triggers
+# distribute-content.yml via the ready-to-distribute label.
+# Once all essays are tracked, exits cleanly with no action.
+
+on:
+  schedule:
+    # Mon/Wed/Fri at 14:00 UTC
+    - cron: '0 14 * * 1,3,5'
+  workflow_dispatch:
+
+jobs:
+  backfill:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      issues: write
+
+    steps:
+      - name: Setup Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+
+      - name: Backfill one essay
+        env:
+          GH_TOKEN: ${{ secrets.CROSS_ORG_TOKEN || secrets.GITHUB_TOKEN }}
+        run: |
+          python3 << 'BACKFILL_SCRIPT'
+          import json
+          import os
+          import re
+          import subprocess
+          import sys
+          from datetime import datetime, timezone
+
+          def gh_api(endpoint):
+              """Call GitHub API via gh CLI."""
+              result = subprocess.run(
+                  ['gh', 'api', endpoint],
+                  capture_output=True, text=True
+              )
+              if result.returncode != 0:
+                  return None
+              try:
+                  return json.loads(result.stdout)
+              except json.JSONDecodeError:
+                  return None
+
+          def gh_api_raw(endpoint):
+              """Fetch raw content from GitHub API."""
+              result = subprocess.run(
+                  ['gh', 'api', endpoint, '-H', 'Accept: application/vnd.github.raw+json'],
+                  capture_output=True, text=True
+              )
+              if result.returncode != 0:
+                  return None
+              return result.stdout
+
+          def parse_frontmatter(content):
+              """Extract YAML frontmatter from Jekyll markdown."""
+              match = re.match(r'^---\s*\n(.*?)\n---', content, re.DOTALL)
+              if not match:
+                  return {}
+              fm = {}
+              for line in match.group(1).split('\n'):
+                  line = line.strip()
+                  if ':' not in line or line.startswith('#'):
+                      continue
+                  key, _, value = line.partition(':')
+                  key = key.strip()
+                  value = value.strip().strip('"').strip("'")
+                  # Handle YAML lists on same line: [a, b, c]
+                  if value.startswith('[') and value.endswith(']'):
+                      value = [v.strip().strip('"').strip("'") for v in value[1:-1].split(',')]
+                  fm[key] = value
+              return fm
+
+          def get_existing_essay_titles():
+              """Get titles of all existing essay issues (open + closed) to avoid duplicates."""
+              titles = set()
+              page = 1
+              while True:
+                  issues = gh_api(
+                      f'repos/organvm-iv-taxis/orchestration-start-here/issues'
+                      f'?labels=essay-detected&state=all&per_page=100&page={page}'
+                  )
+                  if not issues:
+                      break
+                  for i in issues:
+                      titles.add(i.get('title', ''))
+                  if len(issues) < 100:
+                      break
+                  page += 1
+              return titles
+
+          def create_issue(title, body, labels):
+              """Create a GitHub issue with labels."""
+              cmd = ['gh', 'issue', 'create', '--title', title, '--body', body]
+              for label in labels:
+                  cmd.extend(['--label', label])
+              result = subprocess.run(cmd, capture_output=True, text=True)
+              return result.returncode == 0, result.stdout.strip()
+
+          # ── Fetch essay listing from ORGAN-V ──
+          posts = gh_api('repos/organvm-v-logos/public-process/contents/_posts')
+          if not posts:
+              print("Could not fetch _posts from public-process.")
+              print("Ensure CROSS_ORG_TOKEN secret has cross-org access.")
+              sys.exit(0)
+
+          # ── Parse and sort essays by date (oldest first for chronological backfill) ──
+          essays = []
+          for post in posts:
+              name = post.get('name', '')
+              if not name.endswith('.md'):
+                  continue
+              parts = name.split('-', 3)
+              if len(parts) < 4:
+                  continue
+              try:
+                  post_date = datetime(int(parts[0]), int(parts[1]), int(parts[2]))
+              except (ValueError, IndexError):
+                  continue
+
+              slug = parts[3].replace('.md', '')
+              essays.append({
+                  'filename': name,
+                  'date': post_date.strftime('%Y-%m-%d'),
+                  'slug': slug,
+                  'api_path': post.get('path', f'_posts/{name}'),
+              })
+
+          essays.sort(key=lambda e: e['date'])
+          print(f"Found {len(essays)} total essays in public-process.")
+
+          if not essays:
+              print("No essays found. Nothing to do.")
+              sys.exit(0)
+
+          # ── Check which essays already have issues ──
+          existing_titles = get_existing_essay_titles()
+          print(f"Found {len(existing_titles)} existing essay issues.")
+
+          # ── Find the first undistributed essay ──
+          target = None
+          for essay in essays:
+              # Fetch frontmatter to get the real title for matching
+              raw = gh_api_raw(f"repos/organvm-v-logos/public-process/contents/{essay['api_path']}")
+              if not raw:
+                  print(f"  Could not fetch content for {essay['filename']}, skipping.")
+                  continue
+
+              fm = parse_frontmatter(raw)
+              title = fm.get('title', essay['slug'].replace('-', ' ').title())
+              issue_title = f"Essay Detected: {title}"
+
+              if issue_title in existing_titles:
+                  continue
+
+              # This is our target — enrich with frontmatter
+              essay['title'] = title
+              essay['excerpt'] = fm.get('excerpt', fm.get('description', ''))
+              essay['tags'] = fm.get('tags', [])
+              if isinstance(essay['tags'], str):
+                  essay['tags'] = [t.strip() for t in essay['tags'].split(',')]
+              essay['category'] = fm.get('category', fm.get('categories', ''))
+              essay['reading_time'] = fm.get('reading_time', '')
+              essay['url'] = (
+                  f"https://organvm-v-logos.github.io/public-process/"
+                  f"{essay['date'].replace('-', '/')}/{essay['slug']}/"
+              )
+              target = essay
+              break
+
+          if not target:
+              print("All essays already have distribution issues. Backfill complete!")
+              sys.exit(0)
+
+          # ── Ensure labels exist ──
+          for label_name, color in [
+              ('essay-detected', '0E8A16'),
+              ('ready-to-distribute', '0E8A16'),
+              ('backfill', '1D76DB'),
+          ]:
+              subprocess.run(
+                  ['gh', 'label', 'create', label_name, '--color', color,
+                   '--description', f'Auto-created by backfill-distribution'],
+                  capture_output=True, text=True
+              )
+
+          # ── Build rich issue body ──
+          tags_str = ', '.join(target['tags']) if isinstance(target['tags'], list) else str(target['tags'])
+          body_lines = [
+              "## New Essay Published",
+              "",
+              f"**Title:** {target['title']}",
+              f"**Date:** {target['date']}",
+              f"**URL:** {target['url']}",
+              f"**Excerpt:** {target['excerpt']}" if target['excerpt'] else None,
+              f"**Tags:** {tags_str}" if tags_str else None,
+              f"**Category:** {target['category']}" if target['category'] else None,
+              f"**Reading Time:** {target['reading_time']}" if target['reading_time'] else None,
+              f"**Source:** [{target['filename']}](https://github.com/organvm-v-logos/public-process/blob/main/_posts/{target['filename']})",
+              "",
+              "### Distribution Status",
+              "",
+              "Auto-distributed via POSSE pipeline.",
+              "The `ready-to-distribute` label triggers `distribute-content.yml` automatically.",
+              "",
+              "---",
+              "*Generated by backfill-distribution.yml (DISTRIBUTIO Sprint)*",
+          ]
+          body = "\n".join(line for line in body_lines if line is not None)
+
+          # ── Create the issue ──
+          issue_title = f"Essay Detected: {target['title']}"
+          ok, url = create_issue(issue_title, body, ['essay-detected', 'ready-to-distribute', 'backfill'])
+
+          if ok:
+              print(f"Created: {issue_title}")
+              print(f"  URL: {url}")
+              print(f"  Essay date: {target['date']}")
+              print(f"  Essay URL: {target['url']}")
+          else:
+              print(f"Failed to create issue: {issue_title}")
+              sys.exit(1)
+
+          BACKFILL_SCRIPT

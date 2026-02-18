@@ -25,6 +25,9 @@ jobs:
       - name: Install dependencies
         run: pip install requests pyyaml
 
+      - name: Fetch canonical registry
+        run: bash scripts/fetch-registry.sh registry-v2.json
+
       - name: Build system graph from seed.yaml contracts
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
@@ -61,12 +64,10 @@ jobs:
               except Exception:
                   return None
 
-          # Load registry
-          registry_path = 'registry.json'
+          # Load canonical registry
+          registry_path = 'registry-v2.json'
           if not os.path.exists(registry_path):
-              registry_path = 'registry-v2.json'
-          if not os.path.exists(registry_path):
-              print("::error::No registry file found")
+              print("::error::registry-v2.json not found — fetch-registry.sh may have failed")
               sys.exit(1)
 
           with open(registry_path) as f:

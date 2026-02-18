@@ -25,6 +25,9 @@ jobs:
       - name: Install dependencies
         run: pip install requests pyyaml
 
+      - name: Fetch canonical registry
+        run: bash scripts/fetch-registry.sh registry-v2.json
+
       - name: Evaluate promotion candidates
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
@@ -75,15 +78,12 @@ jobs:
               if not readme:
                   return 0
               size_bytes = readme.get('size', 0)
-              # Rough estimate: 1 byte ≈ 0.75 words for markdown
-              return int(size_bytes * 0.18)  # Conservative estimate
+              return int(size_bytes * 0.18)
 
-          # Load registry
-          registry_path = 'registry.json'
+          # Load canonical registry
+          registry_path = 'registry-v2.json'
           if not os.path.exists(registry_path):
-              registry_path = 'registry-v2.json'
-          if not os.path.exists(registry_path):
-              print("::error::No registry file found")
+              print("::error::registry-v2.json not found — fetch-registry.sh may have failed")
               sys.exit(1)
 
           with open(registry_path) as f:
@@ -171,6 +171,22 @@ jobs:
                   if recommendation:
                       candidates.append(recommendation)
 
+          # Check unfulfilled I→II promotions (CANDIDATE repos in ORGAN-I
+          # that don't have a corresponding art-from-- repo in ORGAN-II)
+          unfulfilled_i_to_ii = []
+          organ_i = registry.get('organs', {}).get('ORGAN-I', {})
+          organ_ii = registry.get('organs', {}).get('ORGAN-II', {})
+          organ_ii_names = {r['name'] for r in organ_ii.get('repositories', [])}
+
+          for repo in organ_i.get('repositories', []):
+              if repo.get('promotion_status') == 'CANDIDATE':
+                  expected_name = f"art-from--{repo['name']}"
+                  if expected_name not in organ_ii_names:
+                      unfulfilled_i_to_ii.append({
+                          'repo': f"{repo.get('org', 'organvm-i-theoria')}/{repo['name']}",
+                          'expected_target': f"organvm-ii-poiesis/{expected_name}",
+                      })
+
           # Build issue body
           body_lines = [
               f"## Promotion Recommender Report",
@@ -191,6 +207,16 @@ jobs:
               body_lines.append("")
           else:
               body_lines.append("### No promotion candidates found")
+              body_lines.append("")
+
+          if unfulfilled_i_to_ii:
+              body_lines.append(f"### Unfulfilled I→II Promotions ({len(unfulfilled_i_to_ii)})")
+              body_lines.append("ORGAN-I CANDIDATE repos without corresponding ORGAN-II art-from-- repos:")
+              body_lines.append("")
+              body_lines.append("| Source Repo | Expected Target |")
+              body_lines.append("|-------------|-----------------|")
+              for u in unfulfilled_i_to_ii:
+                  body_lines.append(f"| `{u['repo']}` | `{u['expected_target']}` |")
               body_lines.append("")
 
           if stale:

@@ -7,10 +7,115 @@ name: Publish Process
 on:
   issue_comment:
     types: [created]
+  repository_dispatch:
+    types:
+      - commerce.publish-requested
 
 jobs:
+  # Dispatch-triggered publish (from commerce-to-logos in ORGAN-III)
+  dispatch-publish:
+    if: github.event_name == 'repository_dispatch'
+    runs-on: ubuntu-latest
+    permissions:
+      issues: write
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Setup Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+
+      - name: Fetch canonical registry
+        run: bash scripts/fetch-registry.sh registry-v2.json
+
+      - name: Validate publish gates
+        id: gates
+        env:
+          EVENT_PAYLOAD: ${{ toJson(github.event.client_payload) }}
+        run: |
+          python3 << 'PYEOF'
+          import json
+          import os
+          import subprocess
+
+          payload = json.loads(os.environ.get("EVENT_PAYLOAD", "{}"))
+          source_repo = payload.get("source_repo", "")
+          issue_num = payload.get("issue_number", "0")
+
+          print(f"Validating publish gates for {source_repo}#{issue_num}")
+
+          # Gate 1: audit-clean — check for recent health audit
+          audit_result = subprocess.run(
+              ["gh", "issue", "list",
+               "--repo", "organvm-iv-taxis/orchestration-start-here",
+               "--search", "Health Audit in:title",
+               "--state", "closed", "--json", "title,closedAt",
+               "--limit", "1"],
+              capture_output=True, text=True, env={**os.environ},
+          )
+          audit_clean = False
+          if audit_result.returncode == 0:
+              try:
+                  audits = json.loads(audit_result.stdout)
+                  audit_clean = len(audits) > 0
+              except json.JSONDecodeError:
+                  pass
+          print(f"  audit-clean: {'PASS' if audit_clean else 'SKIP (no recent audit)'}")
+
+          # Gate 2: synthesis-approved label on the source issue
+          synthesis_ok = True
+          if source_repo and issue_num != "0":
+              label_result = subprocess.run(
+                  ["gh", "issue", "view", issue_num,
+                   "--repo", source_repo, "--json", "labels"],
+                  capture_output=True, text=True, env={**os.environ},
+              )
+              if label_result.returncode == 0:
+                  try:
+                      labels = [l["name"] for l in json.loads(label_result.stdout).get("labels", [])]
+                      synthesis_ok = "synthesis-approved" in labels
+                  except (json.JSONDecodeError, KeyError):
+                      pass
+              print(f"  synthesis-approved: {'PASS' if synthesis_ok else 'SKIP (label not found)'}")
+
+          with open(os.environ["GITHUB_OUTPUT"], "a") as f:
+              f.write(f"gates_passed={'true' if (audit_clean or synthesis_ok) else 'false'}\n")
+              f.write(f"source_repo={source_repo}\n")
+              f.write(f"issue_number={issue_num}\n")
+          PYEOF
+
+      - name: Create orchestration issue
+        env:
+          GH_TOKEN: ${{ secrets.ORCHESTRATION_PAT || secrets.GITHUB_TOKEN }}
+          SOURCE_REPO: ${{ steps.gates.outputs.source_repo }}
+          ISSUE_NUM: ${{ steps.gates.outputs.issue_number }}
+        run: |
+          TITLE="Publish: ${SOURCE_REPO}#${ISSUE_NUM}"
+          BODY="## Essay Publish Request
+
+          **Source:** ${SOURCE_REPO}#${ISSUE_NUM}
+          **Edge:** ORGAN-III → ORGAN-V (commerce.publish-requested)
+
+          To execute essay creation, comment \`@orchestration create essay\` on this issue.
+
+          ---
+          *Created by publish-process dispatch handler*"
+
+          gh issue create \
+            --repo organvm-iv-taxis/orchestration-start-here \
+            --title "${TITLE}" \
+            --body "${BODY}" \
+            --label "publish-process" 2>/dev/null || \
+          gh issue create \
+            --repo organvm-iv-taxis/orchestration-start-here \
+            --title "${TITLE}" \
+            --body "${BODY}"
+
+  # Issue-comment-triggered publish (existing flow)
   publish:
     if: |
+      github.event_name == 'issue_comment' &&
       contains(join(github.event.issue.labels.*.name), 'publish-process') &&
       contains(github.event.comment.body, '@orchestration create essay')
     runs-on: ubuntu-latest

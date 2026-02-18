@@ -1,0 +1,199 @@
+# Event Catalog — ORGANVM Inter-Organ Dispatch Events
+# Canonical reference for all event types in the eight-organ system.
+# Each event follows the dispatch payload schema from organvm_engine.dispatch.payload.
+#
+# Naming convention: <domain>.<action> (e.g., theory.candidate)
+# All events are dispatched via GitHub repository_dispatch or fallback polling.
+
+schema_version: "1.0"
+generated: "2026-02-18"
+
+events:
+  # ── Edge 1: ORGAN-I → ORGAN-II ──
+  - event: theory.candidate
+    edge: "I→II"
+    description: >
+      Fired when an ORGAN-I repo reaches CANDIDATE promotion status,
+      signaling readiness for artistic reinterpretation in ORGAN-II.
+    producer:
+      organ: ORGAN-I
+      trigger: Registry push watcher detects CANDIDATE status
+      workflow: theory-to-art-watcher.yml (in organvm-corpvs-testamentvm)
+    consumer:
+      organ: ORGAN-IV
+      workflow: promote-repo.yml
+      action: Opens tracking issue, validates gates, executes promotion
+    fallback:
+      type: scheduled
+      schedule: "Tuesday 10:00 UTC"
+      mechanism: Polls registry-v2.json for ORGAN-I CANDIDATE repos
+    gates:
+      - documentation-complete (README deployed)
+      - promotion-status >= CANDIDATE
+      - no-back-edges (dependency graph clean)
+    priority: normal
+
+  # ── Edge 2: ORGAN-II → ORGAN-III ──
+  - event: art.ready-commercialize
+    edge: "II→III"
+    description: >
+      Fired when an ORGAN-II project is ready for commercialization,
+      typically after artistic proof-of-concept is validated.
+    producer:
+      organ: ORGAN-II
+      trigger: Issue labeled 'ready-for-commercialization' in ORGAN-II repo
+      workflow: art-to-commerce.yml (in ORGAN-II flagships)
+    consumer:
+      organ: ORGAN-IV
+      workflow: promote-repo.yml
+      action: Validates gates, creates commerce repo in ORGAN-III
+    fallback:
+      type: issue-comment
+      mechanism: Creates issue in source repo with manual instructions if PAT missing
+    gates:
+      - documentation-complete
+      - security-review label present
+    priority: normal
+
+  # ── Edge 3: ORGAN-III → ORGAN-V ──
+  - event: commerce.publish-requested
+    edge: "III→V"
+    description: >
+      Fired when an ORGAN-III product is ready for public documentation,
+      triggering essay generation in ORGAN-V.
+    producer:
+      organ: ORGAN-III
+      trigger: Issue labeled 'publish-process' in ORGAN-III repo
+      workflow: commerce-to-logos.yml (in ORGAN-III flagships)
+    consumer:
+      organ: ORGAN-IV
+      workflow: publish-process.yml
+      action: Generates essay draft, creates PR in ORGAN-V public-process
+    fallback:
+      type: issue-comment
+      mechanism: Manual '@orchestration create essay' comment
+    gates:
+      - audit-clean (latest health audit passed)
+      - synthesis-approved label
+    priority: normal
+
+  # ── Edge 4: ORGAN-V → ORGAN-VI ──
+  - event: essay.published
+    edge: "V→VI"
+    description: >
+      Fired when a new essay is detected in ORGAN-V public-process,
+      notifying ORGAN-VI for community curation and ORGAN-VII for distribution.
+    producer:
+      organ: ORGAN-V
+      trigger: New essay detected in _posts/ directory
+      workflow: essay-monitor.yml (in orchestration-start-here)
+    consumer:
+      organ: ORGAN-VI
+      workflow: essay-to-community.yml (in organvm-vi-koinonia/.github)
+      action: Creates tracking issue in reading-group-curriculum
+    fallback:
+      type: scheduled
+      schedule: "Daily 11:00 UTC"
+      mechanism: Polls ORGAN-V for new essays
+    gates: []
+    priority: normal
+    also_targets:
+      - organ: ORGAN-VII
+        workflow: distribute-content.yml
+        action: POSSE distribution via ready-to-distribute label
+
+  # ── Edge 5: ORGAN-VI → ORGAN-VII ──
+  - event: community.milestone
+    edge: "VI→VII"
+    description: >
+      Fired when a community initiative in ORGAN-VI reaches a milestone
+      worth announcing, after a 7-day RFC period.
+    producer:
+      organ: ORGAN-VI
+      trigger: Issue labeled 'community-approved' after 7+ days open
+      workflow: community-to-kerygma.yml (in organvm-vi-koinonia/.github)
+    consumer:
+      organ: ORGAN-VII
+      workflow: dispatch-receiver.yml (in organvm-vii-kerygma/.github)
+      action: Creates announcement from community milestone template
+    fallback:
+      type: none
+      mechanism: Label-driven only; no automated fallback
+    gates:
+      - rfc-period (issue open 7+ days)
+      - quality-threshold label present
+    priority: normal
+
+  # ── Edge 6: ORGAN-VII → ORGAN-I (weak/dashed) ──
+  - event: marketing.quarterly-signals
+    edge: "VII→I"
+    description: >
+      Quarterly feedback loop. Collects distribution metrics and audience
+      signals, synthesized by human, then dispatched to inform ORGAN-I
+      theoretical direction. Weak edge — human-mediated.
+    producer:
+      organ: ORGAN-VII
+      trigger: Quarterly cron (1st Monday of Jan/Apr/Jul/Oct) + human synthesis
+      workflow: quarterly-feedback.yml + quarterly-synthesis-dispatch.yml
+    consumer:
+      organ: ORGAN-IV
+      workflow: theory-input-handler.yml
+      action: Opens theory-input issue in ORGAN-I
+    fallback:
+      type: none
+      mechanism: Human-initiated only
+    gates:
+      - synthesis-complete label (human confirmation)
+    priority: low
+
+  # ── Cross-cutting events ──
+  - event: governance.updated
+    edge: cross-cutting
+    description: >
+      Fired when governance rules or registry structure changes.
+      All organs should re-validate their compliance.
+    producer:
+      organ: ORGAN-META
+      trigger: Push to registry-v2.json or governance-rules.json
+    consumer:
+      organ: all
+    priority: normal
+
+  - event: health-audit.completed
+    edge: cross-cutting
+    description: >
+      Fired after the weekly registry health audit completes.
+      Contains audit results summary.
+    producer:
+      organ: ORGAN-IV
+      trigger: registry-health-audit.yml completion
+      workflow: registry-health-audit.yml
+    consumer:
+      organ: all
+    priority: low
+
+  - event: promotion.completed
+    edge: cross-cutting
+    description: >
+      Fired after a successful promotion between organs.
+      Notifies ORGAN-V (for documentation) and ORGAN-VII (for announcement).
+    producer:
+      organ: ORGAN-IV
+      trigger: promote-repo.yml successful execution
+      workflow: promote-repo.yml
+    consumer:
+      organ: ORGAN-V, ORGAN-VII
+    priority: normal
+
+  - event: distribution.completed
+    edge: cross-cutting
+    description: >
+      Fired after POSSE distribution completes for an essay.
+      Logged by ORGAN-IV for tracking.
+    producer:
+      organ: ORGAN-VII
+      trigger: dispatch-receiver.yml completion
+      workflow: dispatch-receiver.yml
+    consumer:
+      organ: ORGAN-IV (logging only)
+    priority: low

@@ -220,6 +220,78 @@ jobs:
                   print(f"LinkedIn post failed (HTTP {http_code})")
           PYEOF
 
+      - name: Post to Bluesky
+        id: bluesky
+        if: env.BLUESKY_HANDLE != ''
+        env:
+          BLUESKY_HANDLE: ${{ secrets.BLUESKY_HANDLE }}
+          BLUESKY_APP_PASSWORD: ${{ secrets.BLUESKY_APP_PASSWORD }}
+          CONTENT_TITLE: ${{ steps.metadata.outputs.title }}
+          CONTENT_EXCERPT: ${{ steps.metadata.outputs.excerpt }}
+          CONTENT_URL: ${{ steps.metadata.outputs.url }}
+        run: |
+          python3 << 'PYEOF'
+          import json
+          import os
+          import subprocess
+          from datetime import datetime, timezone
+
+          handle = os.environ.get("BLUESKY_HANDLE", "")
+          app_password = os.environ.get("BLUESKY_APP_PASSWORD", "")
+          title = os.environ.get("CONTENT_TITLE", "")
+          excerpt = os.environ.get("CONTENT_EXCERPT", "")
+          url = os.environ.get("CONTENT_URL", "")
+
+          # Authenticate with AT Protocol
+          auth_payload = json.dumps({"identifier": handle, "password": app_password})
+          r = subprocess.run(
+              ['curl', '-s', 'https://bsky.social/xrpc/com.atproto.server.createSession',
+               '-X', 'POST', '-H', 'Content-Type: application/json', '-d', auth_payload],
+              capture_output=True, text=True
+          )
+          auth = json.loads(r.stdout) if r.stdout else {}
+          access_token = auth.get("accessJwt", "")
+          did = auth.get("did", "")
+
+          if access_token and did:
+              # Build post text (300 char limit)
+              post_text = f"{title}\n\n{excerpt[:200]}\n\n{url}"
+              if len(post_text) > 300:
+                  post_text = f"{title}\n\n{url}"
+
+              # Build facets for URL link
+              url_start = post_text.encode('utf-8').find(url.encode('utf-8'))
+              url_end = url_start + len(url.encode('utf-8'))
+              facets = [{"index": {"byteStart": url_start, "byteEnd": url_end},
+                         "features": [{"$type": "app.bsky.richtext.facet#link", "uri": url}]}]
+
+              post_payload = json.dumps({
+                  "repo": did, "collection": "app.bsky.feed.post",
+                  "record": {"$type": "app.bsky.feed.post", "text": post_text,
+                             "facets": facets,
+                             "createdAt": datetime.now(timezone.utc).isoformat()}
+              })
+              r = subprocess.run(
+                  ['curl', '-s', '-o', '/dev/null', '-w', '%{http_code}',
+                   'https://bsky.social/xrpc/com.atproto.repo.createRecord',
+                   '-X', 'POST', '-H', f'Authorization: Bearer {access_token}',
+                   '-H', 'Content-Type: application/json', '-d', post_payload],
+                  capture_output=True, text=True
+              )
+              http_code = r.stdout.strip()
+              with open(os.environ["GITHUB_OUTPUT"], "a") as f:
+                  if http_code.isdigit() and 200 <= int(http_code) < 300:
+                      f.write("bluesky=success\n")
+                      print(f"Posted to Bluesky (HTTP {http_code})")
+                  else:
+                      f.write("bluesky=failed\n")
+                      print(f"Bluesky post failed (HTTP {http_code})")
+          else:
+              print("Bluesky authentication failed")
+              with open(os.environ["GITHUB_OUTPUT"], "a") as f:
+                  f.write("bluesky=failed\n")
+          PYEOF
+
       - name: Publish to Ghost Newsletter
         id: ghost
         if: env.GHOST_ADMIN_KEY != ''
@@ -289,6 +361,7 @@ jobs:
             const mastodon = '${{ steps.metadata.outputs.mastodon }}' || 'not configured';
             const discord = '${{ steps.metadata.outputs.discord }}' || 'not configured';
             const linkedin = '${{ steps.linkedin.outputs.linkedin }}' || 'not configured';
+            const bluesky = '${{ steps.bluesky.outputs.bluesky }}' || 'not configured';
             const ghost = '${{ steps.ghost.outputs.ghost }}' || 'not configured';
 
             const icon = (s) => s === 'success' ? '✅' : s === 'failed' ? '❌' : '⚪';
@@ -297,6 +370,7 @@ jobs:
               `| Mastodon | ${icon(mastodon)} | ${mastodon} |`,
               `| Discord | ${icon(discord)} | ${discord} |`,
               `| LinkedIn | ${icon(linkedin)} | ${linkedin} |`,
+              `| Bluesky | ${icon(bluesky)} | ${bluesky} |`,
               `| Ghost Newsletter | ${icon(ghost)} | ${ghost} |`,
             ].join('\n');
 

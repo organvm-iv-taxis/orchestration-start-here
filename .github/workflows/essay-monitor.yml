@@ -208,6 +208,41 @@ jobs:
               else:
                   print(f"  Failed: {issue_title}")
 
+          # Dispatch essay.published to ORGAN-VI (community) and ORGAN-VII (kerygma)
+          for essay in essays:
+              raw_dispatch = gh_api_raw(f"repos/organvm-v-logos/public-process/contents/{essay['api_path']}")
+              fm_dispatch = parse_frontmatter(raw_dispatch) if raw_dispatch else {}
+              d_title = fm_dispatch.get('title', essay['slug'].replace('-', ' ').title())
+              d_url = (
+                  f"https://organvm-v-logos.github.io/public-process/"
+                  f"{essay['date'].replace('-', '/')}/{essay['slug']}/"
+              )
+
+              dispatch_payload = json.dumps({
+                  'essay_title': d_title,
+                  'essay_url': d_url,
+                  'essay_date': essay['date'],
+                  'source_organ': 'ORGAN-V',
+                  'source_repo': 'organvm-v-logos/public-process',
+                  'triggered_by': 'essay-monitor',
+              })
+
+              for target_repo, target_name in [
+                  ('organvm-vi-koinonia/.github', 'ORGAN-VI'),
+                  ('organvm-vii-kerygma/.github', 'ORGAN-VII'),
+              ]:
+                  result = subprocess.run(
+                      ['gh', 'api', f'repos/{target_repo}/dispatches',
+                       '--method', 'POST',
+                       '-f', 'event_type=essay-published',
+                       '-f', f'client_payload={dispatch_payload}'],
+                      capture_output=True, text=True,
+                  )
+                  if result.returncode == 0:
+                      print(f"  Dispatched essay.published to {target_name}: {d_title}")
+                  else:
+                      print(f"  Failed to dispatch to {target_name}: {result.stderr[:100]}")
+
           print(f"\nProcessed {len(essays)} recent essays, created {created} new issues.")
 
           ESSAY_MONITOR

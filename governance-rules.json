@@ -5,7 +5,7 @@
   "articles": {
     "I": {
       "title": "Registry as Single Source of Truth",
-      "rule": "All repo state lives in registry.json. If reality and registry disagree, update the registry or fix reality.",
+      "rule": "All repo state lives in registry-v2.json (in meta-organvm/organvm-corpvs-testamentvm). If reality and registry disagree, update the registry or fix reality.",
       "enforcement": "automated"
     },
     "II": {

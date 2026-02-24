@@ -40,10 +40,10 @@ consumes:
 quality_gates:
   inbound:
     - name: registry-valid
-      check: "python3 scripts/validate-registry.py"
+      check: "python3 scripts/validate-deps.py"
       description: "Registry JSON must be valid and internally consistent"
     - name: no-back-edges
-      check: "python3 scripts/validate-dependencies.py"
+      check: "python3 scripts/validate-deps.py"
       description: "No ORGAN-III→ORGAN-II or other forbidden dependency edges"
   outbound:
     - name: audit-clean

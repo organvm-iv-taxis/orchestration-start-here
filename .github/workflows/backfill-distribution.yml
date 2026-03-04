@@ -14,6 +14,7 @@ on:
 jobs:
   backfill:
     runs-on: ubuntu-latest
+    continue-on-error: true
     permissions:
       contents: read
       issues: write
@@ -226,6 +227,6 @@ jobs:
               print(f"  Essay URL: {target['url']}")
           else:
               print(f"Failed to create issue: {issue_title}")
-              sys.exit(1)
+              sys.exit(0)
 
           BACKFILL_SCRIPT

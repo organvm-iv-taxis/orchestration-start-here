@@ -15,6 +15,10 @@ produces:
     description: "Cross-organ governance policies and dependency validation"
     format: json
     consumers: [all]
+  - type: logic-as-code
+    description: "Machine-readable organizational commandments from petasum-super-petasum"
+    format: json
+    consumers: [agentic-titan, agent--claude-smith]
   - type: health-reports
     description: "Weekly registry health audit reports"
     format: json

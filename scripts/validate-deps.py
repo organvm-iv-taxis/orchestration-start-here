@@ -12,7 +12,7 @@ Usage:
 import json
 import sys
 import argparse
-import os
+from pathlib import Path
 
 
 ORG_TO_ORGAN = {
@@ -26,25 +26,60 @@ ORG_TO_ORGAN = {
     "meta-organvm": "META-ORGANVM",
 }
 
-DEFAULT_REGISTRY = "../meta-organvm/organvm-corpvs-testamentvm/registry-v2.json"
+WORKSPACE = Path.home() / "Workspace"
+SCRIPT_DIR = Path(__file__).resolve().parent
+SCRIPT_WORKSPACE = SCRIPT_DIR.parents[2]
+DEFAULT_REGISTRY_CANDIDATES = (
+    WORKSPACE / "meta-organvm" / "organvm-corpvs-testamentvm" / "registry-v2.json",
+    SCRIPT_WORKSPACE / "meta-organvm" / "organvm-corpvs-testamentvm" / "registry-v2.json",
+)
 
 
-def load_registry(path: str) -> dict:
+def resolve_default_registry() -> Path | None:
+    """Return first existing canonical registry path, if available."""
+    for candidate in DEFAULT_REGISTRY_CANDIDATES:
+        if candidate.is_file():
+            return candidate.resolve()
+    return None
+
+
+def load_registry(path: str, visited: set[Path] | None = None) -> dict:
     """Load registry with fallback to meta-organvm if needed."""
-    if not os.path.exists(path):
-        if os.path.exists(DEFAULT_REGISTRY):
-            print(f"Registry {path} not found. Falling back to {DEFAULT_REGISTRY}")
-            path = DEFAULT_REGISTRY
-        else:
-            raise FileNotFoundError(f"Registry not found at {path} or {DEFAULT_REGISTRY}")
+    visited = visited or set()
+    requested_path = (Path.cwd() / path).resolve()
+    resolved_path = requested_path
 
-    with open(path) as f:
+    if not requested_path.is_file():
+        default_registry = resolve_default_registry()
+        if default_registry is None:
+            tried = ", ".join(str(p) for p in DEFAULT_REGISTRY_CANDIDATES)
+            raise FileNotFoundError(
+                f"Registry not found at {requested_path}; no canonical registry found in [{tried}]"
+            )
+        print(f"Registry {requested_path} not found. Falling back to {default_registry}")
+        resolved_path = default_registry
+
+    if resolved_path in visited:
+        raise RuntimeError(f"Redirect loop detected while loading registry: {resolved_path}")
+    visited.add(resolved_path)
+
+    with resolved_path.open(encoding="utf-8") as f:
         data = json.load(f)
 
     # Check if this is a redirect file
-    if "_redirect" in data:
-        print(f"Registry {path} is a redirect. Following to {DEFAULT_REGISTRY}")
-        return load_registry(DEFAULT_REGISTRY)
+    if "_redirect" in data and "organs" not in data:
+        default_registry = resolve_default_registry()
+        if default_registry is None:
+            tried = ", ".join(str(p) for p in DEFAULT_REGISTRY_CANDIDATES)
+            raise FileNotFoundError(
+                f"Registry {resolved_path} is a redirect but no canonical registry found in [{tried}]"
+            )
+        if default_registry == resolved_path:
+            raise FileNotFoundError(
+                f"Registry {resolved_path} is a redirect and no alternate canonical registry is available"
+            )
+        print(f"Registry {resolved_path} is a redirect. Following to {default_registry}")
+        return load_registry(str(default_registry), visited)
 
     return data
 
@@ -72,8 +107,7 @@ def validate(registry_path: str, governance_path: str) -> int:
             if not deps:
                 continue
 
-            repo_org = repo.get("org", "")
-            source_organ = organ_id # Use the organ ID from the registry structure
+            source_organ = organ_id  # Use the organ ID from the registry structure
 
             for dep in deps:
                 total_deps += 1

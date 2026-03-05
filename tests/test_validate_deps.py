@@ -1,11 +1,10 @@
 """Tests for scripts/validate-deps.py — dependency direction validation."""
+import json
 import sys
 from pathlib import Path
 
 # Add scripts/ to path so we can import the module
 sys.path.insert(0, str(Path(__file__).parent.parent / "scripts"))
-
-from importlib import import_module
 
 # Import with hyphenated filename
 import importlib.util
@@ -20,16 +19,54 @@ _spec.loader.exec_module(validate_deps)
 class TestOrgToOrganMapping:
     """Test the ORG_TO_ORGAN constant."""
 
-    def test_all_seven_organs_mapped(self):
+    def test_all_supported_orgs_mapped(self):
         mapping = validate_deps.ORG_TO_ORGAN
-        assert len(mapping) == 7
-        for i, numeral in enumerate(["i", "ii", "iii", "iv", "v", "vi", "vii"], 1):
-            org_key = f"organvm-{numeral}-{'theoria' if i == 1 else ['poiesis', 'ergon', 'taxis', 'logos', 'koinonia', 'kerygma'][i - 2]}"
-            assert org_key in mapping, f"Missing mapping for {org_key}"
+        expected = {
+            "organvm-i-theoria": "ORGAN-I",
+            "organvm-ii-poiesis": "ORGAN-II",
+            "organvm-iii-ergon": "ORGAN-III",
+            "organvm-iv-taxis": "ORGAN-IV",
+            "organvm-v-logos": "ORGAN-V",
+            "organvm-vi-koinonia": "ORGAN-VI",
+            "organvm-vii-kerygma": "ORGAN-VII",
+            "meta-organvm": "META-ORGANVM",
+        }
+        assert mapping == expected
 
     def test_organ_values_format(self):
         for value in validate_deps.ORG_TO_ORGAN.values():
-            assert value.startswith("ORGAN-")
+            assert value.startswith("ORGAN-") or value == "META-ORGANVM"
+
+
+class TestLoadRegistry:
+    """Test load_registry() fallback and redirect behavior."""
+
+    def test_missing_registry_falls_back_to_default_candidate(self, tmp_path, monkeypatch):
+        canonical = tmp_path / "registry-v2.json"
+        canonical.write_text(
+            json.dumps({"version": "2.0", "organs": {}}),
+            encoding="utf-8",
+        )
+        monkeypatch.setattr(validate_deps, "DEFAULT_REGISTRY_CANDIDATES", (canonical,))
+
+        loaded = validate_deps.load_registry(str(tmp_path / "missing-registry.json"))
+        assert loaded["organs"] == {}
+
+    def test_redirect_registry_follows_default_candidate(self, tmp_path, monkeypatch):
+        redirect = tmp_path / "registry.json"
+        redirect.write_text(
+            json.dumps({"_redirect": "Use registry-v2.json"}),
+            encoding="utf-8",
+        )
+        canonical = tmp_path / "registry-v2.json"
+        canonical.write_text(
+            json.dumps({"version": "2.0", "organs": {}}),
+            encoding="utf-8",
+        )
+        monkeypatch.setattr(validate_deps, "DEFAULT_REGISTRY_CANDIDATES", (canonical,))
+
+        loaded = validate_deps.load_registry(str(redirect))
+        assert loaded["version"] == "2.0"
 
 
 class TestValidate:

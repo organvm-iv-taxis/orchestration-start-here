@@ -9,6 +9,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Added
 
+- Agent Run Logging Standard (`docs/agent-run-logging.md`) — directory layout, manifest schema, session log format (F-57)
+- Run directory validation script (`scripts/validate-agent-run.py`) with JSON output mode (F-57)
 - Breadcrumb Protocol (`docs/breadcrumb-protocol.md`) — standardized session completion format with machine-parseable delimiters (F-06)
 - Amendment F in governance-rules.json — Agent Coordination Visibility mandate
 - Conductor Playbook (`docs/conductor-playbook.md`) — Frame/Shape/Build/Prove lifecycle reference (F-01)

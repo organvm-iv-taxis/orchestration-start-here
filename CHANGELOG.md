@@ -9,6 +9,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Added
 
+- Conductor Playbook (`docs/conductor-playbook.md`) — Frame/Shape/Build/Prove lifecycle reference (F-01)
+- Session Protocol (`docs/session-protocol.md`) — 90-minute development ritual checklist (F-02)
+- WIP limit enforcement script (`scripts/validate-wip.py`) and `wip_limits` section in governance-rules.json (F-03)
+- Amendment E in governance-rules.json — Session Lifecycle Mandate
 - Platinum Sprint: CI/CD workflow, standardized badge row, ADR documentation
 - Initial CHANGELOG following Keep a Changelog format
 

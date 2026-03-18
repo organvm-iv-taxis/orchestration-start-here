@@ -698,3 +698,11 @@ New workflows should follow the existing pattern:
 ---
 
 *Part of the [organvm eight-organ system](https://github.com/meta-organvm) — ORGAN-IV: Orchestration (Taxis). All eight organs operational. System launched 2026-02-11.*
+
+<!-- SYSTEM-NAV-START -->
+
+---
+
+<sub>[Portfolio](https://4444j99.github.io/portfolio/) · [System Directory](https://4444j99.github.io/portfolio/directory/) · [ORGAN IV · Taxis](https://organvm-iv-taxis.github.io/) · Part of the <a href="https://4444j99.github.io/portfolio/directory/">ORGANVM eight-organ system</a></sub>
+
+<!-- SYSTEM-NAV-END -->

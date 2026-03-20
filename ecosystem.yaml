@@ -1,8 +1,23 @@
 schema_version: '1.0'
 repo: orchestration-start-here
 organ: IV
-display_name: 'Central orchestration hub: registry, governance rules, 5 workflows,
-  3 Python scripts. The central nervous system of the eight-organ system.'
+display_name: "Central orchestration hub — registry, governance rules, 5 workflows, 3 Python scripts"
+
 delivery:
-- platform: web_app
-  status: not_started
+- platform: github_workflows
+  status: live
+  priority: critical
+  notes: "5 GitHub Actions workflows for cross-organ orchestration"
+  next_action: "Maintain workflow health and add ecosystem automation"
+- platform: cli_tool
+  status: live
+  priority: high
+  notes: "3 Python scripts for governance and registry operations"
+  next_action: "Keep scripts aligned with engine CLI capabilities"
+
+content:
+- platform: docs_site
+  status: planned
+  priority: high
+  notes: "Onboarding guide, workflow reference, governance rule documentation"
+  next_action: "Write getting-started guide for new contributors"

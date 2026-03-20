@@ -4,23 +4,17 @@
 This repo participates in the **ORGAN-IV (Orchestration)** swarm.
 
 ### Active Subscriptions
-- Event: `repo.created` → Action: Update registry, assign seed.yaml template
-- Event: `ci.passed` → Action: Check if repo qualifies for promotion
-- Event: `essay.published` → Action: Trigger ORGAN-VII distribution workflow
+- *No active event subscriptions*
 
 ### Production Responsibilities
-- **Produce** `governance-rules` for all
-- **Produce** `logic-as-code` for agentic-titan, agent--claude-smith
-- **Produce** `health-reports` for all
-- **Produce** `promotion-decisions` for all
+- **Produce** `artifact` for unspecified
 
 ### External Dependencies
-- **Consume** `registry-updates` from `any`
-- **Consume** `essay-notifications` from `ORGAN-V`
+- *No external dependencies*
 
 ### Governance Constraints
 - Adhere to unidirectional flow: I→II→III
 - Never commit secrets or credentials
 
-*Last synced: 2026-03-08T20:11:34Z*
+*Last synced: 2026-03-20T10:58:29Z*
 <!-- ORGANVM:AUTO:END -->

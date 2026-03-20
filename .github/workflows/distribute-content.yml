@@ -355,7 +355,7 @@ jobs:
 
       - name: Log Distribution Results
         if: always()
-        uses: actions/github-script@v7
+        uses: actions/github-script@v8
         with:
           script: |
             const mastodon = '${{ steps.metadata.outputs.mastodon }}' || 'not configured';
@@ -383,7 +383,7 @@ jobs:
 
       - name: Auto-close distributed issue
         if: always()
-        uses: actions/github-script@v7
+        uses: actions/github-script@v8
         with:
           script: |
             // Add 'distributed' label

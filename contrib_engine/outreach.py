@@ -47,23 +47,42 @@ def log_event(
 
 
 def compute_relationship_score(rel: TargetRelationship) -> int:
-    """Compute relationship strength score (0-100)."""
+    """Compute relationship strength score (0-100).
+
+    Income-weighted: inbound signals are disproportionately valuable
+    because they indicate the target wants YOU, not the other way around.
+    A DM from a CEO is worth more than 10 outbound PR comments.
+    """
     score = 0
-    score += min(len(rel.outreach_events) * 5, 40)
-    channels = {e.channel for e in rel.outreach_events}
-    score += min(len(channels) * 5, 20)
+
+    # Outbound events (0-20): demonstrate presence
+    outbound_count = sum(
+        1 for e in rel.outreach_events
+        if e.direction == OutreachDirection.OUTBOUND
+    )
+    score += min(outbound_count * 5, 20)
+
+    # Inbound events (0-40): they want us — uncapped weight per event
     inbound_count = sum(
-        1
-        for e in rel.outreach_events
+        1 for e in rel.outreach_events
         if e.direction in (OutreachDirection.INBOUND, OutreachDirection.MUTUAL)
     )
-    score += min(inbound_count * 10, 20)
+    score += min(inbound_count * 15, 40)
+
+    # Channel diversity (0-15): breadth of relationship
+    channels = {e.channel for e in rel.outreach_events}
+    score += min(len(channels) * 5, 15)
+
+    # Assignment signals (0-15): formal engagement
     if rel.issue_assigned:
-        score += 10
+        score += 15
     elif rel.issue_claimed:
         score += 5
+
+    # CLA (0-10): commitment signal
     if rel.cla_signed:
         score += 10
+
     return min(score, 100)
 
 

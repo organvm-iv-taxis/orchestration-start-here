@@ -1,39 +1,33 @@
 name: "The Plague"
 started: "2026-03-22"
 targets:
-  - contrib--temporal-sdk-python
   - contrib--adenhq-hive
-  - contrib--primeinc-github-stars
-  - contrib--langchain-langgraph
   - contrib--anthropic-skills
+  - contrib--langchain-langgraph
+  - contrib--temporal-sdk-python
   - contrib--dbt-mcp
+  - contrib--primeinc-github-stars
   - contrib--ipqwery-ipapi-py
 actions:
-  - id: temporal-cla
-    workspace: contrib--temporal-sdk-python
-    phase: unblock
-    action: "Sign CLA at cla-assistant.io"
+  # ============================================================
+  # TIER 1 — AdenHQ: warmest lead, highest conversion potential
+  # CEO reached out directly, YC-backed, 5-person team, 10K stars
+  # Strategy: build relationship BEFORE fixing PR blocker
+  # ============================================================
+  - id: hive-discord
+    workspace: contrib--adenhq-hive
+    phase: engage
+    action: "Join AdenHQ Discord — introduce yourself, be helpful before asking for anything"
     priority: 0
     manual: true
     automated: false
     blocked_by: []
     completed: false
     completed_at: ""
-  - id: temporal-await
-    workspace: contrib--temporal-sdk-python
-    phase: unblock
-    action: "Await CI re-run after CLA"
-    priority: 0
-    manual: false
-    automated: false
-    blocked_by:
-      - temporal-cla
-    completed: false
-    completed_at: ""
   - id: hive-claim
     workspace: contrib--adenhq-hive
     phase: unblock
-    action: "Comment on issue #6613 to claim"
+    action: "Comment on issue #6613 to claim — reference Discord presence"
     priority: 0
     manual: true
     automated: false
@@ -62,20 +56,50 @@ actions:
       - hive-await-assign
     completed: false
     completed_at: ""
-  - id: prime-changeset
-    workspace: contrib--primeinc-github-stars
-    phase: unblock
-    action: "Add changeset file per changeset-bot requirements"
+  - id: hive-discord-active
+    workspace: contrib--adenhq-hive
+    phase: cultivate
+    action: "Stay active in Discord — answer questions, review others' PRs, build standing"
+    priority: 0
+    manual: true
+    automated: false
+    blocked_by:
+      - hive-discord
+    completed: false
+    completed_at: ""
+  # ============================================================
+  # TIER 2 — Anthropic: highest prestige credential
+  # 100K stars, validates entire 101-skill collection
+  # ============================================================
+  - id: anthropic-investigate
+    workspace: contrib--anthropic-skills
+    phase: engage
+    action: "Check if anthropics/skills accepts external PRs — review CONTRIBUTING, recent merged PRs"
     priority: 1
     manual: false
     automated: true
     blocked_by: []
     completed: false
     completed_at: ""
+  - id: anthropic-engage
+    workspace: contrib--anthropic-skills
+    phase: engage
+    action: "Comment on PR #723 or open discussion — position as skill author with 101-skill system"
+    priority: 1
+    manual: false
+    automated: true
+    blocked_by:
+      - anthropic-investigate
+    completed: false
+    completed_at: ""
+  # ============================================================
+  # TIER 3 — LangChain: ecosystem visibility multiplier
+  # 27K stars, center of AI agent ecosystem
+  # ============================================================
   - id: langgraph-community
     workspace: contrib--langchain-langgraph
     phase: engage
-    action: "Find and join LangChain community channel"
+    action: "Find and join LangChain community channel (Discord/Slack)"
     priority: 2
     manual: true
     automated: false
@@ -92,32 +116,52 @@ actions:
     blocked_by: []
     completed: false
     completed_at: ""
-  - id: anthropic-investigate
-    workspace: contrib--anthropic-skills
+  # ============================================================
+  # TIER 4 — Temporal: enterprise credential
+  # 1K stars but enterprise money, SDK expertise signals
+  # ============================================================
+  - id: temporal-cla
+    workspace: contrib--temporal-sdk-python
+    phase: unblock
+    action: "Sign CLA at cla-assistant.io"
+    priority: 3
+    manual: true
+    automated: false
+    blocked_by: []
+    completed: false
+    completed_at: ""
+  - id: temporal-await
+    workspace: contrib--temporal-sdk-python
+    phase: unblock
+    action: "Await CI re-run after CLA"
+    priority: 3
+    manual: false
+    automated: false
+    blocked_by:
+      - temporal-cla
+    completed: false
+    completed_at: ""
+  # ============================================================
+  # TIER 5 — dbt: enterprise data, MCP niche
+  # ============================================================
+  - id: dbt-engage
+    workspace: contrib--dbt-mcp
     phase: engage
-    action: "Check if anthropics/skills accepts external PRs (review process)"
-    priority: 2
+    action: "Follow up on PR #669 — check if maintainers are active"
+    priority: 4
     manual: false
     automated: true
     blocked_by: []
     completed: false
     completed_at: ""
-  - id: anthropic-engage
-    workspace: contrib--anthropic-skills
-    phase: engage
-    action: "Comment on PR #723 or related issue"
-    priority: 2
-    manual: false
-    automated: true
-    blocked_by:
-      - anthropic-investigate
-    completed: false
-    completed_at: ""
-  - id: dbt-engage
-    workspace: contrib--dbt-mcp
-    phase: engage
-    action: "Follow up on PR #669 — check if maintainers are active"
-    priority: 3
+  # ============================================================
+  # TIER 6-7 — Easy wins, contribution graph padding
+  # ============================================================
+  - id: prime-changeset
+    workspace: contrib--primeinc-github-stars
+    phase: unblock
+    action: "Add changeset file per changeset-bot requirements"
+    priority: 5
     manual: false
     automated: true
     blocked_by: []
@@ -127,7 +171,20 @@ actions:
     workspace: contrib--ipqwery-ipapi-py
     phase: engage
     action: "Wait 14 days from PR submission, then polite bump"
-    priority: 4
+    priority: 6
+    manual: false
+    automated: false
+    blocked_by: []
+    completed: false
+    completed_at: ""
+  # ============================================================
+  # META — ORGAN-V narrative (ships BEFORE merges)
+  # ============================================================
+  - id: meta-narrative-draft
+    workspace: contrib--adenhq-hive
+    phase: engage
+    action: "Draft ORGAN-V meta-narrative: 'How one person built a systematic contribution engine across 7 repos'"
+    priority: 1
     manual: false
     automated: false
     blocked_by: []

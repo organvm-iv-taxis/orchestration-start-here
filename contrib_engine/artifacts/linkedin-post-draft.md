@@ -1,49 +1,50 @@
-# LinkedIn Post — The Plague Campaign
+# LinkedIn Post — The Plague Campaign (v3)
 
 ## Images (carousel order)
 1. `linkedin-01-network.png` — Contribution network topology
 2. `linkedin-02-phases.png` — Campaign phase architecture
 3. `linkedin-03-symbiote.png` — Cross-organ symbiote pattern
 
-## Post Text
-
 ---
 
-**I built a contribution engine. Then I pointed it at 7 open-source repos.**
+## Post Text
 
-AdenHQ's Hive framework runs on a principle stated in their contributor guidelines: "Aden Hive is built by practitioners for practitioners."¹ That single line captures why I built what I built — not a framework for contributing, but a system for making contribution systematic.
+**I built a contribution engine. Then I had to answer why.**
 
-The targets span the AI agent and data infrastructure ecosystems. Hive orchestrates autonomous agent swarms. Anthropic's Skills repository provides the standard for extending Claude's capabilities across 100K+ stars' worth of community attention.² LangGraph handles long-running stateful agent orchestration for companies like Klarna, Replit, and Elastic.³ Temporal's Python SDK powers durable workflow execution at enterprise scale.⁴ And dbt's MCP server bridges AI agents to data transformation pipelines.⁵ Seven repos, 138K combined stars.
+AdenHQ's contributor guidelines open with a line that stopped me: "Aden Hive is built by practitioners for practitioners."¹ Not by companies for users, not by committees for compliance — by people who build the thing for people who build with it. That framing forced a question I couldn't sidestep: if I'm going to contribute to someone else's codebase, what exactly do I bring that their own team doesn't already have?
 
-Each target gets a full contribution workspace: a capability map matching my system's patterns to their open problems, a campaign sequencer that prioritizes by relationship strength, an outreach tracker modeling the engagement lifecycle, and a backflow pipeline routing what I learn back into my own system.
+So I audited my own system — 118 repositories, 8 organizational units, 23,000+ tests — and mapped where my patterns collide with their open problems. The result wasn't a PR. It was an engine that makes PRs the byproduct of a deeper process.
 
-The methodology has roots deeper than personal preference. In their foundational study of open-source participation, Lakhani and von Hippel examined how knowledge moves through contributor communities and found that the exchange is inherently bidirectional — contributors teach the community while the community transforms the contributor.⁶ Von Krogh, Spaeth, and Lakhani extended this, showing that what separates sustained high-impact contribution from drive-by patches is joining specialization — the process by which a newcomer finds where their existing expertise maps onto a project's open problems.⁷ That's exactly what the capability map automates: matching patterns I've built across 118 repos to the specific issues each target cares about.
+Seven targets emerged, each solving a different problem in the AI agent ecosystem. Hive orchestrates autonomous agent swarms for teams building without manual workflow wiring.¹ LangGraph provides the stateful orchestration layer trusted by Klarna, Replit, and Elastic.² Temporal powers durable workflows at enterprise scale.³ Anthropic's Skills repository defines how Claude extends its own capabilities through community-contributed patterns.⁴ These aren't random repos — they're the infrastructure layer I already think in, which means the domain overlap is structural, not cosmetic.
 
-The engineering is a 5-phase campaign:
+But domain overlap alone produces drive-by patches that die in review queues. Lakhani and von Hippel's research on open-source participation revealed something more specific: the exchange between contributor and community is inherently bidirectional — the contributor transforms the project, but the project also transforms the contributor's understanding of their own patterns.⁵ That bidirectionality is usually accidental. I wanted to engineer it. Therefore each contribution workspace includes a backflow pipeline — a formal routing system that captures what I learn and deposits it into typed categories: theory formalization, generative artifacts, reusable code patterns, public narrative, community capital, distribution content. One PR, seven returns. Each return sharpens the capability map that identifies the next target, which means the system compounds rather than depletes.
 
-UNBLOCK → ENGAGE → CULTIVATE → HARVEST → INJECT
+Von Krogh, Spaeth, and Lakhani showed that what separates sustained contribution from abandoned PRs is joining specialization — the process of finding where your existing expertise maps onto a project's specific needs.⁶ But their research describes this as emergent. The contribution engine makes it mechanical: a scanner reads signal sources, scores targets by domain overlap and relationship strength, and a campaign sequencer prescribes actions in priority order. Not "find an issue and hope" — infrastructure that treats contribution as a systems problem.
 
-Unblocking clears technical barriers — CLAs, CI failures, issue claiming. Engaging joins the community before submitting code, because relationship context before cold PRs is the difference between a merged contribution and an ignored one. Cultivating responds to review feedback within 24 hours. Harvesting extracts patterns and formalizes theory from the fusion of two codebases. Injecting routes knowledge back: theory formalization, generative artifacts, public narrative, community capital, distribution content.
+Seven PRs open. 111 tests passing. The campaign is live, but the system matters more than the output. Open-source contribution at scale isn't a volume game. It's a knowledge-routing problem — and the literature on structural social capital suggests that solving it deliberately, rather than letting it emerge accidentally, is what converts peripheral participation into standing.⁷
 
-One contribution, seven returns. Singh and Monge's research on open-source network effects demonstrates why this compounds: structural social capital — the trust and standing built through visible, sustained participation — increases a contributor's influence on subsequent projects.⁸ Each merged PR doesn't just ship code; it builds the reputation infrastructure that makes the next target more likely to engage.
-
-7 PRs open. 111 tests passing. The campaign is live.
-
-What systems have you built to make open-source contribution sustainable and symbiotic rather than episodic?
+What would change about how you contribute if you treated every PR as both an outbound delivery and an inbound learning channel?
 
 ---
 
 ## Notes
 
-1. AdenHQ/Hive, CONTRIBUTING.md, §Philosophy. github.com/adenhq/hive
-2. Anthropic, Agent Skills README. "Skills teach Claude how to complete specific tasks in a repeatable way, whether that's creating documents with your company's brand guidelines, analyzing data using your organization's specific workflows, or automating personal tasks." github.com/anthropics/skills
-3. LangChain, LangGraph README. github.com/langchain-ai/langgraph
-4. Temporal Technologies, Python SDK README. github.com/temporalio/sdk-python
-5. dbt Labs, dbt-mcp README. github.com/dbt-labs/dbt-mcp
-6. Lakhani, K. R. & von Hippel, E. (2003). "How Open Source Software Works: 'Free' User-to-User Assistance." *Research Policy*, 32(6), 923–943.
-7. von Krogh, G., Spaeth, S., & Lakhani, K. R. (2003). "Community, Joining, and Specialization in Open Source Software Innovation: A Case Study." *Research Policy*, 32(7), 1217–1241.
-8. Singh, P. V. & Monge, P. (2011). "Network Effects: The Influence of Structural Social Capital on Open Source Project Success." *J. of Computer-Mediated Communication*, 16(4).
+1. AdenHQ/Hive, CONTRIBUTING.md, §Philosophy; README.md. github.com/adenhq/hive
+2. LangChain, LangGraph README. github.com/langchain-ai/langgraph
+3. Temporal Technologies, Python SDK README. github.com/temporalio/sdk-python
+4. Anthropic, Agent Skills README. github.com/anthropics/skills
+5. Lakhani, K. R. & von Hippel, E. (2003). "How Open Source Software Works: 'Free' User-to-User Assistance." *Research Policy*, 32(6), 923–943.
+6. von Krogh, G., Spaeth, S., & Lakhani, K. R. (2003). "Community, Joining, and Specialization in Open Source Software Innovation." *Research Policy*, 32(7), 1217–1241.
+7. Singh, P. V. & Monge, P. (2011). "Network Effects: The Influence of Structural Social Capital on Open Source Project Success." *J. of Computer-Mediated Communication*, 16(4).
+
+## Narratological Algorithms Applied
+
+- **South Park BUT/THEREFORE**: "domain overlap alone produces drive-by patches BUT... THEREFORE each workspace includes a backflow pipeline"; "their research describes this as emergent BUT the engine makes it mechanical"
+- **Larry David collision geometry**: 7 apparently independent repos converge through the bridge element (ORGANVM capability map). The collision point is the thesis: one system's patterns mechanically unlock another's open problems.
+- **Waller-Bridge triple-layer**: Every paragraph carries ethos (118 repos, 23K tests), logos (Lakhani's bidirectionality, von Krogh's joining specialization), and pathos ("what exactly do I bring that their own team doesn't already have?") simultaneously.
+- **Kubrick non-submersible units**: Paragraphs 1 (the question), 2 (the audit), 3 (the targets + backflow), 4 (the engine), 5 (the thesis) each stand alone.
+- **Aristotle recognition**: Readers who know Research Policy see the theory operationalized. Practitioners see the method. Everyone reads a story about someone who asked a hard question and built something to answer it.
 
 ## Tagging
 - @ Vincent Jiang (AdenHQ) — ONLY after joining their Discord first
-- Mention by name without @: Anthropic, LangChain, Temporal, dbt Labs
+- Mention by name without @: Anthropic, LangChain, Temporal

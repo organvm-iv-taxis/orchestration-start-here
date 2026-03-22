@@ -6,6 +6,9 @@ Registers as subcommands under the `organvm` CLI:
     organvm contrib approve <target>
     organvm contrib status
     organvm contrib monitor
+
+Can also be registered without a prefix for standalone use via
+``register_contrib_commands(subparsers, prefix="")``.
 """
 
 from __future__ import annotations
@@ -14,12 +17,21 @@ import argparse
 import sys
 
 
-def register_contrib_commands(subparsers: argparse._SubParsersAction) -> None:
-    """Register contrib subcommands."""
+def register_contrib_commands(
+    subparsers: argparse._SubParsersAction,
+    prefix: str = "contrib-",
+) -> None:
+    """Register contrib subcommands.
+
+    Args:
+        subparsers: The subparsers action to register commands under.
+        prefix: Prefix for command names. Defaults to ``"contrib-"`` for use
+            under the ``organvm`` parent CLI. Pass ``""`` for standalone use.
+    """
 
     # organvm contrib scan
     scan_parser = subparsers.add_parser(
-        "contrib-scan",
+        f"{prefix}scan",
         help="Scan for open-source contribution targets",
         description="Read application pipeline signals and GitHub data to find targets.",
     )
@@ -30,7 +42,7 @@ def register_contrib_commands(subparsers: argparse._SubParsersAction) -> None:
 
     # organvm contrib list
     list_parser = subparsers.add_parser(
-        "contrib-list",
+        f"{prefix}list",
         help="List ranked contribution targets",
     )
     list_parser.add_argument("--status", type=str, help="Filter by status")
@@ -39,7 +51,7 @@ def register_contrib_commands(subparsers: argparse._SubParsersAction) -> None:
 
     # organvm contrib approve
     approve_parser = subparsers.add_parser(
-        "contrib-approve",
+        f"{prefix}approve",
         help="Approve a target and initialize workspace",
     )
     approve_parser.add_argument("target", type=str, help="Target name (from contrib-list)")
@@ -56,14 +68,14 @@ def register_contrib_commands(subparsers: argparse._SubParsersAction) -> None:
 
     # organvm contrib status
     status_parser = subparsers.add_parser(
-        "contrib-status",
+        f"{prefix}status",
         help="Show status of all active contributions",
     )
     status_parser.set_defaults(func=cmd_contrib_status)
 
     # organvm contrib monitor
     monitor_parser = subparsers.add_parser(
-        "contrib-monitor",
+        f"{prefix}monitor",
         help="Run one PR monitoring cycle",
     )
     monitor_parser.set_defaults(func=cmd_contrib_monitor)

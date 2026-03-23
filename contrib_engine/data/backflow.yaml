@@ -5,9 +5,9 @@ items:
     backflow_type: theory
     title: "Forward-only lifecycle state machine as universal governance pattern"
     description: "Extracted from fusion of ORGANVM promotion FSM + Hive QueenPhaseState"
-    status: pending
-    artifact_path: ""
-    deposited_at: ""
+    status: deposited
+    artifact_path: "organvm-i-theoria/my-knowledge-base/intake/canonical/contributions/forward-only-fsm-governance.md"
+    deposited_at: "2026-03-23"
   - workspace: contrib--adenhq-hive
     organ: "II"
     backflow_type: generative
@@ -37,9 +37,9 @@ items:
     backflow_type: theory
     title: "Idempotency patterns in distributed state machines"
     description: "Put_writes restart-safety as a formal property"
-    status: pending
-    artifact_path: ""
-    deposited_at: ""
+    status: deposited
+    artifact_path: "organvm-i-theoria/my-knowledge-base/intake/canonical/contributions/idempotent-checkpoint-writes.md"
+    deposited_at: "2026-03-23"
   - workspace: contrib--langchain-langgraph
     organ: "V"
     backflow_type: narrative

@@ -165,7 +165,7 @@ def scan(
                 targets[org].contacts.append(contact["name"])
 
     # Phase 1b: Extract from forks — repos we've already forked signal interest
-    forks = list_user_forks()
+    forks = list_user_forks() if enrich_github else []
     for fork in forks:
         parent = fork.get("parent", {})
         if not parent:
@@ -184,7 +184,7 @@ def scan(
             )
 
     # Phase 1c: Extract from stargazers — who's watching our repos
-    star_events = who_starred_my_repos()
+    star_events = who_starred_my_repos() if enrich_github else []
     for event in star_events:
         login = event.get("login", "")
         if not login or login == "4444J99":

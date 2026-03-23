@@ -209,7 +209,7 @@ def render_narratives():
     ax2.text(5, 1.2, "Not metaphor. Isomorphism.", ha="center",
              fontsize=10, color=TEXT, fontstyle="italic")
 
-    fig.suptitle("Narratological Algorithmic Lenses — github.com/ivviiviivvi/narratological-algorithmic-lenses",
+    fig.suptitle("Narratological Algorithmic Lenses — github.com/organvm-i-theoria/narratological-algorithmic-lenses",
                  fontsize=8, color=MUTED, y=0.02, fontstyle="italic")
     fig.tight_layout(rect=[0, 0.04, 1, 1])
     save(fig, "post001-02-narrative-algorithms.png")

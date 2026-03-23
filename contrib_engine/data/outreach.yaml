@@ -10,11 +10,21 @@ relationships:
     direction: outbound
     summary: "Submitted PR #6707 \u2014 design versioning system"
     url: https://github.com/adenhq/hive/pull/6707
+  - channel: github_issue
+    date: '2026-03-23'
+    direction: outbound
+    summary: 'Follow-up comment on #6613 linking PR #6707 + Discord presence'
+    url: ''
+  - channel: discord
+    date: '2026-03-23'
+    direction: outbound
+    summary: Joined and verified via QueenBee bot
+    url: ''
   issue_claimed: false
   issue_assigned: false
   cla_signed: false
   first_human_contact: ''
-  relationship_score: 10
+  relationship_score: 30
 - workspace: contrib--anthropic-skills
   target: anthropics/skills
   maintainers: []
@@ -31,11 +41,16 @@ relationships:
     summary: 'Investigated: external PRs accepted, 10 merged from externals. Reviewers:
       klazuka, zack-anthropic. 10 open PRs in queue. No CONTRIBUTING.md.'
     url: ''
+  - channel: github_pr
+    date: '2026-03-23'
+    direction: outbound
+    summary: "Polite bump comment on PR #723 \u2014 offered to adjust skill structure"
+    url: ''
   issue_claimed: false
   issue_assigned: false
   cla_signed: false
   first_human_contact: ''
-  relationship_score: 15
+  relationship_score: 20
 - workspace: contrib--dbt-mcp
   target: dbt-labs/dbt-mcp
   maintainers: []
@@ -46,11 +61,17 @@ relationships:
     direction: outbound
     summary: "Submitted PR #669 \u2014 OAuth wording fix"
     url: https://github.com/dbt-labs/dbt-mcp/pull/669
+  - channel: github_pr
+    date: '2026-03-23'
+    direction: outbound
+    summary: "Polite bump on PR #669 \u2014 small wording fix, maintainers active\
+      \ (merged today)"
+    url: ''
   issue_claimed: false
   issue_assigned: false
   cla_signed: false
   first_human_contact: ''
-  relationship_score: 10
+  relationship_score: 15
 - workspace: contrib--ipqwery-ipapi-py
   target: ipqwery/ipapi-py
   maintainers: []
@@ -76,11 +97,16 @@ relationships:
     direction: outbound
     summary: "Submitted PR #7237 \u2014 restart-safety coverage"
     url: https://github.com/langchain-ai/langgraph/pull/7237
+  - channel: github_pr
+    date: '2026-03-23'
+    direction: outbound
+    summary: "Polite bump comment on PR #7237 \u2014 referenced #7201 contract gap"
+    url: ''
   issue_claimed: false
   issue_assigned: false
   cla_signed: false
   first_human_contact: ''
-  relationship_score: 10
+  relationship_score: 15
 - workspace: contrib--primeinc-github-stars
   target: primeinc/github-stars
   maintainers: []
@@ -91,11 +117,17 @@ relationships:
     direction: outbound
     summary: "Submitted PR #39 \u2014 CodeQL security analysis"
     url: https://github.com/primeinc/github-stars/pull/39
+  - channel: github_pr
+    date: '2026-03-23'
+    direction: outbound
+    summary: "Commented on changeset bot false positive \u2014 no @changesets/cli\
+      \ configured"
+    url: ''
   issue_claimed: false
   issue_assigned: false
   cla_signed: false
   first_human_contact: ''
-  relationship_score: 10
+  relationship_score: 15
 - workspace: contrib--temporal-sdk-python
   target: temporalio/sdk-python
   maintainers: []

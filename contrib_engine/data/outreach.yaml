@@ -67,11 +67,24 @@ relationships:
     summary: "Polite bump on PR #669 \u2014 small wording fix, maintainers active\
       \ (merged today)"
     url: ''
+  - channel: github_pr
+    date: '2026-03-23'
+    direction: inbound
+    summary: "jairus-m CHANGES_REQUESTED \u2014 dbt Cloud \u2192 dbt Platform branding,\
+      \ remove editor-specific framing"
+    url: https://github.com/dbt-labs/dbt-mcp/pull/669
+  - channel: github_pr
+    date: '2026-03-23'
+    direction: outbound
+    summary: "Applied both suggestions, replied inline. Turnaround <3hrs."
+    url: https://github.com/dbt-labs/dbt-mcp/pull/669
+  maintainers:
+  - jairus-m
   issue_claimed: false
   issue_assigned: false
   cla_signed: false
-  first_human_contact: ''
-  relationship_score: 15
+  first_human_contact: 'jairus-m (2026-03-23)'
+  relationship_score: 25
 - workspace: contrib--ipqwery-ipapi-py
   target: ipqwery/ipapi-py
   maintainers: []
@@ -138,8 +151,21 @@ relationships:
     direction: outbound
     summary: "Submitted PR #1385 \u2014 telemetry config docs"
     url: https://github.com/temporalio/sdk-python/pull/1385
+  - channel: github_pr
+    date: '2026-03-23'
+    direction: inbound
+    summary: "tconley1428 review \u2014 metric_periodicity defaults to 1s in sdk-core,\
+      \ not 60s"
+    url: https://github.com/temporalio/sdk-python/pull/1385
+  - channel: github_pr
+    date: '2026-03-23'
+    direction: outbound
+    summary: "Corrected to 1s per sdk-core, replied inline. CLA signed."
+    url: https://github.com/temporalio/sdk-python/pull/1385
+  maintainers:
+  - tconley1428
   issue_claimed: false
   issue_assigned: false
-  cla_signed: false
-  first_human_contact: ''
-  relationship_score: 10
+  cla_signed: true
+  first_human_contact: 'tconley1428 (2026-03-23)'
+  relationship_score: 25

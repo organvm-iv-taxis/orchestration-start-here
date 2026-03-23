@@ -50,17 +50,28 @@ Central orchestration hub: registry, governance rules, 5 workflows, 3 Python scr
 
 ## Contribution Engine (`contrib_engine/`)
 
-Automated public-facing open-source contribution system:
+The Plague Campaign — systematic open-source contribution engine with income-weighted prioritization.
 
 ```bash
-organvm contrib-scan          # Scan application-pipeline signals for targets
-organvm contrib-list          # Show ranked targets
-organvm contrib-approve <t>   # Initialize cross-organ workspace
-organvm contrib-status        # Show active contribution states
-organvm contrib-monitor       # Poll PRs, journal changes, determine next actions
+python -m contrib_engine scan          # Scan signals for targets (4 sources: contacts, stars, forks, deps)
+python -m contrib_engine list          # Show ranked targets
+python -m contrib_engine approve <t>   # Initialize cross-organ workspace
+python -m contrib_engine status        # Show active contribution states
+python -m contrib_engine monitor       # Poll PRs, journal changes, determine next actions
+python -m contrib_engine campaign show # Campaign sequencer — next actions, phase summary
+python -m contrib_engine outreach show # Outreach tracker — relationship lifecycle
+python -m contrib_engine backflow pending # Backflow pipeline — knowledge routing to organs
 ```
 
-Modules: `scanner.py` (signal extraction + scoring), `orchestrator.py` (workspace initialization), `monitor.py` (PR lifecycle), `capabilities.py` (8 ORGANVM capability definitions), `schemas.py` (Pydantic models), `github_client.py` (gh CLI wrapper), `cli.py` (CLI entry points).
+**Core modules:** `scanner.py` (4 signal sources + scoring), `orchestrator.py` (workspace init), `monitor.py` (PR lifecycle — handles both seed.yaml formats), `capabilities.py` (8 capability definitions), `schemas.py` (25 Pydantic models), `github_client.py` (gh CLI wrapper), `cli.py` (dual-mode prefix registration).
+
+**Campaign modules (new S32):** `campaign.py` (phase sequencer: UNBLOCK→ENGAGE→CULTIVATE→HARVEST→INJECT), `outreach.py` (relationship scoring, event logging), `backflow.py` (6-organ routing: theory/generative/code/narrative/community/distribution).
+
+**Data files** (committed, living state): `data/campaign.yaml` (15 actions, income-weighted), `data/outreach.yaml` (7 relationships), `data/backflow.yaml` (8 pending items).
+
+**Testament:** 13 articles of codified writing rules formalized into logic/algorithms/math at `docs/testament-formalization.md`. Constitutional authority — governs all written output.
+
+**Tests:** 111 passing, 0 failures.
 
 ## ORGANVM Context
 

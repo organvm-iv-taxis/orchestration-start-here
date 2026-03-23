@@ -169,3 +169,54 @@ relationships:
   cla_signed: true
   first_human_contact: 'tconley1428 (2026-03-23)'
   relationship_score: 25
+- workspace: contrib--clyra-gait
+  target: Clyra-AI/gait
+  maintainers:
+  - davidahmann
+  community_channels: []
+  outreach_events:
+  - channel: github_pr
+    date: '2026-03-23'
+    direction: outbound
+    summary: "Submitted PR #110 \u2014 CI/CD pipeline policy template with 6 rules,\
+      \ 5 intent fixtures, updated docs + CI validation (21 cases pass)"
+    url: https://github.com/Clyra-AI/gait/pull/110
+  issue_claimed: false
+  issue_assigned: false
+  cla_signed: false
+  first_human_contact: ''
+  relationship_score: 15
+- workspace: contrib--indeedeng-iwf
+  target: indeedeng/iwf
+  maintainers:
+  - longquanzheng
+  community_channels: []
+  outreach_events:
+  - channel: github_pr
+    date: '2026-03-23'
+    direction: outbound
+    summary: "Submitted PR #601 \u2014 39 unit tests for timeparser + urlautofix\
+      \ (addresses issue #419). Strategic: longquanzheng has LangGraph merge authority."
+    url: https://github.com/indeedeng/iwf/pull/601
+  issue_claimed: true
+  issue_assigned: false
+  cla_signed: false
+  first_human_contact: ''
+  relationship_score: 20
+- workspace: contrib--jairus-dagster-sdlc
+  target: jairus-m/dagster-sdlc
+  maintainers:
+  - jairus-m
+  community_channels: []
+  outreach_events:
+  - channel: github_pr
+    date: '2026-03-23'
+    direction: outbound
+    summary: "Submitted PR #22 \u2014 bug fix (operator precedence &\u2192and) +\
+      \ 10 new tests. Reciprocity play: jairus-m reviewed our dbt-mcp PR."
+    url: https://github.com/jairus-m/dagster-sdlc/pull/22
+  issue_claimed: false
+  issue_assigned: false
+  cla_signed: false
+  first_human_contact: 'jairus-m (2026-03-23, via dbt-mcp review)'
+  relationship_score: 30

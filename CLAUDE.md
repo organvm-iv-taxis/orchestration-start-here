@@ -46,6 +46,21 @@ Central orchestration hub: registry, governance rules, 5 workflows, 3 Python scr
 - `README.md` — Project documentation
 - `seed.yaml` — ORGANVM orchestration metadata
 - `src/` — Main source code
+- `contrib_engine/` — Outbound open-source contribution engine (scanner, orchestrator, monitor)
+
+## Contribution Engine (`contrib_engine/`)
+
+Automated public-facing open-source contribution system:
+
+```bash
+organvm contrib-scan          # Scan application-pipeline signals for targets
+organvm contrib-list          # Show ranked targets
+organvm contrib-approve <t>   # Initialize cross-organ workspace
+organvm contrib-status        # Show active contribution states
+organvm contrib-monitor       # Poll PRs, journal changes, determine next actions
+```
+
+Modules: `scanner.py` (signal extraction + scoring), `orchestrator.py` (workspace initialization), `monitor.py` (PR lifecycle), `capabilities.py` (8 ORGANVM capability definitions), `schemas.py` (Pydantic models), `github_client.py` (gh CLI wrapper), `cli.py` (CLI entry points).
 
 ## ORGANVM Context
 

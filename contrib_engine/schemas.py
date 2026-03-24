@@ -282,3 +282,62 @@ class BackflowIndex(BaseModel):
             if item.status == BackflowStatus.PENDING:
                 result.setdefault(item.organ, []).append(item)
         return result
+
+
+# --- Absorption models ---
+
+
+class AbsorptionTrigger(StrEnum):
+    """What made an external question worth formalizing."""
+
+    ASSUMPTION_DIVERGENCE = "assumption_divergence"
+    UNNAMED_PATTERN = "unnamed_pattern"
+    INDEPENDENT_CONVERGENCE = "convergence"
+
+
+class AbsorptionStatus(StrEnum):
+    """Lifecycle of an absorbed question."""
+
+    DETECTED = "detected"  # Heuristic matched
+    ASSESSED = "assessed"  # Confirmed expansive (not reductive)
+    FORMALIZED = "formalized"  # Theory note written
+    DEPOSITED = "deposited"  # Backflow entry created
+    DISMISSED = "dismissed"  # Assessed as reductive
+
+
+class AbsorptionItem(BaseModel):
+    """A single external question flagged for formalization."""
+
+    id: str
+    workspace: str
+    source_url: str  # GitHub comment URL
+    questioner: str  # GitHub username
+    question_text: str  # First 500 chars
+    detected_at: str
+    triggers: list[AbsorptionTrigger] = Field(default_factory=list)
+    trigger_evidence: str = ""
+    status: AbsorptionStatus = AbsorptionStatus.DETECTED
+    pattern_name: str = ""  # Named after formalization
+    backflow_ref: str = ""  # Reference to backflow item if deposited
+    organ: str = ""  # Target organ for deposit
+
+    model_config = {"extra": "allow"}
+
+
+class AbsorptionIndex(BaseModel):
+    """All tracked absorption items."""
+
+    generated: str = ""
+    items: list[AbsorptionItem] = Field(default_factory=list)
+
+    model_config = {"extra": "allow"}
+
+    def by_status(self, status: AbsorptionStatus) -> list[AbsorptionItem]:
+        return [i for i in self.items if i.status == status]
+
+    def pending_formalization(self) -> list[AbsorptionItem]:
+        """Items detected or assessed but not yet formalized."""
+        return [
+            i for i in self.items
+            if i.status in (AbsorptionStatus.DETECTED, AbsorptionStatus.ASSESSED)
+        ]

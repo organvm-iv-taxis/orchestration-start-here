@@ -80,6 +80,23 @@ def register_contrib_commands(
     )
     monitor_parser.set_defaults(func=cmd_contrib_monitor)
 
+    # organvm contrib absorb
+    absorb_parser = subparsers.add_parser(
+        f"{prefix}absorb",
+        help="Scan conversations for expansion-worthy questions (Absorption Protocol)",
+    )
+    absorb_parser.add_argument(
+        "--since", type=str, default="", help="Only scan comments after this ISO date"
+    )
+    absorb_parser.set_defaults(func=cmd_contrib_absorb)
+
+    # organvm contrib absorb-pending
+    absorb_pending_parser = subparsers.add_parser(
+        f"{prefix}absorb-pending",
+        help="Show questions awaiting formalization",
+    )
+    absorb_pending_parser.set_defaults(func=cmd_contrib_absorb_pending)
+
 
 def cmd_contrib_scan(args: argparse.Namespace) -> None:
     """Run the signal scanner."""
@@ -171,3 +188,55 @@ def cmd_contrib_monitor(args: argparse.Namespace) -> None:
     for c in index.contributions:
         action = c.next_action or "monitor"
         print(f"  {c.workspace}: {action}")
+
+
+def cmd_contrib_absorb(args: argparse.Namespace) -> None:
+    """Run absorption scan across all tracked conversations."""
+    from contrib_engine.absorption import run_absorption_scan
+
+    print("Running absorption scan...")
+    index = run_absorption_scan(since=args.since)
+
+    pending = index.pending_formalization()
+    if pending:
+        print(f"\n{len(pending)} items awaiting formalization:")
+        for item in pending:
+            triggers = ", ".join(t.value for t in item.triggers)
+            print(f"  [{item.status.value:>10s}] @{item.questioner:<20s} [{triggers}]")
+            print(f"             {item.question_text[:80]}...")
+            print(f"             {item.source_url}")
+    else:
+        print("\nNo pending items. All quiet on the absorption front.")
+
+    total = len(index.items)
+    if total:
+        by_status = {}
+        for item in index.items:
+            by_status[item.status.value] = by_status.get(item.status.value, 0) + 1
+        counts = " | ".join(f"{k}: {v}" for k, v in sorted(by_status.items()))
+        print(f"\nTotal: {total} ({counts})")
+
+
+def cmd_contrib_absorb_pending(args: argparse.Namespace) -> None:
+    """Show questions awaiting formalization."""
+    from contrib_engine.absorption import load_absorption
+
+    index = load_absorption()
+    pending = index.pending_formalization()
+
+    if not pending:
+        print("No items awaiting formalization.")
+        return
+
+    for item in pending:
+        triggers = ", ".join(t.value for t in item.triggers)
+        print(f"\n{'=' * 70}")
+        print(f"ID:         {item.id}")
+        print(f"From:       @{item.questioner} ({item.workspace})")
+        print(f"Triggers:   {triggers}")
+        print(f"Evidence:   {item.trigger_evidence}")
+        print(f"Source:     {item.source_url}")
+        print(f"Detected:   {item.detected_at}")
+        print(f"\nQuestion:")
+        print(f"  {item.question_text}")
+        print(f"{'=' * 70}")

@@ -1,0 +1,126 @@
+generated: '2026-03-23T19:27:28.840504'
+targets:
+- name: alternative-funding-group
+  github: ''
+  score: 35
+  signal_type: inbound
+  domain_overlap: []
+  stars: 0
+  open_issues: 0
+  contacts:
+  - Tony Carbone
+  matching_issues: []
+  status: ranked
+  workspace: ''
+  notes: 'Inbound LinkedIn DM: saw GitHub work, MCA paid campaigns, underwriting automation
+    + lead gen engine at Alternative Funding Group.'
+- name: adenhq
+  github: ''
+  score: 35
+  signal_type: inbound
+  domain_overlap: []
+  stars: 0
+  open_issues: 0
+  contacts:
+  - Vincent Jiang
+  matching_issues: []
+  status: ranked
+  workspace: ''
+  notes: 'Inbound: Discord invite for AI agent builder community (Hive). Multiple
+    team members subsequently starred/followed GitHub profile.'
+- name: temporalio/sdk-python
+  github: temporalio/sdk-python
+  score: 5
+  signal_type: outbound
+  domain_overlap: []
+  stars: 0
+  open_issues: 0
+  contacts: []
+  matching_issues: []
+  status: ranked
+  workspace: ''
+  notes: 'Forked repo: sdk-python'
+- name: dbt-labs/dbt-mcp
+  github: dbt-labs/dbt-mcp
+  score: 5
+  signal_type: outbound
+  domain_overlap: []
+  stars: 0
+  open_issues: 0
+  contacts: []
+  matching_issues: []
+  status: ranked
+  workspace: ''
+  notes: 'Forked repo: dbt-mcp'
+- name: m13v/summarize_recent_commit
+  github: m13v/summarize_recent_commit
+  score: 5
+  signal_type: outbound
+  domain_overlap: []
+  stars: 0
+  open_issues: 0
+  contacts: []
+  matching_issues: []
+  status: ranked
+  workspace: ''
+  notes: 'Forked repo: summarize_recent_commit'
+- name: primeinc/github-stars
+  github: primeinc/github-stars
+  score: 5
+  signal_type: outbound
+  domain_overlap: []
+  stars: 0
+  open_issues: 0
+  contacts: []
+  matching_issues: []
+  status: ranked
+  workspace: ''
+  notes: 'Forked repo: github-stars'
+- name: langchain-ai/langgraph
+  github: langchain-ai/langgraph
+  score: 5
+  signal_type: outbound
+  domain_overlap: []
+  stars: 0
+  open_issues: 0
+  contacts: []
+  matching_issues: []
+  status: ranked
+  workspace: ''
+  notes: 'Forked repo: langgraph'
+- name: anthropics/skills
+  github: anthropics/skills
+  score: 5
+  signal_type: outbound
+  domain_overlap: []
+  stars: 0
+  open_issues: 0
+  contacts: []
+  matching_issues: []
+  status: ranked
+  workspace: ''
+  notes: 'Forked repo: skills'
+- name: ipqwery/ipapi-py
+  github: ipqwery/ipapi-py
+  score: 5
+  signal_type: outbound
+  domain_overlap: []
+  stars: 0
+  open_issues: 0
+  contacts: []
+  matching_issues: []
+  status: ranked
+  workspace: ''
+  notes: 'Forked repo: ipapi-py'
+- name: aden-hive/hive
+  github: aden-hive/hive
+  score: 5
+  signal_type: outbound
+  domain_overlap: []
+  stars: 0
+  open_issues: 0
+  contacts: []
+  matching_issues: []
+  status: ranked
+  workspace: ''
+  notes: 'Forked repo: hive'

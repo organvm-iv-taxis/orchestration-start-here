@@ -102,7 +102,8 @@ relationships:
   relationship_score: 10
 - workspace: contrib--langchain-langgraph
   target: langchain-ai/langgraph
-  maintainers: []
+  maintainers:
+  - masondaugherty
   community_channels: []
   outreach_events:
   - channel: github_pr
@@ -115,11 +116,18 @@ relationships:
     direction: outbound
     summary: "Polite bump comment on PR #7237 \u2014 referenced #7201 contract gap"
     url: ''
+  - channel: github_pr
+    date: '2026-03-24'
+    direction: inbound
+    summary: "Bot auto-closed PR (not assigned to #7201). Maintainer Mason Daugherty\
+      \ REOPENED and added bypass-issue-check label \u2014 strong merge signal. No\
+      \ human review comments yet; awaiting code review."
+    url: https://github.com/langchain-ai/langgraph/pull/7237
   issue_claimed: false
   issue_assigned: false
   cla_signed: false
-  first_human_contact: ''
-  relationship_score: 15
+  first_human_contact: 'masondaugherty (2026-03-24, reopened PR + bypass label)'
+  relationship_score: 25
 - workspace: contrib--primeinc-github-stars
   target: primeinc/github-stars
   maintainers: []

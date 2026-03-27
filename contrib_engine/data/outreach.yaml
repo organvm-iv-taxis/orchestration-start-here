@@ -20,6 +20,12 @@ relationships:
     direction: outbound
     summary: Joined and verified via QueenBee bot
     url: ''
+  - channel: email
+    date: '2026-03-26'
+    direction: outbound
+    summary: "Gmail draft created for Richard/AdenHQ \u2014 honest timeline re PR\
+      \ #6707 closed by bot, issue #6613 still unassigned. Discord engagement ongoing."
+    url: ''
   issue_claimed: false
   issue_assigned: false
   cla_signed: false
@@ -78,13 +84,31 @@ relationships:
     direction: outbound
     summary: "Applied both suggestions, replied inline. Turnaround <3hrs."
     url: https://github.com/dbt-labs/dbt-mcp/pull/669
+  - channel: github_pr
+    date: '2026-03-26'
+    direction: inbound
+    summary: "DevonFulcher review comment on PR #669 \u2014 second maintainer engaged"
+    url: https://github.com/dbt-labs/dbt-mcp/pull/669
+  - channel: github_pr
+    date: '2026-03-26'
+    direction: outbound
+    summary: "Responded to DevonFulcher review, pushed fix commit 24d2c73. Both reviewers'\
+      \ comments now resolved."
+    url: https://github.com/dbt-labs/dbt-mcp/pull/669
+  - channel: github_pr
+    date: '2026-03-27'
+    direction: inbound
+    summary: "PR #669 MERGED \u2014 approved by jairus-m and DevonFulcher. First external\
+      \ contribution to dbt-labs/dbt-mcp landed."
+    url: https://github.com/dbt-labs/dbt-mcp/pull/669
   maintainers:
   - jairus-m
+  - DevonFulcher
   issue_claimed: false
   issue_assigned: false
   cla_signed: false
   first_human_contact: 'jairus-m (2026-03-23)'
-  relationship_score: 25
+  relationship_score: 55
 - workspace: contrib--ipqwery-ipapi-py
   target: ipqwery/ipapi-py
   maintainers: []
@@ -228,3 +252,129 @@ relationships:
   cla_signed: false
   first_human_contact: 'jairus-m (2026-03-23, via dbt-mcp review)'
   relationship_score: 30
+- workspace: agentic-titan
+  target: organvm-iv-taxis/agentic-titan
+  maintainers:
+  - m13v
+  community_channels: []
+  outreach_events:
+  - channel: github_issue
+    date: '2026-03-26'
+    direction: inbound
+    summary: "Two technical exchanges on #20 (comments #11 and #13) \u2014 sliding\
+      \ window spec co-authoring proposed. Deep topology discussion."
+    url: https://github.com/organvm-iv-taxis/agentic-titan/issues/20
+  issue_claimed: false
+  issue_assigned: false
+  cla_signed: false
+  first_human_contact: 'm13v (2026-03-26, agentic-titan #20 technical exchange)'
+  relationship_score: 35
+- workspace: agentic-titan
+  target: organvm-iv-taxis/agentic-titan
+  maintainers:
+  - voidborne-d
+  community_channels: []
+  outreach_events:
+  - channel: github_issue
+    date: '2026-03-26'
+    direction: inbound
+    summary: "Three exchanges on #61 \u2014 perceptual gating discussion. Tracking\
+      \ issue #73 opened at their request. Convergence experiment collaboration proposed."
+    url: https://github.com/organvm-iv-taxis/agentic-titan/issues/61
+  - channel: github_issue
+    date: '2026-03-26'
+    direction: outbound
+    summary: "Opened tracking issue #73 (perceptual gating) based on voidborne-d's\
+      \ convergence experiment proposal"
+    url: https://github.com/organvm-iv-taxis/agentic-titan/issues/73
+  issue_claimed: false
+  issue_assigned: false
+  cla_signed: false
+  first_human_contact: 'voidborne-d (2026-03-26, agentic-titan #61 convergence experiment)'
+  relationship_score: 30
+- workspace: contrib--mcp-python-sdk
+  target: modelcontextprotocol/python-sdk
+  maintainers: []
+  community_channels: []
+  outreach_events:
+  - channel: github_issue
+    date: '2026-03-27'
+    direction: outbound
+    summary: "Claimed issue #2349 \u2014 Accept header validation rejects SSE-only
+      clients. Spec compliance bug affecting Anthropic's own MCP proxy."
+    url: https://github.com/modelcontextprotocol/python-sdk/issues/2349
+  - channel: github_pr
+    date: '2026-03-27'
+    direction: outbound
+    summary: "Submitted PR #2361 \u2014 fix: AND\u2192OR in _validate_accept_header().
+      1146 tests green, pyright clean. Strategic: canonical MCP SDK, agentic-titan
+      dependency."
+    url: https://github.com/modelcontextprotocol/python-sdk/pull/2361
+  issue_claimed: true
+  issue_assigned: false
+  cla_signed: false
+  first_human_contact: ''
+  relationship_score: 15
+- workspace: contrib--anthropic-sdk-python
+  target: anthropics/anthropic-sdk-python
+  maintainers:
+  - RobertCraigie
+  - karpetrosyan
+  community_channels: []
+  outreach_events:
+  - channel: github_pr
+    date: '2026-03-27'
+    direction: outbound
+    summary: "Submitted PR #1306 \u2014 fix(bedrock,vertex): add missing 413/529
+      status error handling. Parity fix with main client. 23 new tests, all passing.
+      Direct dependency of agentic-titan."
+    url: https://github.com/anthropics/anthropic-sdk-python/pull/1306
+  issue_claimed: false
+  issue_assigned: false
+  cla_signed: false
+  first_human_contact: ''
+  relationship_score: 15
+- workspace: contrib--mcp-typescript-sdk
+  target: modelcontextprotocol/typescript-sdk
+  maintainers:
+  - felixweinberger
+  community_channels: []
+  outreach_events:
+  - channel: github_issue
+    date: '2026-03-27'
+    direction: outbound
+    summary: "Claimed issue #1635 \u2014 GET SSE 404/406 handling. Bilingual MCP competence
+      play (Python SDK PR #2361 already submitted)."
+    url: https://github.com/modelcontextprotocol/typescript-sdk/issues/1635
+  - channel: github_pr
+    date: '2026-03-27'
+    direction: outbound
+    summary: "Submitted PR #1799 \u2014 fix(client): handle 404 and 406 gracefully
+      in GET SSE stream. 313 tests green, lefthook checks passed. Affects Gemini CLI,
+      MCP Inspector, LibreChat."
+    url: https://github.com/modelcontextprotocol/typescript-sdk/pull/1799
+  issue_claimed: true
+  issue_assigned: false
+  cla_signed: false
+  first_human_contact: ''
+  relationship_score: 15
+- workspace: contrib--fastmcp
+  target: jlowin/fastmcp
+  maintainers:
+  - jlowin
+  - strawgate
+  community_channels: []
+  outreach_events:
+  - channel: github_pr
+    date: '2026-03-27'
+    direction: outbound
+    summary: "Submitted PR #3662 \u2014 fix: serialize object query params per OpenAPI
+      style/explode rules. Addresses issue #2857 (open since 2026-01-13). 3 tests
+      added, 263 OpenAPI tests green. Strategic: ergonomic MCP server framework,
+      agentic-titan adoption candidate."
+    url: https://github.com/PrefectHQ/fastmcp/pull/3662
+  issue_claimed: true
+  issue_assigned: false
+  cla_signed: false
+  first_human_contact: ''
+  relationship_score: 15

@@ -3,11 +3,15 @@ started: '2026-03-22'
 targets:
 - contrib--adenhq-hive
 - contrib--anthropic-skills
+- contrib--anthropic-sdk-python
 - contrib--langchain-langgraph
 - contrib--temporal-sdk-python
 - contrib--dbt-mcp
 - contrib--primeinc-github-stars
 - contrib--ipqwery-ipapi-py
+- contrib--mcp-python-sdk
+- contrib--mcp-typescript-sdk
+- contrib--fastmcp
 actions:
 - id: hive-discord
   workspace: contrib--adenhq-hive
@@ -169,3 +173,235 @@ actions:
   blocked_by: []
   completed: true
   completed_at: '2026-03-22T19:37:29.454507'
+- id: dbt-review-fix
+  workspace: contrib--dbt-mcp
+  phase: engage
+  action: "Responded to DevonFulcher review comment, pushed fix commit 24d2c73. Both\
+    \ reviewers' comments resolved. Awaiting re-review."
+  priority: 4
+  manual: false
+  automated: false
+  blocked_by:
+  - dbt-engage
+  completed: true
+  completed_at: '2026-03-26T12:00:00.000000'
+- id: dbt-await-merge
+  workspace: contrib--dbt-mcp
+  phase: cultivate
+  action: "Await merge of PR #669 \u2014 all review feedback addressed, two maintainers\
+    \ engaged (jairus-m, DevonFulcher)"
+  priority: 4
+  manual: false
+  automated: false
+  blocked_by:
+  - dbt-review-fix
+  completed: true
+  completed_at: '2026-03-27T00:00:00.000000'
+- id: dbt-harvested
+  workspace: contrib--dbt-mcp
+  phase: harvest
+  action: "First external contribution merged \u2014 PR #669 approved by jairus-m\
+    \ and DevonFulcher. dbt-labs/dbt-mcp relationship established."
+  priority: 4
+  manual: false
+  automated: false
+  blocked_by:
+  - dbt-await-merge
+  completed: true
+  completed_at: '2026-03-27T00:00:00.000000'
+- id: langgraph-await-review
+  workspace: contrib--langchain-langgraph
+  phase: cultivate
+  action: "Maintainer reopened PR #7237 with bypass-issue-check label \u2014 strong\
+    \ merge signal. Awaiting code review."
+  priority: 2
+  manual: false
+  automated: false
+  blocked_by:
+  - langgraph-bump
+  completed: false
+  completed_at: ''
+- id: temporal-bump-window
+  workspace: contrib--temporal-sdk-python
+  phase: unblock
+  action: "PR #1385 review addressed, awaiting re-review. Polite bump window 2026-03-30."
+  priority: 3
+  manual: false
+  automated: false
+  blocked_by:
+  - temporal-cla
+  completed: false
+  completed_at: ''
+- id: hive-stalled
+  workspace: contrib--adenhq-hive
+  phase: unblock
+  action: "PR #6707 closed by bot, issue #6613 unassigned. Gmail draft created for\
+    \ Richard. Discord engagement ongoing. Stalled on maintainer response."
+  priority: 0
+  manual: true
+  automated: false
+  blocked_by:
+  - hive-claim
+  completed: false
+  completed_at: ''
+- id: titan-community-m13v
+  workspace: agentic-titan
+  phase: cultivate
+  action: "m13v: 2 technical exchanges on #20 (sliding window spec). Co-authoring\
+    \ proposed. Relationship deepening."
+  priority: 1
+  manual: false
+  automated: false
+  blocked_by: []
+  completed: true
+  completed_at: '2026-03-26T12:00:00.000000'
+- id: titan-community-voidborne
+  workspace: agentic-titan
+  phase: cultivate
+  action: "voidborne-d: 3 exchanges on #61, tracking issue #73 opened (perceptual\
+    \ gating). Convergence experiment collaboration proposed."
+  priority: 1
+  manual: false
+  automated: false
+  blocked_by: []
+  completed: true
+  completed_at: '2026-03-26T12:00:00.000000'
+- id: titan-issues-batch
+  workspace: agentic-titan
+  phase: cultivate
+  action: "8 new issues (#66-#73) created from contributor discussions \u2014 community-driven\
+    \ roadmap expansion"
+  priority: 1
+  manual: false
+  automated: false
+  blocked_by: []
+  completed: true
+  completed_at: '2026-03-26T12:00:00.000000'
+- id: mcp-sdk-claim
+  workspace: contrib--mcp-python-sdk
+  phase: engage
+  action: "Claimed issue #2349 \u2014 Accept header validation rejects SSE-only clients\
+    \ (Anthropic's own MCP proxy affected)"
+  priority: 1
+  manual: false
+  automated: false
+  blocked_by: []
+  completed: true
+  completed_at: '2026-03-27T00:00:00.000000'
+- id: mcp-sdk-pr
+  workspace: contrib--mcp-python-sdk
+  phase: engage
+  action: "Submitted PR #2361 \u2014 fix: accept single supported content type in\
+    \ SSE mode. AND\u2192OR in _validate_accept_header(). 1146 tests green."
+  priority: 1
+  manual: false
+  automated: false
+  blocked_by:
+  - mcp-sdk-claim
+  completed: true
+  completed_at: '2026-03-27T00:00:00.000000'
+- id: mcp-sdk-await-review
+  workspace: contrib--mcp-python-sdk
+  phase: cultivate
+  action: "Awaiting maintainer review on PR #2361. Spec compliance fix \u2014 affects\
+    \ Anthropic's own proxy."
+  priority: 1
+  manual: false
+  automated: false
+  blocked_by:
+  - mcp-sdk-pr
+  completed: false
+  completed_at: ''
+- id: anthropic-sdk-pr
+  workspace: contrib--anthropic-sdk-python
+  phase: engage
+  action: "Submitted PR #1306 \u2014 fix(bedrock,vertex): add missing 413 and 529\
+    \ status error handling. Parity fix with main client."
+  priority: 1
+  manual: false
+  automated: false
+  blocked_by: []
+  completed: true
+  completed_at: '2026-03-27T00:00:00.000000'
+- id: anthropic-sdk-await-review
+  workspace: contrib--anthropic-sdk-python
+  phase: cultivate
+  action: "Awaiting maintainer review on PR #1306. Bedrock/Vertex error handling\
+    \ parity with main client."
+  priority: 1
+  manual: false
+  automated: false
+  blocked_by:
+  - anthropic-sdk-pr
+  completed: false
+  completed_at: ''
+- id: mcp-ts-claim
+  workspace: contrib--mcp-typescript-sdk
+  phase: engage
+  action: "Claimed issue #1635 \u2014 StreamableHTTPClientTransport GET SSE 404/406
+    handling. Bilingual MCP competence (Python SDK PR already submitted)."
+  priority: 1
+  manual: false
+  automated: false
+  blocked_by: []
+  completed: true
+  completed_at: '2026-03-27T19:00:00.000000'
+- id: mcp-ts-pr
+  workspace: contrib--mcp-typescript-sdk
+  phase: engage
+  action: "Submitted PR #1799 \u2014 fix(client): handle 404 and 406 gracefully in
+    GET SSE stream. 313 tests green, all lefthook checks passed."
+  priority: 1
+  manual: false
+  automated: false
+  blocked_by:
+  - mcp-ts-claim
+  completed: true
+  completed_at: '2026-03-27T19:00:00.000000'
+- id: mcp-ts-await-review
+  workspace: contrib--mcp-typescript-sdk
+  phase: cultivate
+  action: "Awaiting maintainer review on PR #1799. Affects Gemini CLI, MCP Inspector,
+    LibreChat."
+  priority: 1
+  manual: false
+  automated: false
+  blocked_by:
+  - mcp-ts-pr
+  completed: false
+  completed_at: ''
+- id: fastmcp-claim
+  workspace: contrib--fastmcp
+  phase: engage
+  action: "Claimed issue #2857 \u2014 object query param serialization uses Python
+    str() instead of OpenAPI-compliant expansion. MCP server framework (24K stars)."
+  priority: 1
+  manual: false
+  automated: false
+  blocked_by: []
+  completed: true
+  completed_at: '2026-03-27T20:00:00.000000'
+- id: fastmcp-pr
+  workspace: contrib--fastmcp
+  phase: engage
+  action: "Submitted PR #3662 \u2014 fix: serialize object query params per OpenAPI
+    style/explode rules. 3 tests added, 263 OpenAPI tests green."
+  priority: 1
+  manual: false
+  automated: false
+  blocked_by:
+  - fastmcp-claim
+  completed: true
+  completed_at: '2026-03-27T20:00:00.000000'
+- id: fastmcp-await-review
+  workspace: contrib--fastmcp
+  phase: cultivate
+  action: "Awaiting maintainer review on PR #3662. jlowin/fastmcp \u2014 ergonomic
+    MCP server framework. Aligns with agentic-titan MCP integration."
+  priority: 1
+  manual: false
+  automated: false
+  blocked_by:
+  - fastmcp-pr
+  completed: false
+  completed_at: ''

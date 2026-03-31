@@ -93,7 +93,7 @@ python -m contrib_engine fieldwork show [--workspace WS] [--category CAT] [--min
 
 **Testament:** 13 articles of codified writing rules formalized into logic/algorithms/math at `docs/testament-formalization.md`. Constitutional authority — governs all written output.
 
-**Tests:** 233 passing, 0 failures.
+**Tests:** 240 passing, 0 failures.
 
 ## Action Ledger (`action_ledger/`)
 
@@ -120,6 +120,20 @@ python -m action_ledger params
 **Conceptual prior art:** Alchemical Synthesizer (ORGAN-II) — module registry → parameter registry, patch bay → route system, CHRONOS automation → parameter trajectories, Euclidean rhythms → cycle detection.
 
 **Design spec:** `.claude/plans/scalable-baking-conway.md`
+
+## Intake Router (`intake_router/`)
+
+Keyword-based operator intake router for low-token dispatch. Classifies messy ideas into routing domains, resolves the target workspace/archetype/agent, emits both the manual intake and the routed follow-up into the action ledger, and prints a ready-to-paste execution prompt sourced from the archetype plan.
+
+```bash
+python -m intake_router intake "third function build for a-organvm"
+python -m intake_router table
+python -m intake_router history [--domain organism] [--limit 10]
+```
+
+**Core modules:** `router.py` (keyword classification, routing table, archetype prompt loading, ledger emission), `cli.py` (standalone argparse entrypoints: intake/table/history), `__main__.py` (module entry).
+
+**Ledger integration:** emits `received_intake` (manual) and `routed_intake` (emitted) actions with `subsystem: intake_router`, plus `RouteKind.FEEDS` routes to the destination workspace/archetype.
 
 ## ORGANVM Context
 

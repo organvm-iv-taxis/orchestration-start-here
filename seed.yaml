@@ -15,9 +15,11 @@ metadata:
     Central orchestration hub and nervous system of the eight-organ ORGANVM system.
     Registry, governance rules, 17 GitHub Actions workflows, contrib_engine
     (14 modules + 4 artifact renderers), action_ledger (8 modules — schemas,
-    ledger, emissions, routes, cycles, CLI), 233 tests passing. Includes campaign
+    ledger, emissions, routes, cycles, CLI), intake_router (4 modules —
+    classify, route, emit, CLI), 240 tests passing. Includes campaign
     sequencer, outreach tracker, backflow pipeline, absorption protocol, fieldwork
-    intelligence, testament formalization, and process recording infrastructure.
+    intelligence, testament formalization, process recording infrastructure,
+    and keyword-based cross-workspace intake dispatch.
   stack:
     - Python 3.12
     - GitHub Actions
@@ -46,6 +48,11 @@ metadata:
       - cli.py
       - __main__.py
       - __init__.py
+    intake_router:
+      - __init__.py
+      - router.py
+      - cli.py
+      - __main__.py
     scripts:
       - validate-deps.py
       - organ-audit.py
@@ -63,7 +70,7 @@ metadata:
       - render_post001.py
       - render_post002.py
       - render_post002_audit.py
-  test_count: 233
+  test_count: 240
 produces:
 - type: governance_rules
   description: Codified governance articles enforcing dependency flow, promotion states, and registry authority.

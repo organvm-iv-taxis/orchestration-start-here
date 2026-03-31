@@ -16,6 +16,11 @@ targets:
 - contrib--dapr-dapr
 - contrib--a2a-python
 - contrib--pydantic-ai
+- contrib--clyra-gait
+- contrib--coinbase-agentkit
+- contrib--grafana-k6
+- contrib--indeedeng-iwf
+- contrib--jairus-dagster-sdlc
 actions:
 - id: hive-discord
   workspace: contrib--adenhq-hive

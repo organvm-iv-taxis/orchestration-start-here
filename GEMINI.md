@@ -21,12 +21,12 @@ See `CLAUDE.md` in this repo for full development instructions, architecture, an
 - **Consumes** ← `unspecified`: github_issue_states
 
 ### Siblings in Orchestration
-`petasum-super-petasum`, `universal-node-network`, `.github`, `agentic-titan`, `agent--claude-smith`, `a-i--skills`, `tool-interaction-design`, `system-governance-framework`, `reverse-engine-recursive-run`, `collective-persona-operations`, `contrib--adenhq-hive`, `contrib--ipqwery-ipapi-py`, `contrib--primeinc-github-stars`, `contrib--temporal-sdk-python`, `contrib--dbt-mcp` ... and 2 more
+`petasum-super-petasum`, `universal-node-network`, `.github`, `agentic-titan`, `agent--claude-smith`, `a-i--skills`, `tool-interaction-design`, `system-governance-framework`, `reverse-engine-recursive-run`, `collective-persona-operations`, `cvrsvs-honorvm`, `aerarium--res-publica`, `contrib--adenhq-hive`, `contrib--ipqwery-ipapi-py`, `contrib--primeinc-github-stars`, `contrib--temporal-sdk-python`, `contrib--dbt-mcp`
 
 ### Governance
 - *Standard ORGANVM governance applies*
 
-*Last synced: 2026-03-26T19:39:27Z*
+*Last synced: 2026-03-31T12:00:00Z*
 
 ## Session Review Protocol
 
@@ -110,9 +110,10 @@ Run: `organvm ecosystem show orchestration-start-here` | `organvm ecosystem vali
 
 ## Task Queue (from pipeline)
 
-**7** pending tasks | Last pipeline: unknown
+**6** pending tasks | Last pipeline: unknown
 
-- `782d0cd0916e` CHANGELOG.md — EDIT
+- `782d0cd0916e` CHANGELOG.md — COMPLETE [2026-03-31]
+- `eb85ad178653` 4. Archiving — WIP
 - `137b05854caa` 1. Praxis-perpetua structure mapping — COMPLETE [bash, mcp, python]
 - `cef79aa9684a` 2. Corpus governance documentation — COMPLETE [bash, mcp, python]
 - `2a69a4cde207` 3. Orchestration scripts inventory — COMPLETE [bash, mcp, python]

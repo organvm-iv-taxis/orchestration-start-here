@@ -9,6 +9,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Added
 
+- **ORGAN-IV Remediation Complete (2026-03-31)** — achieved 0% gap ratio in superproject boundary; all 14 repositories (`cvrsvs-honorvm`, `aerarium--res-publica`, etc.) declared and synced.
+- **System Audit (2026-03-31)** — identified casing drift in `cvrsvs-honorvm` functional class and archive candidacy for `announcement-templates`.
+- Documentation sync — updated `GEMINI.md` and `AGENTS.md` with current 14-repo boundary and sync timestamps.
 - Agent Run Logging Standard (`docs/agent-run-logging.md`) — directory layout, manifest schema, session log format (F-57)
 - Run directory validation script (`scripts/validate-agent-run.py`) with JSON output mode (F-57)
 - Breadcrumb Protocol (`docs/breadcrumb-protocol.md`) — standardized session completion format with machine-parseable delimiters (F-06)

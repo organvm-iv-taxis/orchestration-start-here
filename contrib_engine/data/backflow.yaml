@@ -110,3 +110,160 @@ items:
   status: deposited
   artifact_path: organvm-i-theoria/my-knowledge-base/docs/contributions/conflicting-traces.md
   deposited_at: '2026-03-24'
+- workspace: agentic-titan
+  organ: I
+  backflow_type: theory
+  title: Effective-k formula for semantic compression
+  description: 'k_eff = k * (1 - 1/compression_ratio) — formal relationship between
+    communication bandwidth and network percolation. Bridges information theory (Shannon)
+    and graph theory (Erdos-Renyi percolation threshold). Source: agentic-titan#61
+    discussion with voidborne-d.'
+  status: pending
+  artifact_path: ''
+  deposited_at: '2026-03-25'
+- workspace: agentic-titan
+  organ: I
+  backflow_type: theory
+  title: Structural vs functional connectivity distinction
+  description: 'Most agent frameworks conflate edge existence with information throughput.
+    A SWARM where every agent is connected but none can comprehend each other is structurally
+    dense but functionally sparse. Formalizable as a network science contribution.
+    Source: agentic-titan#61.'
+  status: pending
+  artifact_path: ''
+  deposited_at: '2026-03-25'
+- workspace: agentic-titan
+  organ: I
+  backflow_type: theory
+  title: Graph diameter validates max_hops default
+  description: 'log(N)/log(k) at N=64, k=7 gives diameter ~2.1 hops, validating the
+    max_hops=3 default in propagate_information_layered(). The hop limit is non-arbitrary
+    — it follows from murmuration network topology. Source: agentic-titan#61.'
+  status: pending
+  artifact_path: ''
+  deposited_at: '2026-03-25'
+- workspace: agentic-titan
+  organ: V
+  backflow_type: narrative
+  title: Comprehension debt failure mode — essay candidate
+  description: 'Adding more agents makes the system worse when O(N^2) message cost
+    at natural language bandwidth grows faster than information gain. The system drowns
+    in its own communication. Applicable to any team coordination context (human or
+    AI). Source: agentic-titan#61.'
+  status: pending
+  artifact_path: ''
+  deposited_at: '2026-03-25'
+- workspace: agentic-titan
+  organ: V
+  backflow_type: narrative
+  title: Naming as ontological specification — essay candidate
+  description: 'Terms of venery naming system where the collective noun captures behavioral
+    essence. Parliament deliberates, Colony coordinates indirectly, Murder splits and
+    reconvenes. The name IS the specification. Source: agentic-titan#20.'
+  status: pending
+  artifact_path: ''
+  deposited_at: '2026-03-25'
+- workspace: agentic-titan
+  organ: II
+  backflow_type: generative
+  title: Convergence experiment as interactive visualization
+  description: 'Phase transitions in topology-space as N and sigma vary. N=8 to 128
+    sweep with emergence detection — the visualization of where collective cognition
+    appears. Source: agentic-titan#61.'
+  status: pending
+  artifact_path: ''
+  deposited_at: '2026-03-25'
+- workspace: contrib--dbt-mcp
+  organ: IV
+  backflow_type: code
+  title: Changie changelog management pattern
+  description: 'Structured changelog tooling from dbt-mcp. Changie generates per-PR
+    changelog fragments (.changes/unreleased/*.yaml) that merge at release. Separates
+    "what changed" from "when released" — each PR author describes the change at PR
+    time. Source: dbt-labs/dbt-mcp contribution.'
+  status: pending
+  artifact_path: ''
+  deposited_at: '2026-03-27'
+- workspace: contrib--clyra-gait
+  organ: IV
+  backflow_type: code
+  title: Declarative policy engine pattern
+  description: 'From Clyra-AI/gait — intent fixtures declare expected behavior, policy
+    templates validate against them. Three-verdict model (allow/block/require_approval),
+    workspace prefix matching, arg provenance tracking, fail-closed by risk class.
+    Replaces hardcoded HITL gates with declarative policy YAML. Source: Clyra-AI/gait
+    PR #110.'
+  status: pending
+  artifact_path: ''
+  deposited_at: '2026-03-27'
+- workspace: contrib--fastapi-mcp
+  organ: IV
+  backflow_type: code
+  title: JSON Schema normalization for LLM tool compatibility
+  description: 'anyOf flattening and nullable type hoisting for strict JSON Schema
+    validation. LLMs (gpt-4o, Claude) validate tool inputSchema more strictly than
+    standard validators — anyOf with [{typed_schema}, {"type": "null"}] must be normalized
+    to flat schemas. Defensive variant filtering preserves complex multi-type unions.
+    Source: tadata-org/fastapi_mcp PR #274.'
+  status: pending
+  artifact_path: ''
+  deposited_at: '2026-03-27'
+- workspace: contrib--anthropic-sdk-python
+  organ: IV
+  backflow_type: code
+  title: Client parity enforcement pattern
+  description: 'When SDK has multiple client variants (Bedrock, Vertex, main), changes
+    to one must propagate to all. The Anthropic SDK added 413/529 error handling to
+    the main client but not Bedrock/Vertex — parity enforcement gap. Automated parity
+    tests should verify all implementations handle identical error codes. Source: anthropics/anthropic-sdk-python
+    PR #1306.'
+  status: pending
+  artifact_path: ''
+  deposited_at: '2026-03-27'
+- workspace: contrib--langchain-langgraph
+  organ: IV
+  backflow_type: code
+  title: Conformance test suites for protocol compliance
+  description: 'From LangGraph — checkpoint store implementations validated against
+    shared conformance suite. RegisteredCheckpointer pattern with factory, lifespan,
+    and capabilities creates a pluggable test harness. Capability-gated test execution
+    prevents false failures. Pattern for validating MCP server or topology implementations
+    against contracts. Source: langchain-ai/langgraph PR #7237.'
+  status: pending
+  artifact_path: ''
+  deposited_at: '2026-03-27'
+- workspace: contrib--dagster-sdlc
+  organ: III
+  backflow_type: code
+  title: Python operator precedence lint rule
+  description: '`not x == y` vs `x != y` — subtle bug class. In dagster-sdlc, `&`
+    vs `and` caused bitwise AND to bind tighter than comparison operators, silently
+    breaking data quality checks. Custom ruff rule candidate for ORGANVM Python repos.
+    Source: jairus-m/dagster-sdlc PR #22.'
+  status: pending
+  artifact_path: ''
+  deposited_at: '2026-03-27'
+- workspace: contrib--mcp-python-sdk
+  organ: V
+  backflow_type: narrative
+  title: SHOULD/MUST protocol compliance as rhetorical framing
+  description: 'Framing contributions in terms of RFC 2119 compliance language (SHOULD,
+    MUST) gets faster reviews. The MCP Python SDK fix was accepted because it framed
+    the bug as spec noncompliance — the implementation treated SHOULD as MUST. Rhetorical
+    strategy for protocol-adjacent contributions. Source: modelcontextprotocol/python-sdk
+    PR #2361.'
+  status: pending
+  artifact_path: ''
+  deposited_at: '2026-03-27'
+- workspace: cross-contribution
+  organ: V
+  backflow_type: narrative
+  title: Reciprocity as contribution strategy — essay candidate
+  description: 'The jairus-m loop: he reviewed our dbt-mcp PR, we contributed to his
+    dagster-sdlc repo, he merges within hours. Reciprocity-driven contribution strategy
+    where reviewing someone''s project and contributing to their personal repo deepens
+    the relationship. Repeatable pattern across the contribution network. Source: cross-contribution
+    pattern analysis.'
+  status: pending
+  artifact_path: ''
+  deposited_at: '2026-03-27'

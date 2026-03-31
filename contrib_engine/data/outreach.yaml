@@ -378,3 +378,145 @@ relationships:
   cla_signed: false
   first_human_contact: ''
   relationship_score: 15
+- workspace: contrib--camel-ai-camel
+  target: camel-ai/camel
+  maintainers:
+  - lightaime
+  - Wendong-Fan
+  community_channels:
+  - discord: https://discord.camel-ai.org/
+  outreach_events:
+  - channel: github_issue
+    date: '2026-03-27'
+    direction: outbound
+    summary: "Claimed issue #3882 \u2014 RateLimitError not generalizable. Commented\
+      \ with root cause analysis and solution approach."
+    url: https://github.com/camel-ai/camel/issues/3882#issuecomment-4145643021
+  - channel: github_pr
+    date: '2026-03-27'
+    direction: outbound
+    summary: "Submitted PR #3974 \u2014 fix: generalize rate-limit retry to all model\
+      \ providers. Provider-agnostic is_rate_limit_error() utility covering OpenAI,\
+      \ Anthropic, Google GenAI, Mistral + generic fallbacks. 6 unit tests. Strategic:\
+      \ competing multi-agent framework (NeurIPS paper, 16.5K stars). Competitive\
+      \ intelligence + academic visibility."
+    url: https://github.com/camel-ai/camel/pull/3974
+  issue_claimed: true
+  issue_assigned: false
+  cla_signed: false
+  first_human_contact: ''
+  relationship_score: 15
+- workspace: contrib--grafana-k6
+  target: grafana/k6
+  maintainers:
+  - codebien
+  - mstoykov
+  - olegbespalov
+  community_channels:
+  - forums: https://community.k6.io/
+  outreach_events:
+  - channel: github_issue
+    date: '2026-03-28'
+    direction: outbound
+    summary: "Claimed issue #2764 \u2014 extend metrics.TagSet API. Open since Nov 2022,
+      maintainer-specified benchmarking requirement. Go performance engineering."
+    url: https://github.com/grafana/k6/issues/2764
+  - channel: github_pr
+    date: '2026-03-28'
+    direction: outbound
+    summary: "Submitted PR #5770 \u2014 metrics: add Len and ForEach methods to TagSet.
+      88x faster iteration (zero alloc), benchmarks included per maintainer request.
+      Active job application at Grafana Labs."
+    url: https://github.com/grafana/k6/pull/5770
+  issue_claimed: true
+  issue_assigned: false
+  cla_signed: false
+  first_human_contact: ''
+  relationship_score: 15
+- workspace: contrib--coinbase-agentkit
+  target: coinbase/agentkit
+  maintainers:
+  - phdargen
+  - John-peterson-coinbase
+  community_channels: []
+  outreach_events:
+  - channel: github_pr
+    date: '2026-03-28'
+    direction: outbound
+    summary: "Submitted PR #1054 \u2014 fix: resolve $ref pointers from recursive Zod
+      schemas. Core utility + MCP extension integration. 12 tests. Closes #815.
+      Strategic: 2 active Coinbase job applications. Existing PR #1023 adds utility
+      only; this PR integrates at framework level."
+    url: https://github.com/coinbase/agentkit/pull/1054
+  issue_claimed: true
+  issue_assigned: false
+  cla_signed: false
+  first_human_contact: ''
+  relationship_score: 15
+- workspace: contrib--pydantic-ai
+  target: pydantic/pydantic-ai
+  maintainers:
+  - DouweM
+  - samuelcolvin
+  community_channels: []
+  outreach_events:
+  - channel: github_issue
+    date: '2026-03-28'
+    direction: outbound
+    summary: "Claimed issue #3430 \u2014 Add OpenAI token counting. good-first-issue
+      label, 17 comments. Existing PR #3951 stalled with 'awaiting author revision'.
+      Prior PR #3447 (tiktoken approach) closed. DouweM's direction: use Responses
+      API /input_tokens endpoint, not tiktoken."
+    url: https://github.com/pydantic/pydantic-ai/issues/3430
+  - channel: github_pr
+    date: '2026-03-28'
+    direction: outbound
+    summary: "Submitted PR #4912 \u2014 feat: add OpenAI Responses input token counting.
+      SDK-native InputTokenCountResponse (not raw dicts), copies extra_headers before
+      mutation (addressed review feedback from #3951 preemptively). 2 VCR integration
+      tests. Pydantic brand standards: type-safe, idiomatic, concise."
+    url: https://github.com/pydantic/pydantic-ai/pull/4912
+  issue_claimed: true
+  issue_assigned: false
+  cla_signed: false
+  first_human_contact: ''
+  relationship_score: 15
+- workspace: contrib--dapr-dapr
+  target: dapr/dapr
+  maintainers: []
+  community_channels:
+  - forums: https://github.com/dapr/dapr/discussions
+  outreach_events:
+  - channel: github_issue
+    date: '2026-03-30'
+    direction: outbound
+    summary: "Claimed issue #8737 \u2014 bulk subscription fallthrough inconsistency.\
+      \ dapr/dapr (25.6K stars, CNCF graduated, Go)."
+    url: https://github.com/dapr/dapr/issues/8737
+  - channel: github_pr
+    date: '2026-03-30'
+    direction: outbound
+    summary: "Submitted PR #9719 \u2014 fix: make DeliverBulk fallthrough consistent\
+      \ with Deliver for empty status. DCO signed. First Go contribution in portfolio."
+    url: https://github.com/dapr/dapr/pull/9719
+  issue_claimed: true
+  issue_assigned: false
+  cla_signed: false
+  first_human_contact: ''
+  relationship_score: 15
+- workspace: contrib--a2a-python
+  target: a2aproject/a2a-python
+  maintainers: []
+  community_channels: []
+  outreach_events:
+  - channel: github_pr
+    date: '2026-03-30'
+    direction: outbound
+    summary: "Submitted PR #915 \u2014 fix: TenantTransportDecorator export gap +\
+      \ docstring + 2 lifecycle tests. First presence in A2A protocol ecosystem."
+    url: https://github.com/a2aproject/a2a-python/pull/915
+  issue_claimed: false
+  issue_assigned: false
+  cla_signed: false
+  first_human_contact: ''
+  relationship_score: 15

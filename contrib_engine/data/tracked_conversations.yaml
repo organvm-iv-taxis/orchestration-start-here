@@ -2,4 +2,16 @@
   repo: agentic-titan
   issue_number: 20
   workspace: agentic-titan
-  label: "m13v technical exchange — fission-fusion, stigmergy, state transfer"
+  label: "m13v technical exchange \u2014 fission-fusion, stigmergy, state transfer,\
+    \ sliding window spec co-authoring"
+- owner: organvm-iv-taxis
+  repo: agentic-titan
+  issue_number: 61
+  workspace: agentic-titan
+  label: "voidborne-d convergence experiment \u2014 perceptual gating, tracking issue\
+    \ #73 opened"
+- owner: pydantic
+  repo: pydantic-ai
+  issue_number: 3430
+  workspace: contrib--pydantic-ai
+  label: "OpenAI token counting \u2014 PR #4912 submitted, DouweM primary reviewer"

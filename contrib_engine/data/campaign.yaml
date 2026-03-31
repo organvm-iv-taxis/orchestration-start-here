@@ -12,6 +12,10 @@ targets:
 - contrib--mcp-python-sdk
 - contrib--mcp-typescript-sdk
 - contrib--fastmcp
+- contrib--camel-ai-camel
+- contrib--dapr-dapr
+- contrib--a2a-python
+- contrib--pydantic-ai
 actions:
 - id: hive-discord
   workspace: contrib--adenhq-hive
@@ -403,5 +407,210 @@ actions:
   automated: false
   blocked_by:
   - fastmcp-pr
+  completed: false
+  completed_at: ''
+- id: camel-claim
+  workspace: contrib--camel-ai-camel
+  phase: engage
+  action: "Claimed issue #3882 \u2014 RateLimitError not generalizable. Rate-limit retry\
+    \ only catches openai.RateLimitError, breaks for Anthropic/Gemini/Mistral."
+  priority: 2
+  manual: false
+  automated: false
+  blocked_by: []
+  completed: true
+  completed_at: '2026-03-27T21:00:00.000000'
+- id: camel-pr
+  workspace: contrib--camel-ai-camel
+  phase: engage
+  action: "Submitted PR #3974 \u2014 fix: generalize rate-limit retry to all model\
+    \ providers. Provider-agnostic is_rate_limit_error() utility, 6 tests."
+  priority: 2
+  manual: false
+  automated: false
+  blocked_by:
+  - camel-claim
+  completed: true
+  completed_at: '2026-03-27T21:00:00.000000'
+- id: camel-await-review
+  workspace: contrib--camel-ai-camel
+  phase: cultivate
+  action: "Awaiting maintainer review on PR #3974. camel-ai/camel (16.5K stars) \u2014\
+    \ competing multi-agent framework with NeurIPS paper."
+  priority: 2
+  manual: false
+  automated: false
+  blocked_by:
+  - camel-pr
+  completed: false
+  completed_at: ''
+- id: k6-claim
+  workspace: contrib--grafana-k6
+  phase: engage
+  action: "Claimed issue #2764 \u2014 extend metrics.TagSet API with Len() and ForEach()
+    for zero-alloc iteration. grafana/k6 (30K stars, Go load testing tool)."
+  priority: 0
+  manual: false
+  automated: false
+  blocked_by: []
+  completed: true
+  completed_at: '2026-03-28T00:00:00.000000'
+- id: k6-pr
+  workspace: contrib--grafana-k6
+  phase: engage
+  action: "Submitted PR #5770 \u2014 metrics: add Len and ForEach methods to TagSet.
+    Benchmarks show 88x faster iteration, zero allocations. Active job application
+    at Grafana Labs."
+  priority: 0
+  manual: false
+  automated: false
+  blocked_by:
+  - k6-claim
+  completed: true
+  completed_at: '2026-03-28T00:00:00.000000'
+- id: k6-await-review
+  workspace: contrib--grafana-k6
+  phase: cultivate
+  action: "Awaiting maintainer review on PR #5770. grafana/k6 \u2014 targets codebien
+    and mstoykov (original issue commenters). CLA signing may be required."
+  priority: 0
+  manual: false
+  automated: false
+  blocked_by:
+  - k6-pr
+  completed: false
+  completed_at: ''
+- id: coinbase-agentkit-claim
+  workspace: contrib--coinbase-agentkit
+  phase: engage
+  action: "Claimed issue #815 \u2014 recursive Zod schemas produce $ref pointers rejected
+    by OpenAI function-calling API. coinbase/agentkit (1.2K stars). 2 active Coinbase
+    job applications."
+  priority: 0
+  manual: false
+  automated: false
+  blocked_by: []
+  completed: true
+  completed_at: '2026-03-28T12:00:00.000000'
+- id: coinbase-agentkit-pr
+  workspace: contrib--coinbase-agentkit
+  phase: engage
+  action: "Submitted PR #1054 \u2014 fix: resolve $ref pointers from recursive Zod
+    schemas. Core utility + MCP extension integration. 12 tests. Existing PR #1023
+    adds utility only; this PR integrates at framework level."
+  priority: 0
+  manual: false
+  automated: false
+  blocked_by:
+  - coinbase-agentkit-claim
+  completed: true
+  completed_at: '2026-03-28T12:00:00.000000'
+- id: coinbase-agentkit-await-review
+  workspace: contrib--coinbase-agentkit
+  phase: cultivate
+  action: "Awaiting maintainer review on PR #1054. Strategic contribution \u2014 2
+    active Coinbase job applications. phdargen is active maintainer (recent zod v4
+    upgrade in #1021)."
+  priority: 0
+  manual: false
+  automated: false
+  blocked_by:
+  - coinbase-agentkit-pr
+  completed: false
+  completed_at: ''
+- id: pydantic-ai-claim
+  workspace: contrib--pydantic-ai
+  phase: engage
+  action: "Claimed issue #3430 \u2014 Add OpenAI token counting. pydantic/pydantic-ai
+    (16K stars). Existing PR #3951 stalled with 'awaiting author revision'."
+  priority: 0
+  manual: false
+  automated: false
+  blocked_by: []
+  completed: true
+  completed_at: '2026-03-28T18:00:00.000000'
+- id: pydantic-ai-pr
+  workspace: contrib--pydantic-ai
+  phase: engage
+  action: "Submitted PR #4912 \u2014 feat: add OpenAI Responses input token counting
+    via /responses/input_tokens endpoint. SDK-native, type-safe, zero duplication
+    of logic from stalled PR. 2 integration tests."
+  priority: 0
+  manual: false
+  automated: false
+  blocked_by:
+  - pydantic-ai-claim
+  completed: true
+  completed_at: '2026-03-28T18:00:00.000000'
+- id: pydantic-ai-await-review
+  workspace: contrib--pydantic-ai
+  phase: cultivate
+  action: "Awaiting maintainer review on PR #4912. DouweM (Douwe Maan) is primary
+    reviewer \u2014 high standards, detailed code review. Addressed all feedback from
+    stalled PR #3951 preemptively."
+  priority: 0
+  manual: false
+  automated: false
+  blocked_by:
+  - pydantic-ai-pr
+  completed: false
+  completed_at: ''
+- id: dapr-claim
+  workspace: contrib--dapr-dapr
+  phase: engage
+  action: "Claimed issue #8737 \u2014 Subscription fallthru inconsistency.
+    dapr/dapr (25.6K stars, CNCF distributed application runtime, Go)."
+  priority: 0
+  manual: false
+  automated: false
+  blocked_by: []
+  completed: true
+  completed_at: '2026-03-28T22:00:00.000000'
+- id: dapr-pr
+  workspace: contrib--dapr-dapr
+  phase: engage
+  action: "Submitted PR #9719 \u2014 fix: make DeliverBulk fallthru consistent
+    with Deliver for empty status. Aligns bulk subscription empty-status
+    handling with single-message path. DCO signed."
+  priority: 0
+  manual: false
+  automated: false
+  blocked_by:
+  - dapr-claim
+  completed: true
+  completed_at: '2026-03-28T22:00:00.000000'
+- id: dapr-await-review
+  workspace: contrib--dapr-dapr
+  phase: cultivate
+  action: "Awaiting maintainer review on PR #9719. dapr/dapr \u2014 CNCF
+    graduated project. First Go contribution in campaign portfolio."
+  priority: 0
+  manual: false
+  automated: false
+  blocked_by:
+  - dapr-pr
+  completed: false
+  completed_at: ''
+- id: a2a-pr
+  workspace: contrib--a2a-python
+  phase: engage
+  action: "Submitted PR #915 \u2014 fix: TenantTransportDecorator export gap +
+    docstring + 2 lifecycle tests. First presence in A2A protocol ecosystem."
+  priority: 0
+  manual: false
+  automated: false
+  blocked_by: []
+  completed: true
+  completed_at: '2026-03-30T00:00:00.000000'
+- id: a2a-await-review
+  workspace: contrib--a2a-python
+  phase: cultivate
+  action: "Awaiting maintainer review on PR #915. a2aproject/a2a-python \u2014
+    Google's Agent-to-Agent protocol. Strategic early-contributor positioning."
+  priority: 0
+  manual: false
+  automated: false
+  blocked_by:
+  - a2a-pr
   completed: false
   completed_at: ''

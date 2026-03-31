@@ -10,13 +10,14 @@ metadata:
   implementation_status: ACTIVE
   tier: flagship
   promotion_status: GRADUATED
-  last_validated: '2026-03-30'
+  last_validated: '2026-03-31'
   description: >-
     Central orchestration hub and nervous system of the eight-organ ORGANVM system.
-    Registry, governance rules, 17 GitHub Actions workflows, 12 Python scripts,
-    contrib_engine (14 modules + 4 artifact renderers), 164 tests passing.
-    Includes campaign sequencer, outreach tracker, backflow pipeline, absorption
-    protocol, fieldwork intelligence, and testament formalization.
+    Registry, governance rules, 17 GitHub Actions workflows, contrib_engine
+    (14 modules + 4 artifact renderers), action_ledger (8 modules — schemas,
+    ledger, emissions, routes, cycles, CLI), 233 tests passing. Includes campaign
+    sequencer, outreach tracker, backflow pipeline, absorption protocol, fieldwork
+    intelligence, testament formalization, and process recording infrastructure.
   stack:
     - Python 3.12
     - GitHub Actions

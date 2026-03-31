@@ -9,7 +9,11 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Added
 
-- **Memory persistence backup (2026-03-31)** — `.meta/memory/` snapshot of 26 Claude Code memory files committed to repo. Soul persists in git; local:remote = 1:1 for all artifacts.
+- **Emissions module (2026-03-31)** — `action_ledger/emissions.py` (106 lines) — self-recording state changes via `emit_state_change()`. Auto-records transitions as ledger entries with `origin: emitted`. 230-line test suite.
+- **Action Ledger Phases 2-4 (2026-03-31)** — routes.py (bidirectional route graph, lineage tracing, provenance), cycles.py (4 detection methods: verb sequences, trajectories, intents, stalls), chain composition, close_session(). 57 action_ledger tests, 233 total suite.
+- **Temporal coordinate system (2026-03-31)** — Article H (temporal coordinates) + manifest schema for action ledger temporal model.
+- **Plan archiving (2026-03-31)** — 6 superseded plans moved to `.claude/plans/archive/2026-03/`. Archive protocol operational.
+- **Memory persistence backup (2026-03-31)** — `.meta/memory/` snapshot of 29 Claude Code memory files committed to repo. Soul persists in git; local:remote = 1:1 for all artifacts.
 - **Fieldwork Intelligence MVP (2026-03-31)** — Layer 1 built: `fieldwork.py` (record + show), `FieldObservation` model, `FieldworkIndex`, 10 categories, 5-level spectrum, 14 tests. Layers 2-4 designed (issue #145).
 - **Superproject Topology Audit SOP (2026-03-31)** — formalized from 5-agent arrhythmic trace into 7+1 step reproducible procedure (`docs/superproject-topology-audit.md`).
 - **Action Ledger design (2026-03-31)** — system-wide process recording with synthesizer paradigm. Plan at `.claude/plans/scalable-baking-conway.md`, spec pending.

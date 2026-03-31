@@ -23,6 +23,7 @@ Central orchestration hub: registry, governance rules, 5 workflows, 3 Python scr
     flow-patterns
     metasystem-manifest
     seed-schema
+    superproject-topology-audit.md
 📁 scripts/
     calculate-metrics.py
     organ-audit.py
@@ -47,6 +48,7 @@ Central orchestration hub: registry, governance rules, 5 workflows, 3 Python scr
 - `seed.yaml` — ORGANVM orchestration metadata
 - `src/` — Main source code
 - `contrib_engine/` — Outbound open-source contribution engine (scanner, orchestrator, monitor)
+- `docs/superproject-topology-audit.md` — SOP for structural auditing of git superprojects (7+1 steps, proven across 5 agents). Tool: `meta-organvm/tools/superproject_topology_audit.py`
 
 ## Contribution Engine (`contrib_engine/`)
 

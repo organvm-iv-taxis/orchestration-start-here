@@ -16,6 +16,14 @@ Central orchestration hub: registry, governance rules, 5 workflows, 3 Python scr
 ```
 📁 .github/
 📁 .meta/
+📁 action_ledger/
+    schemas.py          # Action, Sequence, Chain, Route, ParamAxis, ParamRegistry
+    ledger.py           # record() atomic, compose_chain(), close_session(), YAML persistence
+    routes.py           # Patch bay — bidirectional route graph, lineage tracing, provenance
+    cycles.py           # Cycle detection — verb sequences, trajectories, intents, stalls
+    cli.py              # CLI: record, show, sequence, chain, routes, cycles, params
+    __main__.py         # Standalone entry: python -m action_ledger
+    data/               # Append-only YAML streams: actions, sequences, param_registry
 📁 docs/
     adr
     autonomous-systems-design.md
@@ -84,7 +92,33 @@ python -m contrib_engine fieldwork show [--workspace WS] [--category CAT] [--min
 
 **Testament:** 13 articles of codified writing rules formalized into logic/algorithms/math at `docs/testament-formalization.md`. Constitutional authority — governs all written output.
 
-**Tests:** 164 passing, 0 failures.
+**Tests:** 221 passing, 0 failures.
+
+## Action Ledger (`action_ledger/`)
+
+System-wide process recording infrastructure — the synthesizer paradigm applied to ideas. Records semantic actions as they move through parameter space, composes them into sequences and chains, detects repeated cycles across sessions.
+
+```bash
+python -m action_ledger record --session S42 --verb explored --target fieldwork \
+  --context "understanding Layer 1 MVP" --param abstraction=0.7 --param maturity=0.3
+python -m action_ledger show [--session S42] [--verb explored] [--routes]
+python -m action_ledger sequence show [--session S42]
+python -m action_ledger sequence close --session S42 [--outcome "patterns reusable"]
+python -m action_ledger chain close-session --session S42 [--essence "built recording infra"]
+python -m action_ledger routes from <action_id>
+python -m action_ledger routes to <target>
+python -m action_ledger routes lineage <action_id> [--depth 3]
+python -m action_ledger cycles [--min-recurrence 2] [--type verb_sequence|trajectory|intent|stall]
+python -m action_ledger params
+```
+
+**Core modules:** `schemas.py` (Action, Sequence, Chain, Route, ParamAxis, ParamRegistry — open parameter model), `ledger.py` (atomic record() that appends+composes+registers), `routes.py` (bidirectional route graph, lineage tracing, provenance injection), `cycles.py` (4 detection methods: verb sequences, trajectories, intents, stalls).
+
+**Data files** (committed, living state): `data/actions.yaml` (append-only action stream), `data/sequences.yaml` (composed sequences with automation lanes), `data/param_registry.yaml` (discovered parameter axes).
+
+**Conceptual prior art:** Alchemical Synthesizer (ORGAN-II) — module registry → parameter registry, patch bay → route system, CHRONOS automation → parameter trajectories, Euclidean rhythms → cycle detection.
+
+**Design spec:** `.claude/plans/scalable-baking-conway.md`
 
 ## ORGANVM Context
 

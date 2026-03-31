@@ -71,6 +71,57 @@ def register_ledger_commands(
 
     seq.set_defaults(func=lambda args: seq.print_help())
 
+    # --- chain ---
+    chain_cmd = subparsers.add_parser(
+        f"{prefix}chain",
+        help="Chain operations",
+    )
+    chain_sub = chain_cmd.add_subparsers(dest="chain_command")
+
+    chain_show = chain_sub.add_parser("show", help="Show chains")
+    chain_show.add_argument("--session", default="", help="Filter by session")
+    chain_show.set_defaults(func=_cmd_chain_show)
+
+    chain_close = chain_sub.add_parser("close-session", help="Close session and compose chain")
+    chain_close.add_argument("--session", required=True, help="Session identifier")
+    chain_close.add_argument("--essence", default="", help="Prompt essence for the chain")
+    chain_close.add_argument("--artifact", action="append", default=[], help="Produced artifact path (repeatable)")
+    chain_close.set_defaults(func=_cmd_chain_close_session)
+
+    chain_cmd.set_defaults(func=lambda args: chain_cmd.print_help())
+
+    # --- routes ---
+    routes_cmd = subparsers.add_parser(
+        f"{prefix}routes",
+        help="Route graph operations",
+    )
+    routes_sub = routes_cmd.add_subparsers(dest="routes_command")
+
+    routes_from = routes_sub.add_parser("from", help="Show routes FROM an action")
+    routes_from.add_argument("action_id", help="Action ID")
+    routes_from.set_defaults(func=_cmd_routes_from)
+
+    routes_to = routes_sub.add_parser("to", help="Show routes TO a target")
+    routes_to.add_argument("target", help="Target (action ID, file path, URI)")
+    routes_to.set_defaults(func=_cmd_routes_to)
+
+    routes_lineage = routes_sub.add_parser("lineage", help="Trace causal lineage of an action")
+    routes_lineage.add_argument("action_id", help="Action ID")
+    routes_lineage.add_argument("--depth", type=int, default=3, help="Max traversal depth")
+    routes_lineage.set_defaults(func=_cmd_routes_lineage)
+
+    routes_cmd.set_defaults(func=lambda args: routes_cmd.print_help())
+
+    # --- cycles ---
+    cycles_cmd = subparsers.add_parser(
+        f"{prefix}cycles",
+        help="Detect repeated cycles across sessions",
+    )
+    cycles_cmd.add_argument("--min-recurrence", type=int, default=2, help="Minimum occurrences to report")
+    cycles_cmd.add_argument("--verb-window", type=int, default=3, help="Verb n-gram window size")
+    cycles_cmd.add_argument("--type", default="", help="Filter by cycle type (verb_sequence, trajectory, intent, stall)")
+    cycles_cmd.set_defaults(func=_cmd_cycles)
+
     # --- params ---
     params = subparsers.add_parser(
         f"{prefix}params",
@@ -249,6 +300,129 @@ def _cmd_sequence_intent(args: argparse.Namespace) -> None:
         print(f"Intent set on {seq.id}: {args.intent}")
     else:
         print(f"No active sequence for session {args.session}")
+
+
+def _cmd_chain_show(args: argparse.Namespace) -> None:
+    from action_ledger.ledger import load_chains
+
+    index = load_chains()
+    chains = index.chains
+
+    if args.session:
+        chains = [c for c in chains if c.session == args.session]
+
+    if not chains:
+        print("No chains found.")
+        return
+
+    for c in chains:
+        print(f"{c.id} [{c.session}] {c.prompt_essence or '(no essence)'}")
+        print(f"  Sequences: {len(c.sequence_ids)}")
+        if c.arc:
+            print(f"  Arc:")
+            for axis, trajectory in c.arc.items():
+                print(f"    {axis}: {trajectory}")
+        if c.produced_artifacts:
+            print(f"  Artifacts: {', '.join(c.produced_artifacts)}")
+        print()
+
+
+def _cmd_chain_close_session(args: argparse.Namespace) -> None:
+    from action_ledger.ledger import (
+        close_session,
+        load_chains,
+        load_sequences,
+        save_chains,
+        save_sequences,
+    )
+
+    sequences = load_sequences()
+    chains = load_chains()
+
+    chain = close_session(
+        sequences, chains, args.session,
+        prompt_essence=args.essence,
+        produced_artifacts=args.artifact,
+    )
+
+    if chain:
+        save_sequences(sequences)
+        save_chains(chains)
+        print(f"Session closed: {chain.id}")
+        if chain.arc:
+            for axis, trajectory in chain.arc.items():
+                print(f"  {axis}: {trajectory}")
+    else:
+        print(f"No sequences found for session {args.session}")
+
+
+def _cmd_routes_from(args: argparse.Namespace) -> None:
+    from action_ledger.ledger import load_actions
+    from action_ledger.routes import build_route_graph, routes_from
+
+    graph = build_route_graph(load_actions())
+    resolved = routes_from(graph, args.action_id)
+    if not resolved:
+        print(f"No routes from {args.action_id}")
+        return
+    for r in resolved:
+        print(f"  -> {r.kind}: {r.target} (amount={r.amount:.1f})")
+
+
+def _cmd_routes_to(args: argparse.Namespace) -> None:
+    from action_ledger.ledger import load_actions
+    from action_ledger.routes import build_route_graph, routes_to
+
+    graph = build_route_graph(load_actions())
+    resolved = routes_to(graph, args.target)
+    if not resolved:
+        print(f"No routes to {args.target}")
+        return
+    for r in resolved:
+        print(f"  <- {r.kind}: from {r.source_id} (amount={r.amount:.1f})")
+
+
+def _cmd_routes_lineage(args: argparse.Namespace) -> None:
+    from action_ledger.ledger import load_actions
+    from action_ledger.routes import build_route_graph, trace_lineage
+
+    graph = build_route_graph(load_actions())
+    layers = trace_lineage(graph, args.action_id, depth=args.depth)
+    if not layers:
+        print(f"No lineage found for {args.action_id}")
+        return
+    for i, layer in enumerate(layers):
+        print(f"Layer {i} (depth={i + 1}):")
+        for r in layer:
+            print(f"  <- {r.kind}: from {r.source_id} -> {r.target} (amount={r.amount:.1f})")
+
+
+def _cmd_cycles(args: argparse.Namespace) -> None:
+    from action_ledger.cycles import detect_all_cycles
+    from action_ledger.ledger import load_actions, load_sequences
+
+    actions = load_actions()
+    sequences = load_sequences()
+
+    cycles = detect_all_cycles(
+        actions, sequences,
+        min_recurrence=args.min_recurrence,
+        verb_window=args.verb_window,
+    )
+
+    if args.type:
+        cycles = [c for c in cycles if c.cycle_type == args.type]
+
+    if not cycles:
+        print("No cycles detected.")
+        return
+
+    for c in cycles:
+        print(f"[{c.cycle_type.upper()}] x{c.recurrence} — {c.pattern}")
+        print(f"  Sessions: {', '.join(c.sessions)}")
+        if c.evidence:
+            print(f"  Evidence: {', '.join(c.evidence[:5])}")
+        print()
 
 
 def _cmd_params(args: argparse.Namespace) -> None:

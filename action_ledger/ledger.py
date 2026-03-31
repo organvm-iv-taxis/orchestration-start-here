@@ -16,6 +16,8 @@ import yaml
 from action_ledger.schemas import (
     Action,
     ActionIndex,
+    Chain,
+    ChainIndex,
     ParamRegistry,
     Produced,
     Route,
@@ -228,3 +230,140 @@ def set_sequence_intent(
         return None
     active.intent = intent
     return active
+
+
+# ---------------------------------------------------------------------------
+# Chain persistence
+# ---------------------------------------------------------------------------
+
+def load_chains(path: Path | None = None) -> ChainIndex:
+    """Load chains from YAML."""
+    p = path or DATA_DIR / "chains.yaml"
+    if not p.exists():
+        return ChainIndex()
+    with open(p, encoding="utf-8") as f:
+        data = yaml.safe_load(f)
+    if not data:
+        return ChainIndex()
+    return ChainIndex.model_validate(data)
+
+
+def save_chains(index: ChainIndex, path: Path | None = None) -> Path:
+    """Persist chains to YAML."""
+    p = path or DATA_DIR / "chains.yaml"
+    p.parent.mkdir(parents=True, exist_ok=True)
+    with open(p, "w", encoding="utf-8") as f:
+        yaml.safe_dump(
+            index.model_dump(mode="json"), f,
+            default_flow_style=False, sort_keys=False,
+        )
+    return p
+
+
+def _make_chain_id(session: str, chains: list[Chain]) -> str:
+    """Generate chain ID: chain-{session}-{seq:03d}."""
+    existing = sum(1 for c in chains if c.session == session)
+    return f"chain-{session}-{existing + 1:03d}"
+
+
+# ---------------------------------------------------------------------------
+# Chain composition
+# ---------------------------------------------------------------------------
+
+def _compute_arc(sequences: list[Sequence]) -> dict[str, str]:
+    """Compute the arc summary from sequence automation lanes.
+
+    For each parameter axis, describes the overall trajectory across
+    all sequences: ascended, descended, stable, oscillated, or stalled.
+    """
+    # Merge all automation lanes across sequences
+    merged: dict[str, list[float]] = {}
+    for seq in sequences:
+        for axis, values in seq.automation.items():
+            merged.setdefault(axis, []).extend(values)
+
+    arc: dict[str, str] = {}
+    for axis, values in merged.items():
+        if len(values) < 2:
+            arc[axis] = "single_point"
+            continue
+
+        first, last = values[0], values[-1]
+        delta = last - first
+
+        # Check for monotonicity
+        diffs = [values[i + 1] - values[i] for i in range(len(values) - 1)]
+        all_up = all(d >= 0 for d in diffs)
+        all_down = all(d <= 0 for d in diffs)
+        all_flat = all(abs(d) < 0.05 for d in diffs)
+
+        if all_flat:
+            arc[axis] = "stable"
+        elif all_up and delta > 0.1:
+            arc[axis] = "ascended"
+        elif all_down and delta < -0.1:
+            arc[axis] = "descended"
+        elif abs(delta) < 0.1:
+            arc[axis] = "stalled" if not all_flat else "stable"
+        else:
+            arc[axis] = "oscillated"
+
+    return arc
+
+
+def compose_chain(
+    sequence_index: SequenceIndex,
+    chain_index: ChainIndex,
+    session: str,
+    prompt_essence: str = "",
+    produced_artifacts: list[str] | None = None,
+) -> Chain | None:
+    """Compose all sequences for a session into a chain.
+
+    Collects all sequences (open and closed) for the session, computes the
+    arc summary from their combined automation lanes, and creates a Chain.
+    Returns None if no sequences exist for the session.
+    """
+    session_seqs = [s for s in sequence_index.sequences if s.session == session]
+    if not session_seqs:
+        return None
+
+    chain = Chain(
+        id=_make_chain_id(session, chain_index.chains),
+        session=session,
+        prompt_essence=prompt_essence,
+        sequence_ids=[s.id for s in session_seqs],
+        arc=_compute_arc(session_seqs),
+        produced_artifacts=produced_artifacts or [],
+    )
+    chain_index.chains.append(chain)
+
+    # Back-reference: stamp each sequence with its chain
+    for seq in session_seqs:
+        seq.chain_id = chain.id
+
+    return chain
+
+
+def close_session(
+    sequence_index: SequenceIndex,
+    chain_index: ChainIndex,
+    session: str,
+    prompt_essence: str = "",
+    produced_artifacts: list[str] | None = None,
+) -> Chain | None:
+    """Close a session: close the active sequence, compose a chain.
+
+    This is the session-boundary operation. It:
+    1. Closes the active sequence (if any)
+    2. Composes all session sequences into a chain
+    """
+    # Close any open sequence
+    close_sequence(sequence_index, session)
+
+    # Compose into chain
+    return compose_chain(
+        sequence_index, chain_index, session,
+        prompt_essence=prompt_essence,
+        produced_artifacts=produced_artifacts,
+    )

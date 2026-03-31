@@ -36,6 +36,14 @@ metadata:
       - __init__.py
       - absorption.py
       - fieldwork.py
+    action_ledger:
+      - schemas.py
+      - ledger.py
+      - routes.py
+      - cycles.py
+      - cli.py
+      - __main__.py
+      - __init__.py
     scripts:
       - validate-deps.py
       - organ-audit.py
@@ -53,7 +61,7 @@ metadata:
       - render_post001.py
       - render_post002.py
       - render_post002_audit.py
-  test_count: 164
+  test_count: 221
 produces:
 - type: governance_rules
   description: Codified governance articles enforcing dependency flow, promotion states, and registry authority.
@@ -75,6 +83,8 @@ produces:
   description: Detected expansion-worthy questions from external conversations via 8 heuristics.
 - type: fieldwork_data
   description: Process observations from contribution workflows, append-only stream with spectrum scoring.
+- type: action_ledger_data
+  description: System-wide process recording — semantic actions, parameter trajectories, cycle detection.
 consumes:
 - type: github_pr_states
   description: PR lifecycle states polled by contrib_engine monitor for contribution tracking.

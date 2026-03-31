@@ -3,7 +3,7 @@
 from __future__ import annotations
 
 from datetime import datetime
-from enum import StrEnum
+from enum import IntEnum, StrEnum
 from typing import Any
 
 from pydantic import BaseModel, Field
@@ -341,3 +341,90 @@ class AbsorptionIndex(BaseModel):
             i for i in self.items
             if i.status in (AbsorptionStatus.DETECTED, AbsorptionStatus.ASSESSED)
         ]
+
+
+# --- Fieldwork models ---
+
+
+class ObservationCategory(StrEnum):
+    """What aspect of a project's process was observed."""
+
+    MERGE_PROTOCOL = "merge_protocol"
+    REVIEW_CULTURE = "review_culture"
+    CI_ARCHITECTURE = "ci_architecture"
+    REPO_LAYOUT = "repo_layout"
+    TOOLING = "tooling"
+    CONTRIBUTOR_EXPERIENCE = "contributor_experience"
+    COMMUNICATION_STYLE = "communication_style"
+    GOVERNANCE = "governance"
+    DOCUMENTATION = "documentation"
+    SECURITY_POSTURE = "security_posture"
+
+
+class SpectrumLevel(IntEnum):
+    """Observation value spectrum — ordinal for comparison."""
+
+    AVOID = -2
+    CAUTION = -1
+    NOTE = 0
+    STUDY = 1
+    ABSORB = 2
+
+
+class StrategicTag(StrEnum):
+    """Strategic significance of an observation."""
+
+    SHATTERPOINT = "shatterpoint"
+    MISSING_SHIELD = "missing_shield"
+    FRICTION_POINT = "friction_point"
+    FORTRESS = "fortress"
+    COMPETITIVE_EDGE = "competitive_edge"
+    COMPETITIVE_GAP = "competitive_gap"
+
+
+class ObservationSource(StrEnum):
+    """How the observation was captured."""
+
+    PR_SUBMISSION = "pr_submission"
+    REVIEW_RESPONSE = "review_response"
+    CI_RUN = "ci_run"
+    REPO_EXPLORATION = "repo_exploration"
+    PHASE_TRANSITION = "phase_transition"
+    AUTOMATED = "automated"
+
+
+class FieldObservation(BaseModel):
+    """Atomic unit of process intelligence from a contribution workflow."""
+
+    id: str
+    workspace: str
+    timestamp: str
+    category: ObservationCategory
+    signal: str
+    spectrum: SpectrumLevel
+    strategic: list[StrategicTag] = Field(default_factory=list)
+    source: ObservationSource
+    evidence: str = ""
+    scored_by: str = "agent"
+    related_absorption_ids: list[str] = Field(default_factory=list)
+    atom_id: str = ""  # Future Zettelkasten link
+
+    model_config = {"extra": "allow"}
+
+
+class FieldworkIndex(BaseModel):
+    """All fieldwork observations."""
+
+    generated: str = ""
+    observations: list[FieldObservation] = Field(default_factory=list)
+
+    model_config = {"extra": "allow"}
+
+    def by_workspace(self, workspace: str) -> list[FieldObservation]:
+        return [o for o in self.observations if o.workspace == workspace]
+
+    def by_category(self, category: ObservationCategory) -> list[FieldObservation]:
+        return [o for o in self.observations if o.category == category]
+
+    def by_spectrum(self, min_level: SpectrumLevel) -> list[FieldObservation]:
+        return [o for o in self.observations if o.spectrum >= min_level]

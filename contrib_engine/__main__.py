@@ -33,6 +33,7 @@ def main(argv: list[str] | None = None) -> None:
     _register_campaign_commands(subparsers)
     _register_outreach_commands(subparsers)
     _register_backflow_commands(subparsers)
+    _register_fieldwork_commands(subparsers)
 
     args = parser.parse_args(argv)
     if not hasattr(args, "func"):
@@ -228,6 +229,85 @@ def _cmd_backflow_deposit(args: argparse.Namespace) -> None:
     else:
         print(f"Item index {args.index} not found")
         sys.exit(1)
+
+
+def _register_fieldwork_commands(subparsers: argparse._SubParsersAction) -> None:
+    fieldwork = subparsers.add_parser("fieldwork", help="Fieldwork intelligence")
+    fieldwork_sub = fieldwork.add_subparsers(dest="fieldwork_command")
+
+    rec = fieldwork_sub.add_parser("record", help="Record a process observation")
+    rec.add_argument("--workspace", required=True, help="Workspace name (e.g., contrib--dbt-mcp)")
+    rec.add_argument(
+        "--category", required=True,
+        help="Observation category (merge_protocol, review_culture, ci_architecture, "
+             "repo_layout, tooling, contributor_experience, communication_style, "
+             "governance, documentation, security_posture)",
+    )
+    rec.add_argument("--signal", required=True, help="What was observed (natural language)")
+    rec.add_argument("--spectrum", required=True, type=int, help="Spectrum score (-2=AVOID to +2=ABSORB)")
+    rec.add_argument(
+        "--source", required=True,
+        help="How observed (pr_submission, review_response, ci_run, "
+             "repo_exploration, phase_transition, automated)",
+    )
+    rec.add_argument("--evidence", default="", help="Supporting detail")
+    rec.add_argument("--strategic", action="append", default=[], help="Strategic tag (repeatable)")
+    rec.add_argument("--scored-by", default="agent", help="Who scored (agent or orchestrator)")
+    rec.set_defaults(func=_cmd_fieldwork_record)
+
+    show = fieldwork_sub.add_parser("show", help="Show observations")
+    show.add_argument("--workspace", default="", help="Filter by workspace")
+    show.add_argument("--category", default="", help="Filter by category")
+    show.add_argument("--min-spectrum", type=int, default=None, help="Minimum spectrum level")
+    show.set_defaults(func=_cmd_fieldwork_show)
+
+    fieldwork.set_defaults(func=lambda args: fieldwork.print_help())
+
+
+def _cmd_fieldwork_record(args: argparse.Namespace) -> None:
+    from contrib_engine.fieldwork import load_fieldwork, record, save_fieldwork
+
+    index = load_fieldwork()
+    obs = record(
+        index,
+        workspace=args.workspace,
+        category=args.category,
+        signal=args.signal,
+        spectrum=args.spectrum,
+        source=args.source,
+        evidence=args.evidence,
+        strategic=args.strategic,
+        scored_by=args.scored_by,
+    )
+    save_fieldwork(index)
+    print(f"Recorded: {obs.id} [{obs.spectrum.name}] {obs.signal[:60]}")
+
+
+def _cmd_fieldwork_show(args: argparse.Namespace) -> None:
+    from contrib_engine.fieldwork import load_fieldwork
+    from contrib_engine.schemas import ObservationCategory, SpectrumLevel
+
+    index = load_fieldwork()
+    obs_list = index.observations
+
+    if args.workspace:
+        obs_list = [o for o in obs_list if o.workspace == args.workspace]
+    if args.category:
+        cat = ObservationCategory(args.category)
+        obs_list = [o for o in obs_list if o.category == cat]
+    if args.min_spectrum is not None:
+        level = SpectrumLevel(args.min_spectrum)
+        obs_list = [o for o in obs_list if o.spectrum >= level]
+
+    if not obs_list:
+        print("No observations found.")
+        return
+
+    print(f"{'ID':<28s}  {'Workspace':<25s}  {'Category':<22s}  {'Spec':>4s}  Signal")
+    print("-" * 110)
+    for o in obs_list:
+        spec = f"{o.spectrum.value:+d}"
+        print(f"{o.id:<28s}  {o.workspace:<25s}  {o.category.value:<22s}  {spec:>4s}  {o.signal[:40]}")
 
 
 if __name__ == "__main__":

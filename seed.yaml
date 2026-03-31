@@ -10,13 +10,13 @@ metadata:
   implementation_status: ACTIVE
   tier: flagship
   promotion_status: GRADUATED
-  last_validated: '2026-03-23'
+  last_validated: '2026-03-30'
   description: >-
     Central orchestration hub and nervous system of the eight-organ ORGANVM system.
     Registry, governance rules, 17 GitHub Actions workflows, 12 Python scripts,
-    contrib_engine (12 modules + 4 artifact renderers), 111+ tests passing.
-    Includes campaign sequencer, outreach tracker, backflow pipeline, and
-    testament formalization.
+    contrib_engine (14 modules + 4 artifact renderers), 164 tests passing.
+    Includes campaign sequencer, outreach tracker, backflow pipeline, absorption
+    protocol, fieldwork intelligence, and testament formalization.
   stack:
     - Python 3.12
     - GitHub Actions
@@ -34,6 +34,8 @@ metadata:
       - cli.py
       - __main__.py
       - __init__.py
+      - absorption.py
+      - fieldwork.py
     scripts:
       - validate-deps.py
       - organ-audit.py
@@ -46,7 +48,12 @@ metadata:
       - validate-wip.py
       - validate-agent-run.py
       - enforce-ci-mandate.py
-  test_count: 111
+  artifacts:
+      - render_canvas.py
+      - render_post001.py
+      - render_post002.py
+      - render_post002_audit.py
+  test_count: 164
 produces:
 - type: governance_rules
   description: Codified governance articles enforcing dependency flow, promotion states, and registry authority.
@@ -64,6 +71,10 @@ produces:
   description: Knowledge routing pipeline to 6 organs (theory/generative/code/narrative/community/distribution).
 - type: testament_formalization
   description: 13-article codified writing rules formalized into logic, algorithms, and math.
+- type: absorption_data
+  description: Detected expansion-worthy questions from external conversations via 8 heuristics.
+- type: fieldwork_data
+  description: Process observations from contribution workflows, append-only stream with spectrum scoring.
 consumes:
 - type: github_pr_states
   description: PR lifecycle states polled by contrib_engine monitor for contribution tracking.

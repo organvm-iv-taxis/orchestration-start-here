@@ -291,7 +291,7 @@ class TestCloseSequence:
         record(actions, sequences, registry,
                session="S42", verb="explored", target="fieldwork")
 
-        seq = close_sequence(sequences, "S42", outcome="patterns reusable")
+        seq = close_sequence(sequences, "S42", outcome="patterns reusable", emit=False)
         assert seq is not None
         assert seq.closed is True
         assert seq.outcome == "patterns reusable"
@@ -303,7 +303,7 @@ class TestCloseSequence:
 
         record(actions, sequences, registry,
                session="S42", verb="explored", target="fieldwork")
-        close_sequence(sequences, "S42")
+        close_sequence(sequences, "S42", emit=False)
         record(actions, sequences, registry,
                session="S42", verb="built", target="ledger")
 
@@ -311,7 +311,7 @@ class TestCloseSequence:
 
     def test_close_no_active(self):
         sequences = SequenceIndex()
-        assert close_sequence(sequences, "S42") is None
+        assert close_sequence(sequences, "S42", emit=False) is None
 
 
 class TestSetSequenceIntent:
@@ -428,7 +428,7 @@ class TestPersistence:
                session="S42", verb="built", target="b",
                params={"abstraction": 0.3})
 
-        close_session(sequences, chains, "S42", prompt_essence="test chain")
+        close_session(sequences, chains, "S42", prompt_essence="test chain", emit=False)
 
         path = tmp_path / "chains.yaml"
         save_chains(chains, path)
@@ -564,7 +564,7 @@ class TestChainComposition:
                session="S42", verb="built", target="b",
                params={"abstraction": 0.3})
 
-        chain = compose_chain(sequences, chains, "S42", prompt_essence="test")
+        chain = compose_chain(sequences, chains, "S42", prompt_essence="test", emit=False)
         assert chain is not None
         assert chain.session == "S42"
         assert chain.prompt_essence == "test"
@@ -583,7 +583,7 @@ class TestChainComposition:
         record(actions, sequences, registry,
                session="S42", verb="c", target="z", params={"abstraction": 0.2})
 
-        chain = compose_chain(sequences, chains, "S42")
+        chain = compose_chain(sequences, chains, "S42", emit=False)
         assert chain is not None
         assert chain.arc["abstraction"] == "descended"
 
@@ -600,7 +600,7 @@ class TestChainComposition:
         record(actions, sequences, registry,
                session="S42", verb="c", target="z", params={"maturity": 0.9})
 
-        chain = compose_chain(sequences, chains, "S42")
+        chain = compose_chain(sequences, chains, "S42", emit=False)
         assert chain is not None
         assert chain.arc["maturity"] == "ascended"
 
@@ -617,7 +617,7 @@ class TestChainComposition:
         record(actions, sequences, registry,
                session="S42", verb="c", target="z", params={"maturity": 0.4})
 
-        chain = compose_chain(sequences, chains, "S42")
+        chain = compose_chain(sequences, chains, "S42", emit=False)
         assert chain is not None
         # Went up then back down to start — stalled
         assert chain.arc["maturity"] in ("stalled", "oscillated")
@@ -631,7 +631,7 @@ class TestChainComposition:
         record(actions, sequences, registry,
                session="S42", verb="explored", target="a")
 
-        chain = close_session(sequences, chains, "S42", prompt_essence="done")
+        chain = close_session(sequences, chains, "S42", prompt_essence="done", emit=False)
         assert chain is not None
         # Sequence should be closed
         assert sequences.sequences[0].closed is True
@@ -648,15 +648,15 @@ class TestChainComposition:
         record(actions, sequences, registry,
                session="S42", verb="explored", target="a",
                params={"abstraction": 0.8})
-        close_sequence(sequences, "S42")
+        close_sequence(sequences, "S42", emit=False)
 
         # Second sequence
         record(actions, sequences, registry,
                session="S42", verb="built", target="b",
                params={"abstraction": 0.3})
-        close_sequence(sequences, "S42")
+        close_sequence(sequences, "S42", emit=False)
 
-        chain = compose_chain(sequences, chains, "S42")
+        chain = compose_chain(sequences, chains, "S42", emit=False)
         assert chain is not None
         assert len(chain.sequence_ids) == 2
         assert chain.arc["abstraction"] == "descended"
@@ -664,7 +664,7 @@ class TestChainComposition:
     def test_compose_chain_no_sequences(self):
         sequences = SequenceIndex()
         chains = ChainIndex()
-        assert compose_chain(sequences, chains, "S99") is None
+        assert compose_chain(sequences, chains, "S99", emit=False) is None
 
 
 # ---------------------------------------------------------------------------
@@ -691,7 +691,7 @@ def _build_multi_session_data():
                params={"abstraction": 0.5, "maturity": 0.4})
 
         set_sequence_intent(sequences, session, "build recording infrastructure")
-        close_sequence(sequences, session)
+        close_sequence(sequences, session, emit=False)
 
     return actions, sequences, registry
 
@@ -758,7 +758,7 @@ class TestStallDetection:
             record(actions, sequences, registry,
                    session=f"S{40 + i}", verb="worked", target="thing",
                    params={"maturity": 0.4})
-            close_sequence(sequences, f"S{40 + i}")
+            close_sequence(sequences, f"S{40 + i}", emit=False)
 
         cycles = detect_stalls(sequences, min_sequences=3)
         assert len(cycles) >= 1
@@ -773,7 +773,7 @@ class TestStallDetection:
             record(actions, sequences, registry,
                    session=f"S{40 + i}", verb="worked", target="thing",
                    params={"maturity": 0.2 * i})
-            close_sequence(sequences, f"S{40 + i}")
+            close_sequence(sequences, f"S{40 + i}", emit=False)
 
         cycles = detect_stalls(sequences, min_sequences=3)
         maturity_stalls = [c for c in cycles if "maturity" in c.pattern]

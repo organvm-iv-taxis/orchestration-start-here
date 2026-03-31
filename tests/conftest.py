@@ -4,6 +4,18 @@ import pytest
 from pathlib import Path
 
 
+@pytest.fixture(autouse=True)
+def _isolate_ledger_data(tmp_path, monkeypatch):
+    """Redirect action_ledger DATA_DIR to tmp_path for ALL tests.
+
+    Prevents emission side effects from contaminating production
+    data files (actions.yaml, sequences.yaml, param_registry.yaml).
+    Without this, any test calling close_sequence/compose_chain/close_session
+    with default emit=True writes to the real data directory.
+    """
+    monkeypatch.setattr("action_ledger.ledger.DATA_DIR", tmp_path)
+
+
 @pytest.fixture
 def governance_rules():
     """Governance rules matching production governance-rules.json structure."""

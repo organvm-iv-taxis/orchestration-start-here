@@ -81,6 +81,15 @@ Examples:
     "issue_ref":        { "type": "string", "description": "GitHub issue reference (e.g., #107)" },
     "start_time":       { "type": "string", "format": "date-time" },
     "end_time":         { "type": "string", "format": "date-time" },
+    "temporal_coordinate": {
+      "type": "object",
+      "required": ["macro_pulse", "meso_step"],
+      "properties": {
+        "macro_pulse":   { "type": "integer", "description": "Global event count at session start (τ_M)" },
+        "meso_step":    { "type": "integer", "description": "Turn sequence number (τ_m)" },
+        "micro_density": { "type": "number", "description": "Tokens per ms (τ_µ)" }
+      }
+    },
     "exit_status":      { "type": "string", "enum": ["success", "failed", "rolled_back", "timeout", "cancelled"] },
     "files_read":       { "type": "array", "items": { "type": "string" } },
     "files_written":    { "type": "array", "items": { "type": "string" } },
@@ -131,6 +140,11 @@ Examples:
   "issue_ref": "#107",
   "start_time": "2026-03-08T10:00:00Z",
   "end_time": "2026-03-08T11:30:00Z",
+  "temporal_coordinate": {
+    "macro_pulse": 24029,
+    "meso_step": 12,
+    "micro_density": 1.2
+  },
   "exit_status": "success",
   "files_read": ["docs/session-protocol.md", "governance-rules.json"],
   "files_written": ["docs/agent-run-logging.md", "scripts/validate-agent-run.py"],
@@ -186,13 +200,13 @@ structured as:
 ### Example
 
 ```
-2026-03-08T10:00:00Z INFO SESSION_START agent=claude-code repo=orchestration-start-here
-2026-03-08T10:00:05Z INFO FILE_READ path=docs/session-protocol.md
-2026-03-08T10:00:10Z INFO TOOL_CALL tool=Edit file=docs/session-protocol.md
-2026-03-08T10:00:11Z INFO TOOL_RESULT tool=Edit status=success duration_ms=120
-2026-03-08T10:01:30Z INFO FILE_WRITE path=docs/agent-run-logging.md
-2026-03-08T11:29:55Z INFO BREADCRUMB issue=#107
-2026-03-08T11:30:00Z INFO SESSION_END exit_status=success duration_ms=5400000
+[τ_M:24029 | τ_m:001 | τ_µ:0.8] INFO SESSION_START agent=claude-code repo=orchestration-start-here
+[τ_M:24029 | τ_m:002 | τ_µ:1.1] INFO FILE_READ path=docs/session-protocol.md
+[τ_M:24029 | τ_m:003 | τ_µ:1.5] INFO TOOL_CALL tool=Edit file=docs/session-protocol.md
+[τ_M:24029 | τ_m:004 | τ_µ:0.9] INFO TOOL_RESULT tool=Edit status=success duration_ms=120
+[τ_M:24029 | τ_m:005 | τ_µ:1.2] INFO FILE_WRITE path=docs/agent-run-logging.md
+[τ_M:24029 | τ_m:006 | τ_µ:1.0] INFO BREADCRUMB issue=#107
+[τ_M:24029 | τ_m:007 | τ_µ:0.7] INFO SESSION_END exit_status=success duration_ms=5400000
 ```
 
 ---

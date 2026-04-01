@@ -180,7 +180,7 @@ Cross-referencing operator prompts against actual outcomes:
 | Gravitas Culturalis essay | Plan active | **IN PROGRESS** | SPEC-021 |
 | Intake router build | Plan (this session) | **DONE** (b3ea5b9) | intake_router/ |
 | War-Master Protocol SOP | Prompt #14 | **DONE** (1477d90) | docs/sop-war-master-protocol.md |
-| 72-hour chronicle | Prompt #25 | **DONE** (b3ea5b9) | docs/chronicle-72h.md |
+| 72-hour chronicle | Prompt #25 | **DONE** (b3ea5b9) | docs/chronicle-72h-2026-03-29-to-31.md |
 | Prompt + plan compilation | Prompt #26 | **DONE** | This document |
 
 ---

@@ -173,12 +173,12 @@ Cross-referencing operator prompts against actual outcomes:
 | Emission wiring: monitor.py PR states | Archetype III prompt | **NOT STARTED** | Plan only |
 | Test isolation fix | Archetype III prompt | **DONE** (e720ada) | conftest.py |
 | Plan status transition → emission | Archetype III prompt | **NOT STARTED** | Plan only |
-| IRF update for S-energy-emission | Archetype IV prompt | **NOT STARTED** | Plan only |
+| IRF update for S-energy-emission | Archetype IV prompt | **DONE** | `meta-organvm/organvm-corpvs-testamentvm/INST-INDEX-RERUM-FACIENDARUM.md` + concordance propagated |
 | 5 new IRF items from application-pipeline | Prompt #7 (pipeline session) | **NOT STARTED** | Session memory only |
 | GitHub billing: kill $68/mo phantom spend | Prompts #10, #22 | **NOT STARTED** | Human action |
 | GitHub billing: Copilot Pro switch | Prompts #10, #22 | **NOT STARTED** | Human action |
 | Gravitas Culturalis essay | Plan active | **IN PROGRESS** | SPEC-021 |
-| Intake router build | Plan (this session) | **DONE** (b3ea5b9) | intake_router/ |
+| Intake router build | Plan (this session) | **DONE** (b3ea5b9) | intake_router/; follow-through GH#147 |
 | War-Master Protocol SOP | Prompt #14 | **DONE** (1477d90) | docs/sop-war-master-protocol.md |
 | 72-hour chronicle | Prompt #25 | **DONE** (b3ea5b9) | docs/chronicle-72h-2026-03-29-to-31.md |
 | Prompt + plan compilation | Prompt #26 | **DONE** | This document |

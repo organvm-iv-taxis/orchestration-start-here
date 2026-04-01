@@ -1,4 +1,4 @@
-# Briefing: Communications & Correspondence — The Relay Protocol
+# War Report: Communications & Correspondence — The Relay Protocol
 
 **Session:** S51 | **Date:** 2026-04-01
 **Archetype:** RELAY-CIRCUIT
@@ -6,18 +6,20 @@
 
 ---
 
-## Vacuum
+## The Front Line
 
-Four communication subsystems. No shared lifecycle. No state machine. No cross-channel dispatch.
+The divergence between reality and ideal exists at the module scale: four communication subsystems operate independently where one lifecycle should govern all channels.
 
-| Fragment | What it does | What it doesn't |
-|----------|-------------|-----------------|
-| Mail triage | Inbound sweep → classify → route | No outbound. No cross-channel. No response tracking. |
-| Handoff docs | Inter-session context relay | Ad-hoc format. No provenance. No verification. |
-| PR discipline | GitHub correspondence etiquette | Behavioral only. Not connected to lifecycle. |
-| Outbound | **Nothing. The vacuum.** | No process. No tracking. No state. |
+### Where Dystopia Is Currently Winning
 
-## Ideal State
+| Fragment | What it preserves | What it lets decay |
+|----------|-------------------|-------------------|
+| Mail triage | Inbound sweep → classify → route | No outbound. No cross-channel. No response tracking. Each triage event is born and dies alone. |
+| Handoff docs | Inter-session context relay | Ad-hoc format. No provenance chain. No verification that the relay was received. |
+| PR discipline | GitHub correspondence etiquette | Behavioral constraint only. Not connected to any lifecycle. Exists as memory, not as protocol. |
+| Outbound | **Nothing.** | No process. No tracking. No state. Recruiter replies, maintainer responses, client follow-ups are improvised every time. |
+
+### What Utopia Looks Like If This Portal Succeeds
 
 One SOP. Six phases. One state machine. All channels.
 
@@ -26,6 +28,14 @@ SWEEP → CLASSIFY → COMPOSE → RELAY → DISPATCH → VERIFY
   ↓         ↓          ↓         ↓         ↓          ↓
 RECEIVED → TRIAGED → COMPOSED → RELAYED → DISPATCHED → CONFIRMED → CLOSED
 ```
+
+A received email already knows it will be triaged, may need composition, will be dispatched, must be verified. The system anticipates. The format evolves. New channels absorb into the protocol without structural surgery.
+
+### What Dystopia Looks Like If This Portal Fails
+
+The fragments calcify. Mail-triage becomes the only governed channel. Outbound correspondence remains improvised. Every new channel (Slack, LinkedIn, USPS) creates another independent fragment. The organism's communication capacity scales linearly with the operator's attention, not with the system's architecture. Eventually, correspondence falls through gaps that no single fragment was designed to catch.
+
+---
 
 ## Campaign Dependencies
 
@@ -36,6 +46,8 @@ RECEIVED → TRIAGED → COMPOSED → RELAYED → DISPATCHED → CONFIRMED → C
 | Mail triage pattern | Exists | Becomes Phase 1-2 (plasticity, not preservation) |
 | Handoff pattern | Exists in 3 docs | Becomes Phase 4 (formalized, not ad-hoc) |
 | Contrib engine monitor | Built | PR correspondence already flows — SOP governs the human layer |
+
+---
 
 ## Deliverables
 

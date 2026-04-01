@@ -1,6 +1,6 @@
-# Sequence: Relay Circuit α → ω
+# Sequence: Relay Circuit α → ε
 
-The ordered pipeline. Every injection, creation, operation, and destruction as a repeatable procedure.
+The ordered intervention. Every injection, creation, operation, verification, and forward deposit as a repeatable procedure. The circuit ends at PRECIPITATE, not at destruction. Evaporation is the next portal's prerogative.
 
 ---
 
@@ -155,26 +155,64 @@ IntakeDomain.CORRESPONDENCE: RouteTarget(
 
 ---
 
-## Phase ε — COMMIT
+## Phase ε — PRECIPITATE (Forward Deposit + Stop)
+
+The portal does not destroy itself. It deposits the baton for the next runner and stops.
+
+| Step | Procedure | Output |
+|------|-----------|--------|
+| ε.1 | Commit all artifacts | `feat: S51 — communications & correspondence relay protocol formalized` |
+| ε.2 | Push to origin | local:remote = 1:1 |
+| ε.3 | Write `RECEIPT.md` in this directory | Forward deposit for next portal |
+| ε.4 | If next task is predictable, seed `tasks/<next-slug>/BRIEFING.md` | Pre-written war report for next intervention |
+| ε.5 | **STOP** | Do not evaporate. Do not continue. The operator decides what happens next. |
 
 ```bash
 git add docs/sop-communications-correspondence.md \
        action_ledger/data/actions.yaml \
        action_ledger/data/sequences.yaml \
        action_ledger/data/chains.yaml \
-       intake_router/router.py
+       intake_router/router.py \
+       tasks/communications-correspondence-relay/RECEIPT.md
 
-git commit -m "feat: S51 orchestration event — communications & correspondence relay protocol formalized"
+git commit -m "feat: S51 — communications & correspondence relay protocol formalized"
+git push origin main
+```
+
+### RECEIPT.md Template
+
+Write this as the final act:
+
+```markdown
+# Receipt: communications-correspondence-relay
+
+**Completed:** <timestamp>
+**Session:** S51
+**Commit:** <sha>
+
+## What Was Done
+- <artifacts produced, files modified, tests passed>
+
+## What Was NOT Done (and why)
+- <anything deferred, with reason — these are the front lines that remain>
+
+## Forward Deposit
+
+### Next Portal Location
+`tasks/<next-slug>/`
+
+### Next Portal Prompt
+\`\`\`
+cd ~/Workspace/organvm-iv-taxis/orchestration-start-here/tasks/<next-slug>/
+claude
+\`\`\`
+
+### Next War Report (pre-seeded)
+<the front line that remains after this portal's intervention>
+<which attractor is now gaining vs losing>
+<the K-doors that need opening next>
 ```
 
 ---
 
-## Phase ω — EVAPORATE
-
-```bash
-rm -rf tasks/communications-correspondence-relay/
-git add -A tasks/
-git commit -m "chore: evaporate dispatch portal — communications-correspondence-relay"
-```
-
-Portal closes. Pattern persists. Vacuum filled.
+The avalanche pauses here. The operator reads the receipt. If they open a terminal at the next portal location and prompt, the avalanche continues. If they don't, the receipt waits. The portal's evidence persists in git. The trajectory has shifted. The next intervention knows where to begin.

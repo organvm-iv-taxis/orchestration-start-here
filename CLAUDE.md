@@ -16,12 +16,13 @@ Central orchestration hub: registry, governance rules, 5 workflows, 3 Python scr
 ```
 📁 .github/
 📁 .meta/
-📁 tasks/                # Dispatch portals — ephemeral task containers (evaporate on completion)
+📁 tasks/                # Portals — reality-rectification interventions between competing futures
     <slug>/
-        CLAUDE.md        # Agent identity + lifecycle + evaporation protocol
-        BRIEFING.md      # Vacuum + ideal state + campaign dependencies
-        REFERENCES.md    # External pointers: files, repos, channels, people, memory
-        SEQUENCE.md      # Relay circuit α→ω: inject, create, operate, verify, commit, evaporate
+        CLAUDE.md        # Portal nature + counter-force field + lifecycle (INJECT→PRECIPITATE→STOP)
+        BRIEFING.md      # War report: front line, utopic/dystopic attractors, deliverables
+        REFERENCES.md    # Keys to doors + context stream + terrain (what the war is fought over)
+        SEQUENCE.md      # Intervention procedure α→ε: inject, create, operate, verify, precipitate
+        RECEIPT.md       # Forward deposit (written at completion, consumed by next portal)
 📁 action_ledger/
     schemas.py          # Action, Sequence, Chain, Route, ParamAxis, ParamRegistry, ActionOrigin
     ledger.py           # record() atomic, compose_chain(), close_session(), YAML persistence

@@ -35,15 +35,17 @@ Read these before touching anything. This is the complete picture required for m
 | `action_ledger/schemas.py` lines 15-30, 57-97 | `ActionOrigin`, `RouteKind`, `Route`, `Action` — the data types for ledger entries | Targeted |
 | `intake_router/router.py` lines 25-34, 83-166 | `IntakeDomain` enum, `DOMAIN_KEYWORDS` dict, `ROUTING_TABLE` dict — the three extension points | Targeted |
 
-### The Tension (what must NOT be broken)
+### The Terrain (what the war is fought over)
 
-| Constraint | Source | Consequence of violation |
-|------------|--------|--------------------------|
-| Mail-triage format must survive as Phase 1-2 | `docs/mail-triage-2026-04-01.md` | Future triage events depend on this structure |
-| Handoff CONTEXT/TASK block format must survive as Phase 4 | `docs/handoff-*.md` | Existing handoff relay prompts would break |
-| Action ledger append-only | `action_ledger/ledger.py` | Never overwrite existing YAML entries |
-| Intake router enum order | `intake_router/router.py` | UNKNOWN must remain last |
-| 240 tests must still pass | `tests/` | `python -m pytest tests/ -q` |
+These are not just constraints — they are the existing forms that the dystopic attractor wants to preserve frozen and the utopic attractor wants to transform alive. The intervention must respect their current function while evolving their future form.
+
+| Existing Form | Dystopic Pull (preserve frozen) | Utopic Pull (transform alive) | Constraint |
+|---------------|--------------------------------|------------------------------|------------|
+| Mail-triage table format | Keep it standalone forever | Subsume as Phase 1-2 of the unified lifecycle | Structure must survive — future triage events depend on it |
+| Handoff CONTEXT/TASK blocks | Keep them ad-hoc | Formalize as Phase 4 canonical relay format | Format must survive — existing relay prompts depend on it |
+| Action ledger YAML streams | Append mechanically | Emit correspondence verbs as living state changes | **Append-only. Never overwrite existing entries.** |
+| Intake router enum order | Leave correspondence unrouted | Add CORRESPONDENCE domain | UNKNOWN must remain last in enum |
+| 240 passing tests | Don't touch anything | Transform while maintaining invariants | `python -m pytest tests/ -q` must still pass |
 
 ---
 

@@ -10,6 +10,7 @@ Run: python3 scripts/reconcile-72h.py > docs/reconciliation-72h.md
 
 from __future__ import annotations
 
+import hashlib
 import json
 import os
 import re
@@ -22,19 +23,23 @@ from pathlib import Path
 # ── Configuration ──────────────────────────────────────────────────────
 
 WORKSPACES = {
-    "orchestration-start-here": Path.home() / "Workspace/organvm-iv-taxis/orchestration-start-here",
+    "orchestration-start-here": Path.home()
+    / "Workspace/organvm-iv-taxis/orchestration-start-here",
     "meta-organvm": Path.home() / "Workspace/meta-organvm",
     "organvm-engine": Path.home() / "Workspace/meta-organvm/organvm-engine",
-    "corpvs-testamentvm": Path.home() / "Workspace/meta-organvm/organvm-corpvs-testamentvm",
+    "corpvs-testamentvm": Path.home()
+    / "Workspace/meta-organvm/organvm-corpvs-testamentvm",
     "a-organvm": Path.home() / "Workspace/a-organvm",
     "application-pipeline": Path.home() / "Workspace/4444J99/application-pipeline",
 }
 
 SESSION_DIRS = {
-    "orchestration-start-here": Path.home() / ".claude/projects/-Users-4jp-Workspace-organvm-iv-taxis-orchestration-start-here",
+    "orchestration-start-here": Path.home()
+    / ".claude/projects/-Users-4jp-Workspace-organvm-iv-taxis-orchestration-start-here",
     "meta-organvm": Path.home() / ".claude/projects/-Users-4jp-Workspace-meta-organvm",
     "a-organvm": Path.home() / ".claude/projects/-Users-4jp-Workspace-a-organvm",
-    "application-pipeline": Path.home() / ".claude/projects/-Users-4jp-Workspace-4444J99-application-pipeline",
+    "application-pipeline": Path.home()
+    / ".claude/projects/-Users-4jp-Workspace-4444J99-application-pipeline",
     "workspace-root": Path.home() / ".claude/projects/-Users-4jp-Workspace",
 }
 
@@ -52,6 +57,17 @@ CLASSIFY_PATTERNS: dict[str, list[str]] = {
     "META": ["token", "process", "workflow", "session", "prompt", "recording", "remember", "memory"],
 }
 
+# Steering keywords — only match on SHORT prompts (dispatch confirmations, not paragraphs)
+STEERING_KEYWORDS = [
+    "proceed", "continue", "yes", "logic dictates order", "all of the above",
+    "hell yes", "go", "next", "carry on", "sounds good", "makes sense",
+    "do it", "do that", "let's go", "approved", "confirmed", "okay", "ok", "sure",
+    "y", "yep", "do so", "execute", "run it",
+]
+
+# Max character length for a prompt to qualify as STEERING
+STEERING_MAX_LEN = 120
+
 NOISE_PATTERNS = [
     r"^\s*$",
     r"^\[Request interrupted",
@@ -63,10 +79,13 @@ NOISE_PATTERNS = [
     r"^/model",
     r"^/clear",
     r"^/init",
+    r"^❯",
+    r"^\[Image",
 ]
 
 
 # ── Data structures ───────────────────────────────────────────────────
+
 
 @dataclass
 class Prompt:
@@ -74,6 +93,7 @@ class Prompt:
     workspace: str
     session_id: str
     text: str
+    text_hash: str = ""
     classification: str = ""
     summary: str = ""
     outcome: str = ""
@@ -89,6 +109,7 @@ class Commit:
 
 
 # ── Extract prompts from JSONL ────────────────────────────────────────
+
 
 def extract_prompts() -> list[Prompt]:
     prompts: list[Prompt] = []
@@ -122,12 +143,16 @@ def extract_prompts() -> list[Prompt]:
                             continue
 
                         ts = obj.get("timestamp", "")[:19]
-                        prompts.append(Prompt(
-                            timestamp=ts,
-                            workspace=ws_name,
-                            session_id=session_id,
-                            text=text,
-                        ))
+                        text_hash = hashlib.sha256(text.encode()).hexdigest()[:16]
+                        prompts.append(
+                            Prompt(
+                                timestamp=ts,
+                                workspace=ws_name,
+                                session_id=session_id,
+                                text=text,
+                                text_hash=text_hash,
+                            )
+                        )
                     except Exception:
                         pass
 
@@ -135,6 +160,7 @@ def extract_prompts() -> list[Prompt]:
 
 
 # ── Classify prompts ──────────────────────────────────────────────────
+
 
 def is_noise(text: str) -> bool:
     for pat in NOISE_PATTERNS:
@@ -147,10 +173,21 @@ def classify(prompt: Prompt) -> str:
     if is_noise(prompt.text):
         return "NOISE"
 
-    text_lower = prompt.text.lower()
+    text_lower = prompt.text.lower().strip()
+    text_len = len(prompt.text.strip())
+
     scores: dict[str, int] = {}
     for cat, keywords in CLASSIFY_PATTERNS.items():
         scores[cat] = sum(1 for kw in keywords if kw in text_lower)
+
+    # STEERING: short prompts that are dispatch confirmations, not substantive tasks
+    if text_len <= STEERING_MAX_LEN:
+        steering_hits = sum(1 for kw in STEERING_KEYWORDS if kw in text_lower)
+        if steering_hits > 0:
+            # Only classify as STEERING if it dominates substantive categories
+            task_score = sum(scores.values())
+            if steering_hits > task_score:
+                return "STEERING"
 
     if max(scores.values(), default=0) == 0:
         return "META"  # default for unclassifiable non-noise
@@ -161,7 +198,11 @@ def classify(prompt: Prompt) -> str:
 def summarize(text: str) -> str:
     """First meaningful line, truncated."""
     clean = text.replace("↵", "\n").strip()
-    lines = [l.strip() for l in clean.split("\n") if l.strip() and not l.strip().startswith("<")]
+    lines = [
+        l.strip()
+        for l in clean.split("\n")
+        if l.strip() and not l.strip().startswith("<")
+    ]
     if not lines:
         return "(empty)"
     first = lines[0][:120]
@@ -170,6 +211,7 @@ def summarize(text: str) -> str:
 
 # ── Extract commits ───────────────────────────────────────────────────
 
+
 def extract_commits() -> list[Commit]:
     commits: list[Commit] = []
     for ws_name, ws_dir in WORKSPACES.items():
@@ -177,19 +219,32 @@ def extract_commits() -> list[Commit]:
             continue
         try:
             result = subprocess.run(
-                ["git", "log", "--oneline", "--since=72 hours ago",
-                 "--format=%h|%ad|%s", "--date=short"],
-                capture_output=True, text=True, cwd=ws_dir, timeout=10,
+                [
+                    "git",
+                    "log",
+                    "--oneline",
+                    "--since=72 hours ago",
+                    "--format=%h|%ad|%s",
+                    "--date=short",
+                ],
+                capture_output=True,
+                text=True,
+                cwd=ws_dir,
+                timeout=10,
             )
             for line in result.stdout.strip().split("\n"):
                 if "|" not in line:
                     continue
                 parts = line.split("|", 2)
                 if len(parts) == 3:
-                    commits.append(Commit(
-                        hash=parts[0], date=parts[1],
-                        message=parts[2], workspace=ws_name,
-                    ))
+                    commits.append(
+                        Commit(
+                            hash=parts[0],
+                            date=parts[1],
+                            message=parts[2],
+                            workspace=ws_name,
+                        )
+                    )
         except Exception:
             pass
 
@@ -197,6 +252,7 @@ def extract_commits() -> list[Commit]:
 
 
 # ── Match prompts to outcomes ─────────────────────────────────────────
+
 
 def match_outcomes(prompts: list[Prompt], commits: list[Commit]) -> None:
     """For each prompt, try to find a matching commit or plan."""
@@ -209,11 +265,41 @@ def match_outcomes(prompts: list[Prompt], commits: list[Commit]) -> None:
         text_lower = p.text.lower()[:300]
 
         # Extract key words from the prompt (>4 chars, not common)
-        stop_words = {"this", "that", "with", "from", "have", "will", "been",
-                      "what", "when", "where", "which", "their", "there",
-                      "about", "would", "could", "should", "these", "those",
-                      "your", "they", "them", "than", "then", "into", "just",
-                      "like", "make", "does", "also", "want", "need", "here"}
+        stop_words = {
+            "this",
+            "that",
+            "with",
+            "from",
+            "have",
+            "will",
+            "been",
+            "what",
+            "when",
+            "where",
+            "which",
+            "their",
+            "there",
+            "about",
+            "would",
+            "could",
+            "should",
+            "these",
+            "those",
+            "your",
+            "they",
+            "them",
+            "than",
+            "then",
+            "into",
+            "just",
+            "like",
+            "make",
+            "does",
+            "also",
+            "want",
+            "need",
+            "here",
+        }
         words = set(re.findall(r"[a-z]{4,}", text_lower)) - stop_words
 
         # Find best matching commit
@@ -231,10 +317,17 @@ def match_outcomes(prompts: list[Prompt], commits: list[Commit]) -> None:
         elif best_score >= 2:
             p.outcome = "PARTIAL"
             p.evidence = f"Possible: {best_commit.hash} ({best_commit.workspace}): {best_commit.message[:80]}"
+        # STEERING prompts are dispatch confirmations, not tasks - no outcome needed
+        # Moved after DELIVERED/PARTIAL to ensure real tasks containing "go" get matched
+        elif p.classification == "STEERING":
+            p.outcome = "STEERING"
+            p.evidence = "Routing confirmation - no deliverable tracked"
         elif any(w in text_lower for w in ["billing", "enterprise", "copilot", "ghas"]):
             p.outcome = "HUMAN-ACTION"
             p.evidence = "Requires operator action (billing/infra)"
-        elif any(w in text_lower for w in ["irf", "irf-", "future", "next session", "later"]):
+        elif any(
+            w in text_lower for w in ["irf", "irf-", "future", "next session", "later"]
+        ):
             p.outcome = "DEFERRED"
             p.evidence = "Referenced as future work"
         else:
@@ -243,6 +336,7 @@ def match_outcomes(prompts: list[Prompt], commits: list[Commit]) -> None:
 
 
 # ── Report generation ─────────────────────────────────────────────────
+
 
 def generate_report(prompts: list[Prompt], commits: list[Commit]) -> str:
     lines: list[str] = []
@@ -266,7 +360,14 @@ def generate_report(prompts: list[Prompt], commits: list[Commit]) -> str:
     lines.append("\n## Statistics\n")
     lines.append("| Outcome | Count | % |")
     lines.append("|---------|-------|---|")
-    for outcome in ["DELIVERED", "PARTIAL", "HANGING", "DEFERRED", "HUMAN-ACTION"]:
+    for outcome in [
+        "DELIVERED",
+        "PARTIAL",
+        "STEERING",
+        "HANGING",
+        "DEFERRED",
+        "HUMAN-ACTION",
+    ]:
         count = outcomes.get(outcome, 0)
         pct = f"{count / len(actionable) * 100:.1f}" if actionable else "0"
         lines.append(f"| {outcome} | {count} | {pct}% |")
@@ -291,11 +392,17 @@ def generate_report(prompts: list[Prompt], commits: list[Commit]) -> str:
         ws_counts[ws][p.outcome] = ws_counts[ws].get(p.outcome, 0) + 1
 
     lines.append("\n## By Workspace\n")
-    lines.append("| Workspace | Delivered | Partial | Hanging | Deferred | Human |")
-    lines.append("|-----------|-----------|---------|---------|----------|-------|")
+    lines.append(
+        "| Workspace | Delivered | Partial | Steering | Hanging | Deferred | Human |"
+    )
+    lines.append(
+        "|-----------|-----------|---------|----------|---------|----------|-------|"
+    )
     for ws in sorted(ws_counts):
         d = ws_counts[ws]
-        lines.append(f"| {ws} | {d.get('DELIVERED',0)} | {d.get('PARTIAL',0)} | {d.get('HANGING',0)} | {d.get('DEFERRED',0)} | {d.get('HUMAN-ACTION',0)} |")
+        lines.append(
+            f"| {ws} | {d.get('DELIVERED', 0)} | {d.get('PARTIAL', 0)} | {d.get('STEERING', 0)} | {d.get('HANGING', 0)} | {d.get('DEFERRED', 0)} | {d.get('HUMAN-ACTION', 0)} |"
+        )
 
     # ── Delivered ──
     delivered = [p for p in actionable if p.outcome == "DELIVERED"]
@@ -303,7 +410,9 @@ def generate_report(prompts: list[Prompt], commits: list[Commit]) -> str:
     lines.append("| Time | Workspace | Prompt Summary | Evidence |")
     lines.append("|------|-----------|----------------|----------|")
     for p in delivered[:80]:
-        lines.append(f"| {p.timestamp[11:16]} | {p.workspace} | {p.summary} | {p.evidence} |")
+        lines.append(
+            f"| {p.timestamp[11:16]} | {p.workspace} | {p.summary} | {p.evidence} |"
+        )
 
     # ── Hanging ──
     hanging = [p for p in actionable if p.outcome == "HANGING"]
@@ -319,7 +428,17 @@ def generate_report(prompts: list[Prompt], commits: list[Commit]) -> str:
     lines.append("| Time | Workspace | Prompt Summary | Evidence |")
     lines.append("|------|-----------|----------------|----------|")
     for p in deferred:
-        lines.append(f"| {p.timestamp[11:16]} | {p.workspace} | {p.summary} | {p.evidence} |")
+        lines.append(
+            f"| {p.timestamp[11:16]} | {p.workspace} | {p.summary} | {p.evidence} |"
+        )
+
+    # ── Steering ──
+    steering = [p for p in actionable if p.outcome == "STEERING"]
+    lines.append(f"\n## Steering ({len(steering)})\n")
+    lines.append("| Time | Workspace | Prompt Summary |")
+    lines.append("|------|-----------|----------------|")
+    for p in steering:
+        lines.append(f"| {p.timestamp[11:16]} | {p.workspace} | {p.summary} |")
 
     # ── Human Action ──
     human = [p for p in actionable if p.outcome == "HUMAN-ACTION"]
@@ -328,36 +447,53 @@ def generate_report(prompts: list[Prompt], commits: list[Commit]) -> str:
         lines.append(f"- [{p.timestamp[11:16]}] {p.summary}")
 
     lines.append("\n---")
-    lines.append("*Generated by scripts/reconcile-72h.py — keyword matching against git logs.*")
-    lines.append("*Accuracy: DELIVERED is high-confidence (3+ keyword matches). HANGING may include*")
-    lines.append("*prompts whose outcomes were captured by a different workspace's commit.*")
+    lines.append(
+        "*Generated by scripts/reconcile-72h.py — keyword matching against git logs.*"
+    )
+    lines.append(
+        "*Accuracy: DELIVERED is high-confidence (3+ keyword matches). HANGING may include*"
+    )
+    lines.append(
+        "*prompts whose outcomes were captured by a different workspace's commit.*"
+    )
 
     return "\n".join(lines)
 
 
 # ── Main ──────────────────────────────────────────────────────────────
 
-def main() -> None:
-    print("Extracting prompts from JSONL...", file=sys.stderr)
-    prompts = extract_prompts()
-    print(f"  Found {len(prompts)} prompts", file=sys.stderr)
 
-    print("Classifying...", file=sys.stderr)
+def main() -> None:
+    prompts = extract_prompts()
+
+    # Deduplicate by text hash - O(n)
+    unique_prompts: list[Prompt] = []
+    seen_hashes: dict[str, int] = {}  # hash -> count
+    hash_to_prompt: dict[str, Prompt] = {}
+
     for p in prompts:
+        if p.text_hash in seen_hashes:
+            seen_hashes[p.text_hash] += 1
+        else:
+            seen_hashes[p.text_hash] = 1
+            hash_to_prompt[p.text_hash] = p
+            unique_prompts.append(p)
+
+    # Apply classifications and summaries
+    for p in unique_prompts:
         p.classification = classify(p)
         p.summary = summarize(p.text)
+        # Annotate repetitions if any
+        count = seen_hashes[p.text_hash]
+        if count > 1:
+            p.summary = f"{p.summary} (x{count})"
 
-    print("Extracting commits...", file=sys.stderr)
     commits = extract_commits()
-    print(f"  Found {len(commits)} commits", file=sys.stderr)
 
-    print("Matching outcomes...", file=sys.stderr)
-    match_outcomes(prompts, commits)
+    match_outcomes(unique_prompts, commits)
 
-    report = generate_report(prompts, commits)
+    report = generate_report(unique_prompts, commits)
     print(report)
-
-    print("\nDone.", file=sys.stderr)
 
 
 if __name__ == "__main__":

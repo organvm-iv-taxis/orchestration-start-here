@@ -6,7 +6,7 @@ axes:
     - 1.0
     description: ''
     first_seen: '2026-03-31'
-    frequency: 5
+    frequency: 11
   maturity:
     name: maturity
     range:
@@ -14,7 +14,7 @@ axes:
     - 1.0
     description: ''
     first_seen: '2026-03-31'
-    frequency: 5
+    frequency: 7
   urgency:
     name: urgency
     range:
@@ -22,23 +22,23 @@ axes:
     - 1.0
     description: ''
     first_seen: '2026-03-31'
-    frequency: 2
+    frequency: 10
   action_count:
     name: action_count
+    range:
+    - 0.0
+    - 7.0
+    description: ''
+    first_seen: '2026-03-31'
+    frequency: 272
+  sequence_count:
+    name: sequence_count
     range:
     - 0.0
     - 3.0
     description: ''
     first_seen: '2026-03-31'
-    frequency: 271
-  sequence_count:
-    name: sequence_count
-    range:
-    - 0.0
-    - 2.0
-    description: ''
-    first_seen: '2026-03-31'
-    frequency: 64
+    frequency: 65
   tension:
     name: tension
     range:

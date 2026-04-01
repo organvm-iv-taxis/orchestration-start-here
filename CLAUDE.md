@@ -16,6 +16,12 @@ Central orchestration hub: registry, governance rules, 5 workflows, 3 Python scr
 ```
 📁 .github/
 📁 .meta/
+📁 tasks/                # Dispatch portals — ephemeral task containers (evaporate on completion)
+    <slug>/
+        CLAUDE.md        # Agent identity + lifecycle + evaporation protocol
+        BRIEFING.md      # Vacuum + ideal state + campaign dependencies
+        REFERENCES.md    # External pointers: files, repos, channels, people, memory
+        SEQUENCE.md      # Relay circuit α→ω: inject, create, operate, verify, commit, evaporate
 📁 action_ledger/
     schemas.py          # Action, Sequence, Chain, Route, ParamAxis, ParamRegistry, ActionOrigin
     ledger.py           # record() atomic, compose_chain(), close_session(), YAML persistence

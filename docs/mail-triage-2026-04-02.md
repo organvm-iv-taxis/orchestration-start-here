@@ -46,9 +46,9 @@
 | **Source** | GoDaddy Renewals (customer #49384738) |
 | **Domain** | AMPLABMEDIA.COM — expired 2026-03-13 |
 | **Issue** | Payment method failed. Final notice before permanent deletion. |
-| **Criticality** | **LOW** — zero references across ~/Workspace/ (127 repos searched). Not wired into any ORGANVM infrastructure. |
-| **Prior context** | MET4VERS.IO was also flagged in April 1 triage with same pattern — parked, unreferenced. **Two GoDaddy domains expiring concurrently.** |
-| **Action** | Update payment method → manually renew, OR let both expire. Batch decision with MET4VERS.IO. |
+| **Criticality** | **HIGH** — AMPLABMEDIA.COM is the **Object Lessons** brand (film video essay series). Has a Kerygma distribution profile (`organvm-vii-kerygma/kerygma-profiles/profiles/amp-lab-media.yaml`), YouTube channel (`@AmpLabMedia`), and knowledge base entries in ORGAN-I. This is a **live creative asset** in the ORGANVM system, NOT a parked domain. |
+| **Prior context** | MET4VERS.IO (flagged April 1) is genuinely parked/unreferenced. AMPLABMEDIA.COM is categorically different — losing this domain means losing the brand's web identity. |
+| **Action** | **RENEW IMMEDIATELY.** Update payment method → manually renew. MET4VERS.IO is a separate decision (low criticality). |
 | **Handler** | **HUMAN** — GoDaddy account |
 | **Scope** | Billing action only. |
 
@@ -182,11 +182,12 @@ PR COMMENT DISCIPLINE: No pre-review bumps. Approve-and-merge only.
 
 | # | Item | Action | Time Est. | Urgency |
 |---|------|--------|-----------|---------|
-| 1 | Tammer Galal LinkedIn | Read message, reply | 5 min | Today |
-| 2 | SWARMs hackathon | Decide: participate/decline | 10 min | Today (starts Apr 6) |
-| 3 | GoDaddy domains (×2) | Renew or release AMPLABMEDIA + MET4VERS | 10 min | This week |
-| 4 | Grafana prep | Review dossier, update §XIII | 30 min | Before Mon Apr 6 |
-| 5 | Chime statement | Review in app | 5 min | This week |
+| 1 | **Tammer Galal LinkedIn** | Read message, reply | 5 min | **Today** |
+| 2 | **SWARMs hackathon** | Decide: participate/decline | 10 min | **Today** (starts Apr 6) |
+| 3 | **GoDaddy AMPLABMEDIA.COM** | **RENEW** — Object Lessons brand (Kerygma profile + YouTube) | 5 min | **Today** |
+| 4 | GoDaddy MET4VERS.IO | Separate — genuinely unreferenced, decide keep/release | 5 min | This week |
+| 5 | Grafana prep | Review dossier, update §XIII | 30 min | Before Mon Apr 6 |
+| 6 | Chime statement | Review in app | 5 min | This week |
 
 ---
 

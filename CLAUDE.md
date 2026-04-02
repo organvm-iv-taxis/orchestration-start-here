@@ -25,7 +25,7 @@ Central orchestration hub: registry, governance rules, 5 workflows, 3 Python scr
         RECEIPT.md       # Forward deposit (written at completion, consumed by next portal)
 📁 action_ledger/
     schemas.py          # Action, Sequence, Chain, Route, ParamAxis, ParamRegistry, ActionOrigin
-    ledger.py           # record() atomic, compose_chain(), close_session(), YAML persistence
+    ledger.py           # record() atomic, compose_chain(), close_session(), emit_session_closed(), YAML persistence
     emissions.py        # State change emission — self-recording transitions via emit_state_change()
     routes.py           # Patch bay — bidirectional route graph, lineage tracing, provenance
     cycles.py           # Cycle detection — verb sequences, trajectories, intents, stalls
@@ -120,7 +120,7 @@ python -m action_ledger cycles [--min-recurrence 2] [--type verb_sequence|trajec
 python -m action_ledger params
 ```
 
-**Core modules:** `schemas.py` (Action, Sequence, Chain, Route, ParamAxis, ParamRegistry, ActionOrigin — open parameter model), `ledger.py` (atomic record() that appends+composes+registers), `emissions.py` (self-recording state changes — `emit_state_change()` auto-records transitions as ledger entries with `origin: emitted`), `routes.py` (bidirectional route graph, lineage tracing, provenance injection), `cycles.py` (4 detection methods: verb sequences, trajectories, intents, stalls).
+**Core modules:** `schemas.py` (Action, Sequence, Chain, Route, ParamAxis, ParamRegistry, ActionOrigin — open parameter model), `ledger.py` (atomic record() that appends+composes+registers; `close_session()` closes sequences+composes chain, `emit_session_closed()` emits AFTER caller persists — avoids stale-read race), `emissions.py` (self-recording state changes — `emit_state_change()` auto-records transitions as ledger entries with `origin: emitted`), `routes.py` (bidirectional route graph, lineage tracing, provenance injection), `cycles.py` (4 detection methods: verb sequences, trajectories, intents, stalls).
 
 **Data files** (committed, living state): `data/actions.yaml` (append-only action stream), `data/sequences.yaml` (composed sequences with automation lanes), `data/param_registry.yaml` (discovered parameter axes).
 

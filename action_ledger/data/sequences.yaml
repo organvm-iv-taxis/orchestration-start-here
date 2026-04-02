@@ -861,3 +861,30 @@ sequences:
     confirmed. META CI gap is critical. Sequence close bug discovered in ledger.py.
   chain_id: chain-S50-001
   closed: true
+- id: seq-S52-001
+  session: S52
+  intent: ''
+  action_ids:
+  - act-S52-0402-001
+  - act-S52-0402-002
+  - act-S52-0402-003
+  - act-S52-0402-004
+  - act-S52-0402-005
+  - act-S52-0402-006
+  - act-S52-0402-007
+  automation:
+    urgency:
+    - 0.7
+    - 0.8
+    - 0.9
+    - 0.6
+    - 0.4
+    - 0.0
+    - 0.0
+    abstraction:
+    - 0.2
+    maturity:
+    - 0.8
+  outcome: ''
+  chain_id: ''
+  closed: false

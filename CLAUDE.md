@@ -165,6 +165,9 @@ It belongs to **ORGAN IV (Orchestration)** under the `organvm-iv-taxis` GitHub o
 - **Produces** → `unspecified`: outreach_data
 - **Produces** → `unspecified`: backflow_data
 - **Produces** → `unspecified`: testament_formalization
+- **Produces** → `unspecified`: absorption_data
+- **Produces** → `unspecified`: fieldwork_data
+- **Produces** → `unspecified`: action_ledger_data
 - **Consumes** ← `unspecified`: github_pr_states
 - **Consumes** ← `unspecified`: github_issue_states
 
@@ -174,7 +177,7 @@ It belongs to **ORGAN IV (Orchestration)** under the `organvm-iv-taxis` GitHub o
 ### Governance
 - *Standard ORGANVM governance applies*
 
-*Last synced: 2026-03-26T19:39:27Z*
+*Last synced: 2026-04-03T15:19:55Z*
 
 ## Session Review Protocol
 
@@ -194,6 +197,11 @@ Transcripts are on-demand (never committed):
 
 | Scope | Phase | Name | Description |
 |-------|-------|------|-------------|
+| system | any | atomic-clock | The Atomic Clock |
+| system | any | execution-sequence | Execution Sequence |
+| system | any | multi-agent-dispatch | Multi-Agent Dispatch |
+| system | any | session-handoff-avalanche | Session Handoff Avalanche |
+| system | any | system-loops | System Loops |
 | system | any | prompting-standards | Prompting Standards |
 | system | any | research-standards-bibliography | APPENDIX: Research Standards Bibliography |
 | system | any | phase-closing-and-forward-plan | METADOC: Phase-Closing Commemoration & Forward Attack Plan |
@@ -241,6 +249,9 @@ Transcripts are on-demand (never committed):
 | system | any | theoretical-concept-versioning | SOP: Theoretical Concept Versioning (The Epistemic Protocol) |
 | system | any | theory-to-concrete-gate | theory-to-concrete-gate |
 | system | any | typological-hermeneutic-analysis | SOP: Typological & Hermeneutic Analysis (The Archaeology) |
+| unknown | any | communications-correspondence | SOP: Communications & Correspondence — Relay Protocol |
+| unknown | any | war-master-protocol | SOP: War-Master Protocol |
+| unknown | any | SOP-github-project-setup | SOP: GitHub Project Board Setup from Template |
 
 Linked skills: cicd-resilience-and-recovery, continuous-learning-agent, evaluation-to-growth, genesis-dna, multi-agent-workforce-planner, promotion-and-state-transitions, quality-gate-baseline-calibration, repo-onboarding-and-habitat-creation, structural-integrity-audit
 
@@ -275,9 +286,9 @@ Run: `organvm atoms pipeline --write && organvm atoms fanout --write`
 
 ## System Density (auto-generated)
 
-AMMOI: 56% | Edges: 41 | Tensions: 0 | Clusters: 0 | Adv: 8 | Events(24h): 24029
-Structure: 8 organs / 127 repos / 1654 components (depth 17) | Inference: 0% | Organs: META-ORGANVM:64%, ORGAN-I:55%, ORGAN-II:47%, ORGAN-III:55% +4 more
-Last pulse: 2026-03-26T19:39:26 | Δ24h: +3.6% | Δ7d: n/a
+AMMOI: 56% | Edges: 41 | Tensions: 0 | Clusters: 0 | Adv: 12 | Events(24h): 27428
+Structure: 8 organs / 128 repos / 1654 components (depth 17) | Inference: 0% | Organs: META-ORGANVM:64%, ORGAN-I:55%, ORGAN-II:47%, ORGAN-III:55% +4 more
+Last pulse: 2026-04-03T15:19:54 | Δ24h: -0.0% | Δ7d: n/a
 
 
 ## Dialect Identity (Trivium)
@@ -288,7 +299,36 @@ Strongest translations: I (formal), V (structural), META (structural)
 
 Scan: `organvm trivium scan IV <OTHER>` | Matrix: `organvm trivium matrix` | Synthesize: `organvm trivium synthesize`
 
+
+## Logos Documentation Layer
+
+**Status:** MISSING | **Symmetry:** 0.5 (GHOST)
+
+Nature demands a documentation counterpart. This formation maintains its narrative record in `docs/logos/`.
+
+### The Tetradic Counterpart
+- **[Telos (Idealized Form)](../docs/logos/telos.md)** — The dream and theoretical grounding.
+- **[Pragma (Concrete State)](../docs/logos/pragma.md)** — The honest account of what exists.
+- **[Praxis (Remediation Plan)](../docs/logos/praxis.md)** — The attack vectors for evolution.
+- **[Receptio (Reception)](../docs/logos/receptio.md)** — The account of the constructed polis.
+
+### Alchemical I/O
+- **[Source & Transmutation](../docs/logos/alchemical-io.md)** — Narrative of inputs, process, and returns.
+
+- **[Public Essay](https://organvm-v-logos.github.io/public-process/)** — System-wide narrative entry.
+
+*Compliance: Implementation exists without record.*
+
 <!-- ORGANVM:AUTO:END -->
+
+## Active Handoff Protocol
+
+If `.conductor/active-handoff.md` exists, **READ IT FIRST** before doing any work.
+It contains constraints, locked files, conventions, and completed work from the
+originating agent. You MUST honor all constraints listed there.
+
+If the handoff says "CROSS-VERIFICATION REQUIRED", your self-assessment will
+NOT be trusted. A different agent will verify your output against these constraints.
 
 
 ## ⚡ Conductor OS Integration

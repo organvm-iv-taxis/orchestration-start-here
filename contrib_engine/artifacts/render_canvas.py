@@ -5,6 +5,7 @@ Produces 3 LinkedIn-ready PNGs at 2400x1260 (LinkedIn carousel ratio).
 
 import math
 from pathlib import Path
+
 from PIL import Image, ImageDraw, ImageFont
 
 FONTS = Path.home() / ".claude/skills/canvas-design/canvas-fonts"

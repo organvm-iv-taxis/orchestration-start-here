@@ -13,10 +13,9 @@ from __future__ import annotations
 from dataclasses import dataclass, field
 
 from action_ledger.schemas import (
+    ROUTE_INVERSES,
     Action,
     ActionIndex,
-    ROUTE_INVERSES,
-    Route,
     RouteKind,
 )
 

@@ -174,7 +174,7 @@ def main():
     body = report + "\n\n---\n"
     if all_auto_passed and not any_failed:
         body += "All automated gates passed. Ready for human review.\n"
-        body += f"\nTo execute: comment `@orchestration promote` on this issue.\n"
+        body += "\nTo execute: comment `@orchestration promote` on this issue.\n"
     else:
         body += "Blocked: resolve failed gates before promotion can proceed.\n"
 

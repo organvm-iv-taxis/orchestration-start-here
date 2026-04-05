@@ -1,0 +1,41 @@
+[build-system]
+requires = ["hatchling"]
+build-backend = "hatchling.build"
+
+[project]
+name = "orchestration-start-here"
+version = "1.0.0"
+description = "ORGAN-IV central orchestration hub — registry, governance, contribution engine, action ledger, intake router"
+requires-python = ">=3.11"
+license = { text = "MIT" }
+dependencies = [
+    "pydantic>=2.0",
+    "click>=8.0",
+    "pyyaml>=6.0",
+    "requests>=2.28",
+]
+
+[project.optional-dependencies]
+dev = [
+    "pytest>=7.0",
+    "ruff>=0.4",
+]
+
+[project.scripts]
+contrib-engine = "contrib_engine.cli:main"
+action-ledger = "action_ledger.cli:main"
+intake-router = "intake_router.cli:main"
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+pythonpath = ["."]
+
+[tool.ruff]
+line-length = 100
+target-version = "py311"
+
+[tool.ruff.lint]
+select = ["E", "F", "I", "N", "W", "UP"]
+
+[tool.ruff.lint.isort]
+known-first-party = ["contrib_engine", "action_ledger", "intake_router"]

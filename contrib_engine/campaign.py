@@ -8,7 +8,7 @@ from pathlib import Path
 
 import yaml
 
-from contrib_engine.schemas import Campaign, CampaignAction, CampaignPhase
+from contrib_engine.schemas import Campaign
 
 logger = logging.getLogger(__name__)
 

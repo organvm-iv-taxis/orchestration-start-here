@@ -10,12 +10,13 @@ All 2400x1260 (LinkedIn carousel ratio), dark theme, publication grade.
 """
 
 import matplotlib
+
 matplotlib.use("Agg")
-import matplotlib.pyplot as plt
-import matplotlib.patches as mpatches
-from matplotlib.gridspec import GridSpec
-import numpy as np
 from pathlib import Path
+
+import matplotlib.patches as mpatches
+import matplotlib.pyplot as plt
+import numpy as np
 
 OUT = Path(__file__).parent
 FONTS = Path.home() / ".claude/skills/canvas-design/canvas-fonts"

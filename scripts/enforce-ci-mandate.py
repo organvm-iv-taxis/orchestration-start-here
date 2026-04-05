@@ -9,10 +9,9 @@ to resolve paths and validate state.
 """
 import json
 import os
-import sys
 import re
-from pathlib import Path
 from datetime import datetime
+from pathlib import Path
 
 # Adjust search path to find local registry if needed
 WORKSPACE_DEFAULT = Path.home() / "Workspace"
@@ -27,9 +26,9 @@ def get_submodule_mappings():
     gitmodules = Path(".gitmodules")
     if not gitmodules.exists():
         return mappings
-    
+
     content = gitmodules.read_text()
-    
+
     # Simple parser for .gitmodules
     sections = re.findall(r'\[submodule "(.*?)"\](.*?)(?=\[submodule|$)', content, re.DOTALL)
     for name, body in sections:
@@ -53,7 +52,7 @@ def audit_ci():
             registry_path = Path(corpus_dir) / "registry-v2.json"
         else:
             registry_path = WORKSPACE / "meta-organvm" / "organvm-corpvs-testamentvm" / "registry-v2.json"
-    
+
     if not registry_path.exists():
         print(f"Error: Registry not found at {registry_path}")
         return None
@@ -82,12 +81,12 @@ def audit_ci():
                 continue
 
             slug = f"{org_name}/{repo_name}"
-            
+
             # Resolution Strategy:
             # 1. Check .gitmodules mapping
             # 2. Check current organ directory if matching
             # 3. Check sibling organ directories using WORKSPACE root
-            
+
             if slug in submodule_paths:
                 repo_path = Path(".") / submodule_paths[slug]
             elif org_name == "organvm-iv-taxis":
@@ -95,14 +94,14 @@ def audit_ci():
             else:
                 # Use environment-aware workspace root
                 repo_path = WORKSPACE / org_name / repo_name
-            
+
             # Special case for .github which might be org-dotgithub
             if repo_name == ".github" and not (repo_path / ".github" / "workflows").exists():
                 if (Path(".") / "org-dotgithub" / ".github" / "workflows").exists():
                     repo_path = Path(".") / "org-dotgithub"
-            
+
             ci_dir = repo_path / ".github" / "workflows"
-            
+
             has_ci = False
             found_files = []
             if ci_dir.exists() and ci_dir.is_dir():
@@ -125,9 +124,9 @@ def audit_ci():
             else:
                 organ_stats["missing_ci"] += 1
                 report["summary"]["missing_ci"] += 1
-            
+
             organ_stats["repos"].append(repo_entry)
-        
+
         report["by_organ"][organ_id] = organ_stats
 
     return report
@@ -135,15 +134,15 @@ def audit_ci():
 def print_markdown_report(report):
     print("# CI Maturity Report")
     print(f"**Date:** {datetime.now().strftime('%Y-%m-%d %H:%M:%S')}")
-    print(f"\n## Summary")
+    print("\n## Summary")
     print(f"- **Total Repositories:** {report['summary']['total']}")
     if "expected_total" in report["summary"]:
         if report["summary"]["total"] != report["summary"]["expected_total"]:
             print(f"  - ⚠️ DISCREPANCY: Expected {report['summary']['expected_total']} from CONDUCTOR_TOTAL_REPOS")
-    
+
     print(f"- **With CI:** {report['summary']['has_ci']}")
     print(f"- **Missing CI:** {report['summary']['missing_ci']}")
-    
+
     total = report['summary']['total']
     rate = (report['summary']['has_ci'] / total * 100) if total > 0 else 0
     print(f"- **Adherence Rate:** {rate:.1f}%")
@@ -152,7 +151,7 @@ def print_markdown_report(report):
         stats = report["by_organ"][organ_id]
         print(f"\n### {organ_id}")
         print(f"**Adherence:** {stats['has_ci']}/{stats['total']}")
-        
+
         missing = [r['name'] for r in stats['repos'] if not r['has_ci']]
         if missing:
             print(f"**Missing CI ({len(missing)}):**")

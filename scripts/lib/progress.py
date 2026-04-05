@@ -37,14 +37,12 @@ from __future__ import annotations
 
 import datetime
 import json
-import os
 import subprocess
 from collections import Counter, defaultdict
 from dataclasses import dataclass, field
 from enum import Enum
 from pathlib import Path
 from typing import Any
-
 
 # ---------------------------------------------------------------------------
 # Constants
@@ -1553,11 +1551,11 @@ def render_detail(progress: ProjectProgress, color: bool = False) -> str:
     if not progress.security.clean:
         lines.append(f"  Security: exposed files: {', '.join(progress.security.exposed_secrets)}")
     if progress.scaffold.has_claude_md:
-        lines.append(f"  AI context: CLAUDE.md present")
+        lines.append("  AI context: CLAUDE.md present")
     if progress.scaffold.has_license:
-        lines.append(f"  License: present")
+        lines.append("  License: present")
     elif progress.profile != Profile.INFRASTRUCTURE:
-        lines.append(f"  License: MISSING")
+        lines.append("  License: MISSING")
     if progress.promotion_ready:
         lines.append(f"  Promotion: READY for {progress.next_promotion}")
     else:
@@ -1872,12 +1870,12 @@ def export_csv(projects: list[ProjectProgress]) -> str:
 def export_markdown(projects: list[ProjectProgress], summary: SystemSummary) -> str:
     """Export as Markdown table."""
     lines: list[str] = []
-    lines.append(f"# ORGANVM Progress Report")
-    lines.append(f"")
+    lines.append("# ORGANVM Progress Report")
+    lines.append("")
     lines.append(f"**System: {summary.avg_pct:.0f}%** ({summary.total_repos} repos)")
-    lines.append(f"")
-    lines.append(f"| Repo | Organ | Profile | Score | % | Promo | Lang |")
-    lines.append(f"|------|-------|---------|-------|---|-------|------|")
+    lines.append("")
+    lines.append("| Repo | Organ | Profile | Score | % | Promo | Lang |")
+    lines.append("|------|-------|---------|-------|---|-------|------|")
     for p in sorted(projects, key=lambda x: (-x.pct, x.repo)):
         lines.append(
             f"| {p.repo} | {p.organ} | {p.profile.value} | "

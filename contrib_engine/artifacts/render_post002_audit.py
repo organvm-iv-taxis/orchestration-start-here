@@ -4,10 +4,12 @@ Shows post #001's Testament violations with specific diagnosis per article.
 """
 
 import matplotlib
+
 matplotlib.use("Agg")
+from pathlib import Path
+
 import matplotlib.pyplot as plt
 import numpy as np
-from pathlib import Path
 
 OUT = Path(__file__).parent
 

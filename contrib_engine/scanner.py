@@ -15,7 +15,12 @@ from typing import Any
 import yaml
 
 from contrib_engine.capabilities import CAPABILITIES, match_capabilities
-from contrib_engine.github_client import get_repo_info, list_user_forks, search_issues, who_starred_my_repos
+from contrib_engine.github_client import (
+    get_repo_info,
+    list_user_forks,
+    search_issues,
+    who_starred_my_repos,
+)
 from contrib_engine.schemas import ContributionTarget, RankedTargets, TargetStatus
 
 logger = logging.getLogger(__name__)

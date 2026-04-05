@@ -12,9 +12,8 @@ Usage:
         --registry registry.json \
         --output metrics.json
 """
-import json
-import sys
 import argparse
+import json
 from datetime import datetime
 
 # --- Canonical engine imports (isotope dissolution) ---

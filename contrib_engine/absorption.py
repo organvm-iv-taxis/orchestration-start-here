@@ -20,8 +20,8 @@ import yaml
 
 from contrib_engine.github_client import _run_gh
 from contrib_engine.schemas import (
-    AbsorptionItem,
     AbsorptionIndex,
+    AbsorptionItem,
     AbsorptionStatus,
     AbsorptionTrigger,
     BackflowItem,

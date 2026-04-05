@@ -1,6 +1,6 @@
 """Tests for scripts/organ-audit.py — monthly organ audit."""
-from pathlib import Path
 import importlib.util
+from pathlib import Path
 
 _spec = importlib.util.spec_from_file_location(
     "organ_audit",

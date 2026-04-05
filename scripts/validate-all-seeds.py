@@ -26,11 +26,11 @@ import yaml
 
 # --- Canonical engine imports (isotope dissolution) ---
 try:
-    from organvm_engine.seed.discover import discover_seeds as _engine_discover_seeds
-    from organvm_engine.seed.contracts import validate_contract as _engine_validate_contract
-    from organvm_engine.seed.graph import validate_edge_resolution as _engine_validate_edges
-    from organvm_engine.registry.loader import load_registry as _engine_load_registry
     from organvm_engine.paths import registry_path as _engine_registry_path
+    from organvm_engine.registry.loader import load_registry as _engine_load_registry
+    from organvm_engine.seed.contracts import validate_contract as _engine_validate_contract
+    from organvm_engine.seed.discover import discover_seeds as _engine_discover_seeds
+    from organvm_engine.seed.graph import validate_edge_resolution as _engine_validate_edges
 
     _HAS_ENGINE = True
 except ImportError:

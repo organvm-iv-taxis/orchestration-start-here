@@ -1,7 +1,11 @@
 """Tests for the outreach tracker."""
 
 from contrib_engine.schemas import (
-    OutreachChannel, OutreachDirection, OutreachEvent, OutreachIndex, TargetRelationship,
+    OutreachChannel,
+    OutreachDirection,
+    OutreachEvent,
+    OutreachIndex,
+    TargetRelationship,
 )
 
 

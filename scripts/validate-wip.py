@@ -9,12 +9,11 @@ Usage:
     python3 scripts/validate-wip.py --registry path/to/registry-v2.json
     python3 scripts/validate-wip.py --governance governance-rules.json
 """
+import argparse
 import json
 import sys
-import argparse
-from datetime import datetime, timedelta, timezone
+from datetime import UTC, datetime, timedelta
 from pathlib import Path
-
 
 ORG_TO_ORGAN = {
     "organvm-i-theoria": "ORGAN-I",
@@ -105,7 +104,7 @@ def count_by_organ(registry: dict) -> dict:
 
 def count_active_work(registry: dict, window_days: int) -> dict:
     """Count repos with last_validated within the active work window."""
-    cutoff = datetime.now(timezone.utc) - timedelta(days=window_days)
+    cutoff = datetime.now(UTC) - timedelta(days=window_days)
     active = {}
     for organ_id, organ in registry.get("organs", {}).items():
         count = 0

@@ -1,13 +1,12 @@
 """Tests for expanded scanner data sources."""
 
 from unittest.mock import patch
-from pathlib import Path
 
 from contrib_engine.scanner import (
-    _extract_star_signals,
+    _extract_dependency_signals,
     _extract_fork_signals,
     _extract_pr_history,
-    _extract_dependency_signals,
+    _extract_star_signals,
 )
 
 

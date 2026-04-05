@@ -2,7 +2,7 @@
 
 from unittest.mock import patch
 
-from contrib_engine.github_client import who_starred_my_repos, search_issues
+from contrib_engine.github_client import search_issues, who_starred_my_repos
 
 
 class TestWhoStarredMyRepos:

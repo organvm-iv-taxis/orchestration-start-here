@@ -6,11 +6,13 @@ Two images:
 """
 
 import matplotlib
+
 matplotlib.use("Agg")
-import matplotlib.pyplot as plt
-import matplotlib.patches as mpatches
-import numpy as np
 from pathlib import Path
+
+import matplotlib.patches as mpatches
+import matplotlib.pyplot as plt
+import numpy as np
 
 OUT = Path(__file__).parent
 
@@ -188,7 +190,6 @@ def render_narratives():
     ax2.add_patch(circle2)
 
     # Fill intersection
-    from matplotlib.patches import Wedge
     theta = np.linspace(0, 2 * np.pi, 100)
     # Just label the regions
     ax2.text(2, 5, "Narrative\nTheory", ha="center", va="center",

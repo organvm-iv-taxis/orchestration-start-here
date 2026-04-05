@@ -1,9 +1,11 @@
 """Cross-module integration tests."""
 
 from contrib_engine.schemas import (
-    Campaign, CampaignAction, CampaignPhase,
-    OutreachIndex, TargetRelationship,
-    BackflowIndex, BackflowItem, BackflowType,
+    Campaign,
+    CampaignAction,
+    CampaignPhase,
+    OutreachIndex,
+    TargetRelationship,
 )
 
 

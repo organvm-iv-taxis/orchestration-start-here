@@ -255,7 +255,7 @@ def cmd_contrib_absorb_pending(args: argparse.Namespace) -> None:
         print(f"Evidence:   {item.trigger_evidence}")
         print(f"Source:     {item.source_url}")
         print(f"Detected:   {item.detected_at}")
-        print(f"\nQuestion:")
+        print("\nQuestion:")
         print(f"  {item.question_text}")
         print(f"{'=' * 70}")
 

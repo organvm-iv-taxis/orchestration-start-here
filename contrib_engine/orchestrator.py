@@ -16,7 +16,6 @@ import logging
 import subprocess
 from datetime import datetime
 from pathlib import Path
-from typing import Any
 
 import yaml
 
@@ -28,8 +27,8 @@ logger = logging.getLogger(__name__)
 
 # --- Canonical engine imports (isotope dissolution) ---
 try:
-    from organvm_engine.paths import workspace_root as _engine_workspace_root
     from organvm_engine.paths import registry_path as _engine_registry_path
+    from organvm_engine.paths import workspace_root as _engine_workspace_root
 
     ORGAN_IV_DIR = _engine_workspace_root() / "organvm-iv-taxis"
     REGISTRY_PATH = _engine_registry_path()

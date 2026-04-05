@@ -13,16 +13,16 @@ Usage:
         --registry registry.json \
         --governance governance-rules.json
 """
+import argparse
 import json
 import sys
-import argparse
 from pathlib import Path
 
 # --- Canonical engine imports (isotope dissolution) ---
 try:
     from organvm_engine.governance.dependency_graph import validate_dependencies as _engine_validate
-    from organvm_engine.registry.loader import load_registry as _engine_load_registry
     from organvm_engine.paths import registry_path as _engine_registry_path
+    from organvm_engine.registry.loader import load_registry as _engine_load_registry
 
     _HAS_ENGINE = True
 except ImportError:
@@ -168,7 +168,7 @@ def _run_via_engine(registry_path: str) -> int:
     """Validate using canonical organvm-engine dependency graph."""
     registry = _engine_load_registry(registry_path)
     result = _engine_validate(registry)
-    print(f"Dependency Validation Report (via organvm-engine)")
+    print("Dependency Validation Report (via organvm-engine)")
     print(f"{'=' * 50}")
     print(f"Total edges: {result.total_edges}")
     print(f"Cycles: {len(result.cycles)}")

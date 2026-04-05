@@ -272,7 +272,7 @@ def _cmd_sequence_show(args: argparse.Namespace) -> None:
         print(f"{s.id} [{status}] {s.intent or '(no intent)'}")
         print(f"  Actions: {len(s.action_ids)}")
         if s.automation:
-            print(f"  Automation lanes:")
+            print("  Automation lanes:")
             for axis, values in s.automation.items():
                 trajectory = " -> ".join(f"{v:.1f}" for v in values)
                 print(f"    {axis}: {trajectory}")
@@ -322,7 +322,7 @@ def _cmd_chain_show(args: argparse.Namespace) -> None:
         print(f"{c.id} [{c.session}] {c.prompt_essence or '(no essence)'}")
         print(f"  Sequences: {len(c.sequence_ids)}")
         if c.arc:
-            print(f"  Arc:")
+            print("  Arc:")
             for axis, trajectory in c.arc.items():
                 print(f"    {axis}: {trajectory}")
         if c.produced_artifacts:

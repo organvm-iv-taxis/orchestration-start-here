@@ -2,10 +2,10 @@
 
 from __future__ import annotations
 
+import re
 from enum import StrEnum
 from functools import lru_cache
 from pathlib import Path
-import re
 
 from pydantic import BaseModel, Field
 

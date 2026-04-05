@@ -4,7 +4,6 @@ from __future__ import annotations
 
 from pathlib import Path
 
-import pytest
 import yaml
 
 from action_ledger.cycles import (
@@ -13,28 +12,6 @@ from action_ledger.cycles import (
     detect_stalls,
     detect_trajectory_cycles,
     detect_verb_cycles,
-)
-from action_ledger.routes import (
-    build_route_graph,
-    find_consumers,
-    find_producers,
-    provenance_comment,
-    provenance_yaml_header,
-    routes_from,
-    routes_to,
-    trace_lineage,
-)
-from action_ledger.schemas import (
-    Action,
-    ActionIndex,
-    ChainIndex,
-    ParamAxis,
-    ParamRegistry,
-    Produced,
-    Route,
-    RouteKind,
-    Sequence,
-    SequenceIndex,
 )
 from action_ledger.ledger import (
     close_sequence,
@@ -51,7 +28,26 @@ from action_ledger.ledger import (
     save_sequences,
     set_sequence_intent,
 )
-
+from action_ledger.routes import (
+    build_route_graph,
+    find_consumers,
+    find_producers,
+    provenance_comment,
+    provenance_yaml_header,
+    routes_from,
+    routes_to,
+    trace_lineage,
+)
+from action_ledger.schemas import (
+    Action,
+    ActionIndex,
+    ChainIndex,
+    ParamRegistry,
+    Route,
+    RouteKind,
+    Sequence,
+    SequenceIndex,
+)
 
 # ---------------------------------------------------------------------------
 # Schema tests

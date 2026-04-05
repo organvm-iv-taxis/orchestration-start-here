@@ -281,11 +281,11 @@ The avalanche pauses here.
     (portal_dir / "SEQUENCE.md").write_text(sequence_md)
 
     print(f"Created portal: {portal_dir}")
-    print(f"  - CLAUDE.md")
-    print(f"  - BRIEFING.md")
-    print(f"  - REFERENCES.md")
-    print(f"  - SEQUENCE.md")
-    print(f"  - RECEIPT.md (write at completion)")
+    print("  - CLAUDE.md")
+    print("  - BRIEFING.md")
+    print("  - REFERENCES.md")
+    print("  - SEQUENCE.md")
+    print("  - RECEIPT.md (write at completion)")
 
 
 def main():

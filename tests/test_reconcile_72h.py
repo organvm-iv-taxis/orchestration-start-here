@@ -5,7 +5,6 @@ import sys
 from datetime import timedelta
 from pathlib import Path
 
-
 SCRIPT_PATH = (
     Path(__file__).resolve().parents[1] / "scripts" / "reconcile-72h.py"
 )

@@ -12,14 +12,10 @@ in the data reveals the pattern the human hasn't seen yet.
 
 from __future__ import annotations
 
-from collections import Counter
 from dataclasses import dataclass, field
 
 from action_ledger.schemas import (
     ActionIndex,
-    Chain,
-    ChainIndex,
-    Sequence,
     SequenceIndex,
 )
 

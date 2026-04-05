@@ -11,18 +11,17 @@ governance.audit.run_audit. Falls back to standalone implementation.
 Utilizes dynamic environment variables (ORG_I...VII, ORGANVM_WORKSPACE_DIR)
 for validation and context.
 """
-import json
-import sys
 import argparse
+import json
 import os
+import sys
 from datetime import datetime
-from pathlib import Path
 
 # --- Canonical engine imports (isotope dissolution) ---
 try:
     from organvm_engine.governance.audit import run_audit as _engine_run_audit
-    from organvm_engine.registry.loader import load_registry as _engine_load_registry
     from organvm_engine.governance.rules import load_governance_rules as _engine_load_rules
+    from organvm_engine.registry.loader import load_registry as _engine_load_registry
 
     _HAS_ENGINE = True
 except ImportError:
@@ -41,7 +40,7 @@ def get_organ_env_map():
         "ORGAN-VII": "ORG_VII",
         "META-ORGANVM": "ORG_META"
     }
-    
+
     mapping = {}
     for organ_id, env_var in id_to_env.items():
         val = os.environ.get(env_var)
@@ -82,7 +81,7 @@ def find_cycles(graph: dict) -> list:
 def validate_dependency_directions(registry: dict, governance: dict) -> list:
     """Check that all dependencies respect unidirectional flow."""
     allowed = governance.get("articles", {}).get("II", {}).get("allowed_dependencies", {})
-    
+
     repo_to_organ = {}
     for organ_id, organ in registry.get("organs", {}).items():
         for repo in organ.get("repositories", []):
@@ -96,7 +95,7 @@ def validate_dependency_directions(registry: dict, governance: dict) -> list:
             source_organ = organ_id
             for dep in repo.get("dependencies", []):
                 dep_organ = repo_to_organ.get(dep, "UNKNOWN")
-                
+
                 if dep_organ == "UNKNOWN" and "/" in dep:
                     dep_name = dep.split("/")[-1]
                     dep_organ = repo_to_organ.get(dep_name, "UNKNOWN")
@@ -138,7 +137,7 @@ def audit_organs(registry_path: str, governance_path: str) -> tuple:
 
     env_map = get_organ_env_map()
     all_organs = sorted(registry.get("organs", {}).keys())
-    
+
     for organ_id in all_organs:
         organ = registry.get("organs", {}).get(organ_id, {})
         repos = organ.get("repositories", [])
@@ -232,7 +231,7 @@ def audit_organs(registry_path: str, governance_path: str) -> tuple:
     if "expected_total" in metrics and metrics["total_repos"] != metrics["expected_total"]:
         report.append(f"  - ⚠️ DISCREPANCY: Expected {metrics['expected_total']} from CONDUCTOR_TOTAL_REPOS")
         alerts["warning"].append(f"Repo count discrepancy: Registry={metrics['total_repos']}, Env={metrics['expected_total']}")
-    
+
     report.append(f"- **Documented repos:** {metrics['documented_repos']}")
     report.append(f"- **Organs operational:** {metrics['organs_operational']}/7")
     report.append(f"- **Dependency violations:** {metrics['dependency_violations']}")

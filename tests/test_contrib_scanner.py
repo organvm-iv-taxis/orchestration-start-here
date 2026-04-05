@@ -1,10 +1,10 @@
 """Tests for the contribution scanner."""
 
+
 import yaml
-from pathlib import Path
 
 from contrib_engine.capabilities import CAPABILITIES, match_capabilities
-from contrib_engine.scanner import score_target, scan, _extract_contacts_with_github
+from contrib_engine.scanner import _extract_contacts_with_github, scan, score_target
 from contrib_engine.schemas import ContributionTarget, TargetStatus
 
 

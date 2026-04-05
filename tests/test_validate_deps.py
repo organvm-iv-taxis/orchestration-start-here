@@ -8,6 +8,7 @@ sys.path.insert(0, str(Path(__file__).parent.parent / "scripts"))
 
 # Import with hyphenated filename
 import importlib.util
+
 _spec = importlib.util.spec_from_file_location(
     "validate_deps",
     Path(__file__).parent.parent / "scripts" / "validate-deps.py",

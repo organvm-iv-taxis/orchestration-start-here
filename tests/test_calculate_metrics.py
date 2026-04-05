@@ -1,6 +1,6 @@
 """Tests for scripts/calculate-metrics.py — system-wide metrics calculation."""
-from pathlib import Path
 import importlib.util
+from pathlib import Path
 
 _spec = importlib.util.spec_from_file_location(
     "calculate_metrics",

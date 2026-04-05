@@ -1,8 +1,7 @@
 """Tests for the contribution orchestrator."""
 
-from pathlib import Path
 
-from contrib_engine.orchestrator import workspace_name, _write_seed_yaml, _write_claude_md
+from contrib_engine.orchestrator import _write_claude_md, _write_seed_yaml, workspace_name
 from contrib_engine.schemas import ContributionTarget
 
 

@@ -118,7 +118,7 @@ def _cmd_campaign_show(args: argparse.Namespace) -> None:
     summary = campaign.phase_summary()
     for phase, count in summary.items():
         print(f"  {phase}: {count} pending")
-    print(f"\nNext actions:")
+    print("\nNext actions:")
     for a in campaign.next_actions():
         manual = " [MANUAL]" if a.manual else ""
         print(f"  [{a.priority}] {a.id}: {a.action}{manual}")

@@ -1,6 +1,6 @@
 """Tests for the contribution monitor."""
 
-from contrib_engine.monitor import determine_next_action, _infer_target
+from contrib_engine.monitor import _infer_target, determine_next_action
 from contrib_engine.schemas import ContributionStatus, PRState
 
 

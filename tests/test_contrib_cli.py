@@ -60,6 +60,7 @@ class TestCliEntryPoint:
 class TestPrefixParameter:
     def test_register_with_prefix(self):
         import argparse
+
         from contrib_engine.cli import register_contrib_commands
         parser = argparse.ArgumentParser()
         subparsers = parser.add_subparsers()
@@ -69,6 +70,7 @@ class TestPrefixParameter:
 
     def test_register_without_prefix(self):
         import argparse
+
         from contrib_engine.cli import register_contrib_commands
         parser = argparse.ArgumentParser()
         subparsers = parser.add_subparsers()

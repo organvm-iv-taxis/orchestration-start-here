@@ -72,7 +72,6 @@ from lib.progress import (
     save_snapshot,
 )
 
-
 _ORGAN_ALIASES: dict[str, str] = {
     "I": "ORGAN-I", "1": "ORGAN-I",
     "II": "ORGAN-II", "2": "ORGAN-II",

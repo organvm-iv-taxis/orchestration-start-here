@@ -95,6 +95,8 @@ produces:
   description: Process observations from contribution workflows, append-only stream with spectrum scoring.
 - type: action_ledger_data
   description: System-wide process recording — semantic actions, parameter trajectories, cycle detection.
+- type: threshold_topology
+  description: 2D governance membrane model (UMFAS scopes × Atomic Clock depths) — 16 threshold cells with permeability attenuation, 32 classified rules, executable validator.
 consumes:
 - type: github_pr_states
   description: PR lifecycle states polled by contrib_engine monitor for contribution tracking.

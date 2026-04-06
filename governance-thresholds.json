@@ -1,0 +1,219 @@
+{
+  "schema_version": "1.0",
+  "description": "Substrate Threshold Topology — 2D governance membrane model. UMFAS scopes define WHAT governance applies, Atomic Clock depths define HOW DEEP it reaches.",
+  "axes": {
+    "scope": ["SUBSTRATE", "CONTROL", "PRODUCTION", "INTERFACE"],
+    "depth": ["ORGANISM", "COMPOUND", "MOLECULE", "ATOM"]
+  },
+  "scope_mapping": {
+    "SUBSTRATE": {
+      "organs": ["META-ORGANVM"],
+      "description": "Constitutional authority — universal rules that bind the entire system"
+    },
+    "CONTROL": {
+      "organs": ["ORGAN-IV"],
+      "description": "Orchestration enforcement — cross-organ coordination and session governance"
+    },
+    "PRODUCTION": {
+      "organs": ["ORGAN-I", "ORGAN-II", "ORGAN-III"],
+      "description": "Creative pipeline — theory, art, commerce. Unidirectional flow I→II→III"
+    },
+    "INTERFACE": {
+      "organs": ["ORGAN-V", "ORGAN-VI", "ORGAN-VII"],
+      "description": "Outward-facing — discourse, community, distribution"
+    }
+  },
+  "depth_mapping": {
+    "ORGANISM": {
+      "level": 0,
+      "unit": "system",
+      "description": "The whole synthesizer — system-wide rules"
+    },
+    "COMPOUND": {
+      "level": 1,
+      "unit": "organ",
+      "description": "One of the 8 organs — organ-level governance"
+    },
+    "MOLECULE": {
+      "level": 2,
+      "unit": "repo",
+      "description": "One git repository — repo-level contracts (seed.yaml)"
+    },
+    "ATOM": {
+      "level": 3,
+      "unit": "file",
+      "description": "One script, CI step, session, or action — atomic operations"
+    }
+  },
+  "thresholds": {
+    "T(S,O)": {
+      "scope": "SUBSTRATE",
+      "depth": "ORGANISM",
+      "radius_down": 3,
+      "radius_up": 0,
+      "radius_lateral": 3,
+      "permeability": { "down": 1.0, "up": 0.0, "lateral": 1.0 },
+      "local_rules": ["art_I", "art_III", "amend_H"]
+    },
+    "T(S,C)": {
+      "scope": "SUBSTRATE",
+      "depth": "COMPOUND",
+      "radius_down": 1,
+      "radius_up": 1,
+      "radius_lateral": 3,
+      "permeability": { "down": 1.0, "up": 0.3, "lateral": 1.0 },
+      "local_rules": ["art_VI", "amend_A"]
+    },
+    "T(S,M)": {
+      "scope": "SUBSTRATE",
+      "depth": "MOLECULE",
+      "radius_down": 1,
+      "radius_up": 1,
+      "radius_lateral": 3,
+      "permeability": { "down": 0.8, "up": 0.3, "lateral": 0.8 },
+      "local_rules": ["amend_C"]
+    },
+    "T(S,A)": {
+      "scope": "SUBSTRATE",
+      "depth": "ATOM",
+      "radius_down": 0,
+      "radius_up": 1,
+      "radius_lateral": 3,
+      "permeability": { "down": 0.0, "up": 0.2, "lateral": 0.5 },
+      "local_rules": ["classified_seed_schema_conformance"]
+    },
+    "T(C,O)": {
+      "scope": "CONTROL",
+      "depth": "ORGANISM",
+      "radius_down": 3,
+      "radius_up": 0,
+      "radius_lateral": 2,
+      "permeability": { "down": 0.9, "up": 0.1, "lateral": 0.8 },
+      "local_rules": ["amend_B", "amend_D", "classified_logic_first_governance"]
+    },
+    "T(C,C)": {
+      "scope": "CONTROL",
+      "depth": "COMPOUND",
+      "radius_down": 2,
+      "radius_up": 1,
+      "radius_lateral": 2,
+      "permeability": { "down": 0.8, "up": 0.2, "lateral": 0.7 },
+      "local_rules": ["art_II", "art_IV", "rule_promote_to_art", "rule_promote_to_commerce", "wip_limits"]
+    },
+    "T(C,M)": {
+      "scope": "CONTROL",
+      "depth": "MOLECULE",
+      "radius_down": 1,
+      "radius_up": 1,
+      "radius_lateral": 2,
+      "permeability": { "down": 0.7, "up": 0.2, "lateral": 0.5 },
+      "local_rules": ["amend_E", "amend_F", "amend_G"]
+    },
+    "T(C,A)": {
+      "scope": "CONTROL",
+      "depth": "ATOM",
+      "radius_down": 0,
+      "radius_up": 1,
+      "radius_lateral": 1,
+      "permeability": { "down": 0.0, "up": 0.2, "lateral": 0.3 },
+      "local_rules": ["classified_action_ledger_emission", "classified_ci_workflow_enforcement", "classified_non_interactive_agent_safety"]
+    },
+    "T(P,O)": {
+      "scope": "PRODUCTION",
+      "depth": "ORGANISM",
+      "radius_down": 2,
+      "radius_up": 0,
+      "radius_lateral": 0,
+      "permeability": { "down": 0.8, "up": 0.1, "lateral": 0.3 },
+      "local_rules": [],
+      "_note": "Genuinely empty — production pipeline system-level rules governed by CONTROL (Art. II)"
+    },
+    "T(P,C)": {
+      "scope": "PRODUCTION",
+      "depth": "COMPOUND",
+      "radius_down": 1,
+      "radius_up": 1,
+      "radius_lateral": 0,
+      "permeability": { "down": 0.7, "up": 0.2, "lateral": 0.3 },
+      "local_rules": ["art_V"]
+    },
+    "T(P,M)": {
+      "scope": "PRODUCTION",
+      "depth": "MOLECULE",
+      "radius_down": 1,
+      "radius_up": 1,
+      "radius_lateral": 0,
+      "permeability": { "down": 0.6, "up": 0.2, "lateral": 0.2 },
+      "local_rules": ["classified_production_repo_conventions"]
+    },
+    "T(P,A)": {
+      "scope": "PRODUCTION",
+      "depth": "ATOM",
+      "radius_down": 0,
+      "radius_up": 1,
+      "radius_lateral": 0,
+      "permeability": { "down": 0.0, "up": 0.2, "lateral": 0.1 },
+      "local_rules": [],
+      "_note": "Genuinely empty — no file-level production governance yet"
+    },
+    "T(I,O)": {
+      "scope": "INTERFACE",
+      "depth": "ORGANISM",
+      "radius_down": 2,
+      "radius_up": 0,
+      "radius_lateral": 0,
+      "permeability": { "down": 0.8, "up": 0.1, "lateral": 0.3 },
+      "local_rules": ["classified_interface_read_many_write_one"]
+    },
+    "T(I,C)": {
+      "scope": "INTERFACE",
+      "depth": "COMPOUND",
+      "radius_down": 2,
+      "radius_up": 1,
+      "radius_lateral": 0,
+      "permeability": { "down": 0.7, "up": 0.2, "lateral": 0.3 },
+      "local_rules": ["classified_editorial_governance", "classified_organ_aesthetic_identity"]
+    },
+    "T(I,M)": {
+      "scope": "INTERFACE",
+      "depth": "MOLECULE",
+      "radius_down": 1,
+      "radius_up": 1,
+      "radius_lateral": 0,
+      "permeability": { "down": 0.6, "up": 0.2, "lateral": 0.2 },
+      "local_rules": ["classified_frontmatter_schema_validation"]
+    },
+    "T(I,A)": {
+      "scope": "INTERFACE",
+      "depth": "ATOM",
+      "radius_down": 0,
+      "radius_up": 1,
+      "radius_lateral": 0,
+      "permeability": { "down": 0.0, "up": 0.2, "lateral": 0.1 },
+      "local_rules": ["classified_essay_file_constraints"]
+    }
+  },
+  "wave": 3,
+  "hardening_log": [
+    {
+      "wave": 0,
+      "date": "2026-04-06",
+      "action": "Grid defined — 16 threshold cells with default permeability"
+    },
+    {
+      "wave": 1,
+      "date": "2026-04-06",
+      "action": "Existing governance rules classified into threshold origins with radius annotations"
+    },
+    {
+      "wave": 2,
+      "date": "2026-04-06",
+      "action": "8 informal governance rules discovered and classified — INTERFACE (4), PRODUCTION (1), SUBSTRATE/ATOM (1), CONTROL/ATOM (2). Empty cells reduced 9→2."
+    },
+    {
+      "wave": 3,
+      "date": "2026-04-06",
+      "action": "External artifact scan — 3 more unplugged files classified (COMMANDMENTS.md, NON-INTERACTIVE-AGENT-SAFETY.md, organ-aesthetic.yaml). 22 CONTRIBUTING/SECURITY files triaged as scaffolding. 3 source docs (conductor-playbook, score-rehearse-perform, breadcrumb-protocol) confirmed already covered by amendments E/F/G."
+    }
+  ]
+}

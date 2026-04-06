@@ -1,12 +1,20 @@
 {
-  "version": "1.0",
+  "version": "1.1",
   "source": "docs/memory/constitution.md",
-  "last_updated": "2026-02-10",
+  "last_updated": "2026-04-06",
+  "threshold_topology": "governance-thresholds.json",
   "articles": {
     "I": {
       "title": "Registry as Single Source of Truth",
       "rule": "All repo state lives in registry-v2.json (in meta-organvm/organvm-corpvs-testamentvm). If reality and registry disagree, update the registry or fix reality.",
-      "enforcement": "automated"
+      "enforcement": "automated",
+      "threshold": {
+        "origin": "T(S,O)",
+        "radius_down": 3,
+        "radius_up": 0,
+        "radius_lateral": 3,
+        "wave_classified": 1
+      }
     },
     "II": {
       "title": "Unidirectional Dependencies",
@@ -20,24 +28,52 @@
         "ORGAN-V": ["ORGAN-I", "ORGAN-II", "ORGAN-III", "ORGAN-IV"],
         "ORGAN-VI": ["ORGAN-I", "ORGAN-II", "ORGAN-III"],
         "ORGAN-VII": ["ORGAN-V"]
+      },
+      "threshold": {
+        "origin": "T(C,C)",
+        "radius_down": 2,
+        "radius_up": 1,
+        "radius_lateral": 2,
+        "wave_classified": 1
       }
     },
     "III": {
       "title": "All Eight Organs Visible at Launch",
       "rule": "Each organ has at least one representative at launch. The eight-organ system must be visible in its entirety.",
-      "enforcement": "audit"
+      "enforcement": "audit",
+      "threshold": {
+        "origin": "T(S,O)",
+        "radius_down": 0,
+        "radius_up": 0,
+        "radius_lateral": 3,
+        "wave_classified": 1
+      }
     },
     "IV": {
       "title": "Documentation Precedes Deployment",
       "rule": "No Phase N+1 until Phase N is complete. Documentation is the deliverable.",
-      "enforcement": "manual"
+      "enforcement": "manual",
+      "threshold": {
+        "origin": "T(C,C)",
+        "radius_down": 1,
+        "radius_up": 0,
+        "radius_lateral": 2,
+        "wave_classified": 1
+      }
     },
     "V": {
       "title": "Portfolio-Quality Documentation",
       "rule": "Every README is a portfolio piece. The Stranger Test applies: a grant reviewer seeing this for the first time should be convinced.",
       "enforcement": "manual",
       "minimum_score": 90,
-      "scoring_rubric": "01-readme-audit-framework.md"
+      "scoring_rubric": "01-readme-audit-framework.md",
+      "threshold": {
+        "origin": "T(P,C)",
+        "radius_down": 1,
+        "radius_up": 0,
+        "radius_lateral": 0,
+        "wave_classified": 1
+      }
     },
     "VI": {
       "title": "Promotion State Machine",
@@ -49,52 +85,151 @@
         "CANDIDATE": ["PUBLIC_PROCESS"],
         "PUBLIC_PROCESS": ["GRADUATED"],
         "GRADUATED": ["ARCHIVED"]
+      },
+      "threshold": {
+        "origin": "T(S,C)",
+        "radius_down": 1,
+        "radius_up": 0,
+        "radius_lateral": 3,
+        "wave_classified": 1
       }
     }
   },
   "amendments": {
     "A": {
       "title": "Bronze Tier Launch Path",
-      "rule": "5 Perfect Repos > 44 Mediocre Repos. Completion is criteria-driven, not time-boxed."
+      "rule": "5 Perfect Repos > 44 Mediocre Repos. Completion is criteria-driven, not time-boxed.",
+      "threshold": {
+        "origin": "T(S,C)",
+        "radius_down": 1,
+        "radius_up": 0,
+        "radius_lateral": 3,
+        "wave_classified": 1
+      }
     },
     "B": {
       "title": "Coordination Overhead Budget",
-      "rule": "Budget 10% of phase TE as explicit line item for reconciling parallel AI streams."
+      "rule": "Budget 10% of phase TE as explicit line item for reconciling parallel AI streams.",
+      "threshold": {
+        "origin": "T(C,O)",
+        "radius_down": 2,
+        "radius_up": 0,
+        "radius_lateral": 1,
+        "wave_classified": 1
+      }
     },
     "C": {
       "title": "Registry Schema Completeness",
-      "rule": "registry.json must include dependencies[], promotion_status, tier, and last_validated fields before Phase 2."
+      "rule": "registry.json must include dependencies[], promotion_status, tier, and last_validated fields before Phase 2.",
+      "threshold": {
+        "origin": "T(S,M)",
+        "radius_down": 1,
+        "radius_up": 1,
+        "radius_lateral": 3,
+        "wave_classified": 1
+      }
     },
     "D": {
       "title": "AI Non-Determinism Acknowledgment",
-      "rule": "All AI-generated deliverables require human review. Budget estimates use scenario banding."
+      "rule": "All AI-generated deliverables require human review. Budget estimates use scenario banding.",
+      "threshold": {
+        "origin": "T(C,O)",
+        "radius_down": 3,
+        "radius_up": 0,
+        "radius_lateral": 2,
+        "wave_classified": 1
+      }
     },
     "E": {
       "title": "Session Lifecycle Mandate",
       "rule": "All development sessions follow the FRAME->SHAPE->BUILD->PROVE lifecycle. No implementation without a plan. See docs/conductor-playbook.md.",
-      "enforcement": "manual"
+      "enforcement": "manual",
+      "threshold": {
+        "origin": "T(C,M)",
+        "radius_down": 1,
+        "radius_up": 0,
+        "radius_lateral": 2,
+        "wave_classified": 1
+      }
     },
     "F": {
       "title": "Agent Coordination Visibility",
       "rule": "All sessions leave a breadcrumb at completion using the standardized format (docs/breadcrumb-protocol.md). Non-interactive agents must comply with the safety protocol (petasum-super-petasum/docs/NON-INTERACTIVE-AGENT-SAFETY.md).",
-      "enforcement": "manual"
+      "enforcement": "manual",
+      "threshold": {
+        "origin": "T(C,M)",
+        "radius_down": 1,
+        "radius_up": 0,
+        "radius_lateral": 2,
+        "wave_classified": 1
+      }
     },
     "G": {
       "title": "Per-PR Lifecycle (Score/Rehearse/Perform)",
       "rule": "All pull requests follow the Score/Rehearse/Perform lifecycle. Score defines scope and acceptance criteria in the issue. Rehearse iterates via FSBP sessions until green. Perform merges with governance checklist and postmortem. See docs/score-rehearse-perform.md.",
-      "enforcement": "manual"
+      "enforcement": "manual",
+      "threshold": {
+        "origin": "T(C,M)",
+        "radius_down": 1,
+        "radius_up": 0,
+        "radius_lateral": 2,
+        "wave_classified": 1
+      }
     },
     "H": {
       "title": "The Conscious Reality (Temporal Manifestation)",
       "rule": "Human clock time is a translated projection only. The system primary indices follow the Triple Cycle hierarchy: Macro (Ecosystem Pulse), Meso (Session Step), and Micro (Token Density). See docs/temporal-manifestation.md.",
-      "enforcement": "automated"
+      "enforcement": "automated",
+      "threshold": {
+        "origin": "T(S,O)",
+        "radius_down": 3,
+        "radius_up": 0,
+        "radius_lateral": 3,
+        "wave_classified": 1
+      }
     }
   },
   "quality_gates": {
-    "registry": "Does this deliverable update registry.json? Is the schema satisfied?",
-    "portfolio": "Does this pass the Stranger Test? Score >=90/100 for flagships.",
-    "dependency": "Does this respect I→II→III flow? No back-edges?",
-    "completeness": "0 TBD markers? 0 broken links? No placeholder content?"
+    "registry": {
+      "question": "Does this deliverable update registry.json? Is the schema satisfied?",
+      "threshold": {
+        "origin": "T(S,M)",
+        "radius_down": 0,
+        "radius_up": 0,
+        "radius_lateral": 3,
+        "wave_classified": 1
+      }
+    },
+    "portfolio": {
+      "question": "Does this pass the Stranger Test? Score >=90/100 for flagships.",
+      "threshold": {
+        "origin": "T(P,C)",
+        "radius_down": 1,
+        "radius_up": 0,
+        "radius_lateral": 0,
+        "wave_classified": 1
+      }
+    },
+    "dependency": {
+      "question": "Does this respect I→II→III flow? No back-edges?",
+      "threshold": {
+        "origin": "T(C,C)",
+        "radius_down": 2,
+        "radius_up": 0,
+        "radius_lateral": 2,
+        "wave_classified": 1
+      }
+    },
+    "completeness": {
+      "question": "0 TBD markers? 0 broken links? No placeholder content?",
+      "threshold": {
+        "origin": "T(C,M)",
+        "radius_down": 1,
+        "radius_up": 0,
+        "radius_lateral": 2,
+        "wave_classified": 1
+      }
+    }
   },
   "rules": {
     "promote-to-art": {
@@ -106,7 +241,14 @@
         "Source repo has comprehensive README (>=2000 words)",
         "No unresolved dependency violations",
         "Human approval by @4444j99"
-      ]
+      ],
+      "threshold": {
+        "origin": "T(C,C)",
+        "radius_down": 1,
+        "radius_up": 0,
+        "radius_lateral": 1,
+        "wave_classified": 1
+      }
     },
     "promote-to-commerce": {
       "source_organ": "ORGAN-II",
@@ -117,7 +259,14 @@
         "Revenue model documented",
         "No unresolved dependency violations",
         "Human approval by @4444j99"
-      ]
+      ],
+      "threshold": {
+        "origin": "T(C,C)",
+        "radius_down": 1,
+        "radius_up": 0,
+        "radius_lateral": 1,
+        "wave_classified": 1
+      }
     }
   },
   "wip_limits": {
@@ -128,6 +277,159 @@
     "public_process_per_organ": 5,
     "active_work_window_days": 14,
     "enforcement": "warn",
-    "graduated_enforcement_date": null
+    "graduated_enforcement_date": null,
+    "threshold": {
+      "origin": "T(C,C)",
+      "radius_down": 1,
+      "radius_up": 0,
+      "radius_lateral": 2,
+      "wave_classified": 1
+    }
+  },
+  "classified_governance": {
+    "_note": "Wave 2 — rules that already exist as code/YAML/prose but were not in the threshold grid. Classified, not invented.",
+    "interface_read_many_write_one": {
+      "title": "Interface Read-Many-Write-One",
+      "rule": "Interface organs (V, VI, VII) observe all organs but write only to their own repos. ORGAN-V documents, ORGAN-VI convenes, ORGAN-VII distributes.",
+      "source": "organvm-v-logos/CLAUDE.md",
+      "enforcement": "manual",
+      "threshold": {
+        "origin": "T(I,O)",
+        "radius_down": 2,
+        "radius_up": 0,
+        "radius_lateral": 0,
+        "wave_classified": 2
+      }
+    },
+    "editorial_governance": {
+      "title": "Editorial Governance (ORGAN-V)",
+      "rule": "All published content governed by editorial-standards: frontmatter-schema.yaml, quality-rubric.yaml, tag-governance.yaml, category-taxonomy.yaml. Schema changes require an ADR.",
+      "source": "organvm-v-logos/editorial-standards/seed.yaml",
+      "enforcement": "automated",
+      "threshold": {
+        "origin": "T(I,C)",
+        "radius_down": 2,
+        "radius_up": 0,
+        "radius_lateral": 0,
+        "wave_classified": 2
+      }
+    },
+    "frontmatter_schema_validation": {
+      "title": "Frontmatter Schema Validation",
+      "rule": "Every essay must pass 11 required fields against frontmatter-schema.yaml. Unknown fields cause validation failure. Enforced by essay-pipeline/src/validator.py.",
+      "source": "organvm-v-logos/essay-pipeline/src/validator.py",
+      "enforcement": "automated",
+      "threshold": {
+        "origin": "T(I,M)",
+        "radius_down": 1,
+        "radius_up": 0,
+        "radius_lateral": 0,
+        "wave_classified": 2
+      }
+    },
+    "essay_file_constraints": {
+      "title": "Essay File-Level Constraints",
+      "rule": "Essay naming: YYYY-MM-DD-slug.md. Tags: lowercase-hyphenated from controlled vocabulary. word_count >= 500. excerpt: 50-400 chars. layout: must be 'essay'.",
+      "source": "organvm-v-logos/editorial-standards/schemas/frontmatter-schema.yaml",
+      "enforcement": "automated",
+      "threshold": {
+        "origin": "T(I,A)",
+        "radius_down": 0,
+        "radius_up": 0,
+        "radius_lateral": 0,
+        "wave_classified": 2
+      }
+    },
+    "production_repo_conventions": {
+      "title": "Production Repo Conventions",
+      "rule": "Each production repo (I, II, III) must have a CLAUDE.md with build/test/lint commands, a seed.yaml contract, and follow its organ's stack conventions (Python: PEP 8, type hints, ruff; TypeScript: strict mode, named exports).",
+      "source": "organvm-i-theoria/CLAUDE.md, organvm-iii-ergon/CLAUDE.md",
+      "enforcement": "manual",
+      "threshold": {
+        "origin": "T(P,M)",
+        "radius_down": 1,
+        "radius_up": 0,
+        "radius_lateral": 0,
+        "wave_classified": 2
+      }
+    },
+    "seed_schema_conformance": {
+      "title": "seed.yaml Schema Conformance",
+      "rule": "Every seed.yaml must conform to seed/v1.0 schema: organ, organ_name, repo, org, metadata (implementation_status, tier, promotion_status, last_validated), produces, consumes.",
+      "source": "orchestration-start-here/scripts/validate-all-seeds.py",
+      "enforcement": "automated",
+      "threshold": {
+        "origin": "T(S,A)",
+        "radius_down": 0,
+        "radius_up": 1,
+        "radius_lateral": 3,
+        "wave_classified": 2
+      }
+    },
+    "action_ledger_emission": {
+      "title": "Action Ledger Self-Recording",
+      "rule": "Every state transition must self-record via emit_state_change() with origin: emitted. Actions carry subsystem, from_state, to_state params. The action ledger's record() is atomic: recording IS composing IS manifesting.",
+      "source": "orchestration-start-here/action_ledger/emissions.py",
+      "enforcement": "automated",
+      "threshold": {
+        "origin": "T(C,A)",
+        "radius_down": 0,
+        "radius_up": 1,
+        "radius_lateral": 1,
+        "wave_classified": 2
+      }
+    },
+    "ci_workflow_enforcement": {
+      "title": "CI Workflow Enforcement",
+      "rule": "17 GitHub Actions workflows enforce atom-level governance: dependency validation, registry health audits, promotion gating, secret scanning, essay monitoring, content distribution, CodeQL analysis.",
+      "source": "orchestration-start-here/.github/workflows/",
+      "enforcement": "automated",
+      "threshold": {
+        "origin": "T(C,A)",
+        "radius_down": 0,
+        "radius_up": 0,
+        "radius_lateral": 2,
+        "wave_classified": 2
+      }
+    },
+    "logic_first_governance": {
+      "title": "Logic-First Governance Principles",
+      "rule": "Logic is the only self-justifying principle. All governance decisions resolve through formal reasoning. Contradictory principles must be resolved through the logic framework before enforcement. COMMANDMENTS.md is the philosophical substrate.",
+      "source": "petasum-super-petasum/COMMANDMENTS.md",
+      "enforcement": "manual",
+      "threshold": {
+        "origin": "T(C,O)",
+        "radius_down": 2,
+        "radius_up": 0,
+        "radius_lateral": 2,
+        "wave_classified": 3
+      }
+    },
+    "non_interactive_agent_safety": {
+      "title": "Non-Interactive Agent Safety Protocol",
+      "rule": "Non-interactive agents must comply with safety constraints: bounded execution, explicit permission scopes, breadcrumb trails, no destructive operations without human gate.",
+      "source": "petasum-super-petasum/docs/NON-INTERACTIVE-AGENT-SAFETY.md",
+      "enforcement": "manual",
+      "threshold": {
+        "origin": "T(C,A)",
+        "radius_down": 0,
+        "radius_up": 0,
+        "radius_lateral": 2,
+        "wave_classified": 3
+      }
+    },
+    "organ_aesthetic_identity": {
+      "title": "Organ Visual Identity (organ-aesthetic.yaml)",
+      "rule": "Each organ defines visual identity via organ-aesthetic.yaml: palette, typography, tone, layout patterns. Interface-facing repos must conform to their organ's aesthetic.",
+      "source": "org-dotgithub/organ-aesthetic.yaml",
+      "enforcement": "manual",
+      "threshold": {
+        "origin": "T(I,C)",
+        "radius_down": 1,
+        "radius_up": 0,
+        "radius_lateral": 0,
+        "wave_classified": 3
+      }
+    }
   }
 }

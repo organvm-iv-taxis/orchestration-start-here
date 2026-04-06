@@ -1,0 +1,50 @@
+name: Validate Threshold Topology
+
+on:
+  push:
+    paths:
+      - 'governance-thresholds.json'
+      - 'governance-rules.json'
+      - 'scripts/validate-thresholds.py'
+  pull_request:
+    paths:
+      - 'governance-thresholds.json'
+      - 'governance-rules.json'
+      - 'scripts/validate-thresholds.py'
+  schedule:
+    # Weekly audit — Mondays at 07:00 UTC (30 min after dependency validation)
+    - cron: '0 7 * * 1'
+  workflow_dispatch:
+
+jobs:
+  validate:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+
+    steps:
+      - name: Checkout orchestration hub
+        uses: actions/checkout@v4
+
+      - name: Setup Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+
+      - name: Validate threshold topology (local)
+        run: |
+          python3 scripts/validate-thresholds.py --local --strength
+
+      - name: Validate threshold topology (JSON for artifacts)
+        if: always()
+        run: |
+          python3 scripts/validate-thresholds.py --local --json > threshold-report.json || true
+          cat threshold-report.json
+
+      - name: Upload validation report
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: threshold-validation-report
+          path: threshold-report.json
+          retention-days: 30

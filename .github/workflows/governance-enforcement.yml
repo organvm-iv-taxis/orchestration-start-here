@@ -1,0 +1,183 @@
+name: Governance Enforcement
+
+on:
+  push:
+    paths:
+      - 'registry*.json'
+      - 'governance-rules.json'
+  pull_request:
+    paths:
+      - 'registry*.json'
+      - 'governance-rules.json'
+  schedule:
+    # Weekly audit — Mondays at 07:00 UTC (after dependency validation at 06:30)
+    - cron: '0 7 * * 1'
+  workflow_dispatch:
+
+jobs:
+  enforce:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+
+    steps:
+      - name: Checkout orchestration hub
+        uses: actions/checkout@v4
+
+      - name: Setup Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+
+      - name: Fetch canonical registry
+        run: bash scripts/fetch-registry.sh registry-v2.json
+
+      - name: Enforce governance rules
+        run: |
+          python3 << 'GOVERNANCE_SCRIPT'
+          import json
+          import os
+          import sys
+          from datetime import datetime, timezone
+
+          # --- Load governance rules and registry ---
+
+          governance_path = 'governance-rules.json'
+          registry_path = 'registry-v2.json'
+
+          for path in [governance_path, registry_path]:
+              if not os.path.exists(path):
+                  print(f"::error::Missing required file: {path}")
+                  sys.exit(1)
+
+          with open(governance_path) as f:
+              governance = json.load(f)
+
+          with open(registry_path) as f:
+              registry = json.load(f)
+
+          errors = []
+          warnings = []
+
+          # --- Article VI: Promotion State Machine ---
+
+          valid_states = set(governance["articles"]["VI"]["states"])
+          valid_transitions = governance["articles"]["VI"]["valid_transitions"]
+
+          for organ_key, organ in registry.get("organs", {}).items():
+              for repo in organ.get("repositories", []):
+                  name = f"{organ_key}/{repo.get('name', '?')}"
+                  promo = repo.get("promotion_status")
+
+                  if promo is None:
+                      errors.append(f"{name}: missing promotion_status field")
+                  elif promo not in valid_states:
+                      errors.append(
+                          f"{name}: invalid promotion_status '{promo}' "
+                          f"(valid: {', '.join(sorted(valid_states))})"
+                      )
+
+          # --- Article I: Registry Schema Completeness ---
+
+          required_fields = [
+              "name", "org", "status", "description",
+              "promotion_status", "tier", "implementation_status",
+          ]
+
+          for organ_key, organ in registry.get("organs", {}).items():
+              for repo in organ.get("repositories", []):
+                  name = f"{organ_key}/{repo.get('name', '?')}"
+                  for field in required_fields:
+                      if field not in repo or repo[field] is None:
+                          warnings.append(f"{name}: missing required field '{field}'")
+
+          # --- GRADUATED Requirements ---
+
+          graduated_required = ["description", "documentation_status", "tier"]
+
+          for organ_key, organ in registry.get("organs", {}).items():
+              for repo in organ.get("repositories", []):
+                  if repo.get("promotion_status") != "GRADUATED":
+                      continue
+                  name = f"{organ_key}/{repo.get('name', '?')}"
+                  for field in graduated_required:
+                      val = repo.get(field)
+                      if not val or val == "MISSING":
+                          warnings.append(
+                              f"{name}: GRADUATED repo missing '{field}'"
+                          )
+
+          # --- Organ Count Consistency ---
+
+          for organ_key, organ in registry.get("organs", {}).items():
+              declared = organ.get("repository_count", 0)
+              actual = len(organ.get("repositories", []))
+              if declared != actual:
+                  errors.append(
+                      f"{organ_key}: repository_count={declared} "
+                      f"but {actual} repos in array"
+                  )
+
+          # --- Total Count Consistency ---
+
+          declared_total = registry.get("summary", {}).get("total_repos", 0)
+          actual_total = sum(
+              len(organ.get("repositories", []))
+              for organ in registry.get("organs", {}).values()
+          )
+          if declared_total != actual_total:
+              errors.append(
+                  f"summary.total_repos={declared_total} "
+                  f"but {actual_total} repos counted"
+              )
+
+          # --- Valid Tier Values ---
+
+          valid_tiers = {
+              "flagship", "standard", "stub", "archive",
+              "infrastructure", "sovereign",
+          }
+          for organ_key, organ in registry.get("organs", {}).items():
+              for repo in organ.get("repositories", []):
+                  name = f"{organ_key}/{repo.get('name', '?')}"
+                  tier = repo.get("tier")
+                  if tier and tier not in valid_tiers:
+                      errors.append(
+                          f"{name}: invalid tier '{tier}' "
+                          f"(valid: {', '.join(sorted(valid_tiers))})"
+                      )
+
+          # --- Report ---
+
+          now = datetime.now(timezone.utc).isoformat()
+          print(f"{'=' * 60}")
+          print(f"GOVERNANCE ENFORCEMENT — {now}")
+          print(f"{'=' * 60}")
+          print(f"Articles checked: I (schema), VI (promotion FSM)")
+          print(f"Repos scanned: {actual_total}")
+          print(f"Errors: {len(errors)}")
+          print(f"Warnings: {len(warnings)}")
+          print()
+
+          if errors:
+              print("ERRORS (blocking):")
+              for e in errors:
+                  print(f"  ::error::{e}")
+              print()
+
+          if warnings:
+              print(f"WARNINGS (non-blocking): {len(warnings)}")
+              for w in warnings[:20]:
+                  print(f"  ::warning::{w}")
+              if len(warnings) > 20:
+                  print(f"  ... and {len(warnings) - 20} more")
+              print()
+
+          if not errors and not warnings:
+              print("All governance rules satisfied.")
+
+          # Errors are blocking; warnings are advisory
+          if errors:
+              sys.exit(1)
+
+          GOVERNANCE_SCRIPT

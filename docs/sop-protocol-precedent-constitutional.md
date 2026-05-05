@@ -3,7 +3,7 @@
 **Version:** 1.0
 **Date:** 2026-05-04
 **Scope:** System-wide (any agent, any session, any decision)
-**Lifecycle Stage:** REP (first run = this session; second run promotes to ABSORB)
+**Lifecycle Stage:** ABSORB (codified 2026-05-04; second run 2026-05-05 "proceed w all" session exercised all five phases against the 6-item handoff list)
 **Provenance:** Codified from `~/.claude/projects/-Users-4jp/memory/feedback_protocol_precedent_layered_framework.md` and plan `~/.claude/plans/if-protocol-doesn-t-dictate-expressive-cat.md`. Triggers: user corrections 2026-05-02 (`feedback_protocols_dictate_actions`) + 2026-05-04 (`If protocol doesn't dictate, then precedent might dictate` + `Further exploration required until impossible certainty`).
 
 > Five-layer decision hierarchy that prevents agent deferral-to-user when protocol or precedent already speaks. Replaces ad-hoc "I don't know, ask the user" with disciplined search through layered authoritative sources.
@@ -173,7 +173,7 @@ DECISION SURFACE EMERGES (action sequence to enumerate, or item to gate)
 ## 6. Protocol Governance
 
 - **Owner:** ORGAN-IV (Taxis)
-- **Lifecycle:** REP — needs second-session run to reach ABSORB
+- **Lifecycle:** ABSORB — second-session run on 2026-05-05 exercised all five phases (L1 user authorization for the 6-item list; L2 protocol consultation; L3 precedent verification via the precedent_engine CLI; L3.5 constitutional derivation for the direct-push deviation; structural-precondition honoring for Lane I cooldown)
 - **Versioning:** SemVer. Major when layer ordering changes. Minor when phase steps refined. Patch when failure-mode entries added.
 - **Anti-pattern registry:**
   - "I'll just ask the user" — when L2/L3 has the answer. The framework's purpose is to prevent this.

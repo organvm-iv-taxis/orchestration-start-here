@@ -2,9 +2,35 @@
 from __future__ import annotations
 
 import argparse
+import dataclasses
+import json
 import sys
+from datetime import datetime
 
 from .search import fan_out_search
+
+
+def _json_default(obj):
+    if isinstance(obj, datetime):
+        return obj.isoformat()
+    if dataclasses.is_dataclass(obj):
+        return dataclasses.asdict(obj)
+    raise TypeError(f"Type {type(obj).__name__} not JSON-serializable")
+
+
+def _print_report_json(report) -> None:
+    payload = {
+        "verb": report.verb,
+        "target": report.target,
+        "days": report.days,
+        "stores_queried": list(report.stores_queried),
+        "matches_by_store": {
+            store: [dataclasses.asdict(m) for m in matches]
+            for store, matches in report.matches_by_store.items()
+        },
+        "verdict": dataclasses.asdict(report.verdict) if report.verdict else None,
+    }
+    print(json.dumps(payload, default=_json_default, indent=2))
 
 
 def _print_report(report, show_trail: bool) -> None:
@@ -40,7 +66,10 @@ def _print_report(report, show_trail: bool) -> None:
 
 def _cmd_search(args) -> int:
     report = fan_out_search(verb=args.verb, target=args.target, days=args.days)
-    _print_report(report, show_trail=args.show_trail)
+    if args.json:
+        _print_report_json(report)
+    else:
+        _print_report(report, show_trail=args.show_trail)
     return 0 if report.verdict.verdict != "NO_PRECEDENT" else 1
 
 
@@ -56,6 +85,7 @@ def main(argv: list[str] | None = None) -> int:
     p_search.add_argument("--target", required=True, help="Decision target (e.g., PR_15, .bak_dir)")
     p_search.add_argument("--days", type=int, default=None, help="Restrict to last N days (default: no limit)")
     p_search.add_argument("--show-trail", action="store_true", help="Print full match list with citations")
+    p_search.add_argument("--json", action="store_true", help="Emit machine-readable JSON instead of human-readable report")
     p_search.set_defaults(func=_cmd_search)
 
     args = parser.parse_args(argv)

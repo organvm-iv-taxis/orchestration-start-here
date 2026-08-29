@@ -26,6 +26,8 @@ jobs:
         run: pip install requests pyyaml
 
       - name: Fetch canonical registry
+        env:
+          GH_TOKEN: ${{ secrets.CROSS_ORG_TOKEN || secrets.ORCHESTRATION_PAT || secrets.GITHUB_TOKEN }}
         run: bash scripts/fetch-registry.sh repo-registry.json
 
       - name: Build system graph from seed.yaml contracts

@@ -31,6 +31,8 @@ jobs:
         run: pip install requests pyyaml
 
       - name: Fetch Central Data
+        env:
+          GH_TOKEN: ${{ secrets.CROSS_ORG_TOKEN || secrets.ORCHESTRATION_PAT || secrets.GITHUB_TOKEN }}
         run: |
           bash scripts/fetch-registry.sh repo-registry.json
           curl -sL https://raw.githubusercontent.com/organvm-iv-taxis/orchestration-start-here/main/governance-rules.json \
@@ -62,6 +64,8 @@ jobs:
           python-version: '3.12'
 
       - name: Fetch Central Data
+        env:
+          GH_TOKEN: ${{ secrets.CROSS_ORG_TOKEN || secrets.ORCHESTRATION_PAT || secrets.GITHUB_TOKEN }}
         run: |
           bash scripts/fetch-registry.sh repo-registry.json
           curl -sL https://raw.githubusercontent.com/organvm-iv-taxis/orchestration-start-here/main/governance-rules.json \

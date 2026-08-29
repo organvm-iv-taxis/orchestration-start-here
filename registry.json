@@ -1,6 +1,6 @@
 {
-  "_redirect": "This file has been retired. Use registry-v2.json from organvm-corpvs-testamentvm.",
-  "_source": "https://github.com/meta-organvm/organvm-corpvs-testamentvm/blob/main/registry-v2.json",
+  "_redirect": "Compatibility marker only. Fetch repo-registry.json from organvm/organvm-corpvs-testamentvm; do not parse this file as registry data.",
+  "_source": "https://github.com/organvm/organvm-corpvs-testamentvm/blob/main/repo-registry.json",
   "_retired": "2026-02-18",
-  "_reason": "Registry consolidation — single source of truth in organvm-corpvs-testamentvm/registry-v2.json"
+  "_reason": "Registry consolidation — the only canonical tuple is organvm/organvm-corpvs-testamentvm + repo-registry.json"
 }

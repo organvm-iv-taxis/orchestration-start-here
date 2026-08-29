@@ -28,6 +28,11 @@ jobs:
         with:
           python-version: '3.12'
 
+      - name: Fetch canonical registry
+        env:
+          GH_TOKEN: ${{ secrets.CROSS_ORG_TOKEN || secrets.ORCHESTRATION_PAT || secrets.GITHUB_TOKEN }}
+        run: bash scripts/fetch-registry.sh repo-registry.json
+
       - name: Validate dependency graph
         run: |
           python3 << 'VALIDATE_SCRIPT'
@@ -60,6 +65,7 @@ jobs:
               'organvm-vi-koinonia': 'ORGAN-VI',
               'organvm-vii-kerygma': 'ORGAN-VII',
               'meta-organvm': 'META-ORGANVM',
+              'organvm': 'META-ORGANVM',
           }
 
           # Back-edge rules: these directed edges are forbidden
@@ -70,12 +76,28 @@ jobs:
           ]
 
           def load_registry():
-              for path in ['registry.json', 'repo-registry.json']:
-                  if os.path.exists(path):
-                      with open(path) as f:
-                          return json.load(f)
-              print("::notice::No registry file in this PR — dependency graph unchanged; nothing to validate.")
-              sys.exit(0)
+              path = 'repo-registry.json'
+              if not os.path.exists(path):
+                  print("::error::Canonical repo-registry.json is missing")
+                  sys.exit(1)
+              with open(path) as f:
+                  data = json.load(f)
+              if '_redirect' in data:
+                  print("::error::Compatibility redirect cannot be used as registry data")
+                  sys.exit(1)
+              organs = data.get('organs')
+              if not isinstance(organs, dict) or not organs:
+                  print("::error::Canonical registry has no non-empty organs object")
+                  sys.exit(1)
+              actual = sum(len(o.get('repositories', [])) for o in organs.values())
+              declared = data.get('summary', {}).get('total_repos')
+              if actual < 100 or declared != actual:
+                  print(
+                      f"::error::Implausible or inconsistent registry: "
+                      f"declared={declared}, actual={actual}"
+                  )
+                  sys.exit(1)
+              return data
 
           def get_organ_for_org(org_name):
               return ORG_TO_ORGAN.get(org_name, 'UNKNOWN')

@@ -13,7 +13,6 @@ jobs:
     runs-on: ubuntu-latest
     permissions:
       contents: read
-      issues: write
 
     steps:
       - name: Checkout orchestration hub
@@ -21,32 +20,16 @@ jobs:
 
       - name: Check registry sync
         env:
-          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          GH_TOKEN: ${{ secrets.CROSS_ORG_TOKEN || secrets.ORCHESTRATION_PAT || secrets.GITHUB_TOKEN }}
         run: |
+          bash scripts/fetch-registry.sh repo-registry.json
           python3 << 'SYNC_CHECK'
           import json
-          import subprocess
           import sys
           from datetime import datetime
 
-          CANONICAL_URL = "https://raw.githubusercontent.com/meta-organvm/organvm-corpvs-testamentvm/main/repo-registry.json"
-
-          def fetch_url(url):
-              result = subprocess.run(
-                  ['curl', '-sSfL', url],
-                  capture_output=True, text=True
-              )
-              if result.returncode != 0:
-                  return None
-              return result.stdout
-
-          # Fetch canonical registry
-          canonical_raw = fetch_url(CANONICAL_URL)
-          if not canonical_raw:
-              print("::error::Cannot fetch canonical repo-registry.json from organvm-corpvs-testamentvm")
-              sys.exit(1)
-
-          canonical = json.loads(canonical_raw)
+          with open("repo-registry.json") as f:
+              canonical = json.load(f)
 
           # Check local registry.json (should be a redirect stub)
           issues = []
@@ -59,7 +42,13 @@ jobs:
                       "Expected a stub with '_redirect' key."
                   )
               else:
-                  print("registry.json is correctly a redirect stub.")
+                  expected = "https://github.com/organvm/organvm-corpvs-testamentvm/blob/main/repo-registry.json"
+                  if local.get("_source") != expected:
+                      issues.append(
+                          f"registry.json points to {local.get('_source')!r}; expected {expected!r}."
+                      )
+                  else:
+                      print("registry.json is a correct compatibility marker.")
           except FileNotFoundError:
               print("registry.json not found (acceptable).")
           except json.JSONDecodeError:
@@ -100,10 +89,7 @@ jobs:
               body = "\n".join(body_lines)
               title = f"Registry Sync Issue — {datetime.utcnow().strftime('%Y-%m-%d')}"
 
-              subprocess.run(
-                  ['gh', 'issue', 'create', '--title', title, '--body', body],
-                  capture_output=True, text=True
-              )
+              print(body)
               sys.exit(1)
           else:
               print("No sync issues detected.")

@@ -30,6 +30,8 @@ jobs:
           python-version: '3.12'
 
       - name: Fetch canonical registry
+        env:
+          GH_TOKEN: ${{ secrets.CROSS_ORG_TOKEN || secrets.ORCHESTRATION_PAT || secrets.GITHUB_TOKEN }}
         run: bash scripts/fetch-registry.sh repo-registry.json
 
       - name: Enforce governance rules

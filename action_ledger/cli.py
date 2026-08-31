@@ -20,7 +20,11 @@ def register_ledger_commands(
         help="Record a semantic action",
     )
     rec.add_argument("--session", required=True, help="Session identifier (e.g., S42)")
-    rec.add_argument("--verb", required=True, help="What was done (e.g., explored, designed, built)")
+    rec.add_argument(
+        "--verb",
+        required=True,
+        help="What was done (e.g., explored, designed, built)",
+    )
     rec.add_argument("--target", required=True, help="What it was done to/with")
     rec.add_argument("--context", default="", help="Why / surrounding intent")
     rec.add_argument(
@@ -29,7 +33,10 @@ def register_ledger_commands(
     )
     rec.add_argument(
         "--produced", action="append", default=[],
-        help="Produced artifact as type:ref (repeatable, e.g., --produced insight:'spectrum model is reusable')",
+        help=(
+            "Produced artifact as type:ref "
+            "(repeatable, e.g., --produced insight:'spectrum model is reusable')"
+        ),
     )
     rec.add_argument(
         "--route", action="append", default=[],
@@ -86,7 +93,12 @@ def register_ledger_commands(
     chain_close = chain_sub.add_parser("close-session", help="Close session and compose chain")
     chain_close.add_argument("--session", required=True, help="Session identifier")
     chain_close.add_argument("--essence", default="", help="Prompt essence for the chain")
-    chain_close.add_argument("--artifact", action="append", default=[], help="Produced artifact path (repeatable)")
+    chain_close.add_argument(
+        "--artifact",
+        action="append",
+        default=[],
+        help="Produced artifact path (repeatable)",
+    )
     chain_close.set_defaults(func=_cmd_chain_close_session)
 
     chain_cmd.set_defaults(func=lambda args: chain_cmd.print_help())
@@ -118,9 +130,18 @@ def register_ledger_commands(
         f"{prefix}cycles",
         help="Detect repeated cycles across sessions",
     )
-    cycles_cmd.add_argument("--min-recurrence", type=int, default=2, help="Minimum occurrences to report")
+    cycles_cmd.add_argument(
+        "--min-recurrence",
+        type=int,
+        default=2,
+        help="Minimum occurrences to report",
+    )
     cycles_cmd.add_argument("--verb-window", type=int, default=3, help="Verb n-gram window size")
-    cycles_cmd.add_argument("--type", default="", help="Filter by cycle type (verb_sequence, trajectory, intent, stall)")
+    cycles_cmd.add_argument(
+        "--type",
+        default="",
+        help="Filter by cycle type (verb_sequence, trajectory, intent, stall)",
+    )
     cycles_cmd.set_defaults(func=_cmd_cycles)
 
     # --- params ---
@@ -129,6 +150,22 @@ def register_ledger_commands(
         help="Show the parameter registry",
     )
     params.set_defaults(func=_cmd_params)
+
+    # --- ingest-github-event ---
+    ingest = subparsers.add_parser(
+        f"{prefix}ingest-github-event",
+        help="Translate a GitHub PR event into an idempotent execution action",
+    )
+    ingest.add_argument("--event-name", required=True, help="GitHub event name")
+    ingest.add_argument("--event-path", required=True, help="Path to the GitHub event JSON")
+    ingest.add_argument("--delivery-id", default="", help="GitHub delivery identifier")
+    ingest.add_argument("--principal", default="organvm-pr-worker", help="Worker principal")
+    ingest.add_argument(
+        "--dry-run",
+        action="store_true",
+        help="Print the redacted execution envelope without persisting it",
+    )
+    ingest.set_defaults(func=_cmd_ingest_github_event)
 
 
 # ---------------------------------------------------------------------------
@@ -248,7 +285,10 @@ def _cmd_show(args: argparse.Namespace) -> None:
     print("-" * 110)
     for a in actions:
         ctx = a.context[:35] if a.context else ""
-        print(f"{a.id:<28s}  {a.session:>7s}  {a.verb:<12s}  {a.target:<25s}  {a.origin:<8s}  {ctx}")
+        print(
+            f"{a.id:<28s}  {a.session:>7s}  {a.verb:<12s}  "
+            f"{a.target:<25s}  {a.origin:<8s}  {ctx}"
+        )
         if args.routes and a.routes:
             for r in a.routes:
                 print(f"  -> {r.kind.value}: {r.target} (amount={r.effective_amount():.1f})")
@@ -444,4 +484,44 @@ def _cmd_params(args: argparse.Namespace) -> None:
     print("-" * 90)
     for name, axis in sorted(registry.axes.items(), key=lambda x: -x[1].frequency):
         rng = f"[{axis.range[0]:.1f}, {axis.range[1]:.1f}]"
-        print(f"{name:<25s}  {rng:<15s}  {axis.frequency:>5d}  {axis.first_seen:<12s}  {axis.description}")
+        print(
+            f"{name:<25s}  {rng:<15s}  {axis.frequency:>5d}  "
+            f"{axis.first_seen:<12s}  {axis.description}"
+        )
+
+
+def _cmd_ingest_github_event(args: argparse.Namespace) -> None:
+    import json
+    from pathlib import Path
+
+    from action_ledger.execution import github_pr_event_envelope, record_execution
+    from action_ledger.ledger import (
+        load_actions,
+        load_param_registry,
+        load_sequences,
+        save_actions,
+        save_param_registry,
+        save_sequences,
+    )
+
+    payload = json.loads(Path(args.event_path).read_text(encoding="utf-8"))
+    envelope = github_pr_event_envelope(
+        args.event_name,
+        payload,
+        delivery_id=args.delivery_id,
+        principal=args.principal,
+    )
+    if args.dry_run:
+        print(envelope.model_dump_json(indent=2))
+        return
+
+    actions = load_actions()
+    sequences = load_sequences()
+    registry = load_param_registry()
+    before = len(actions.actions)
+    action = record_execution(actions, sequences, registry, envelope)
+    save_actions(actions)
+    save_sequences(sequences)
+    save_param_registry(registry)
+    disposition = "deduplicated" if len(actions.actions) == before else "recorded"
+    print(f"{disposition}: {action.id} [{action.verb}] {action.target}")

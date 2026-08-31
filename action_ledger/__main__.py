@@ -7,6 +7,7 @@ Usage:
     python -m action_ledger sequence close --session S42 [--outcome "..."]
     python -m action_ledger sequence intent --session S42 "the intent"
     python -m action_ledger params
+    python -m action_ledger ingest-github-event --event-name pull_request --event-path event.json
 """
 
 from __future__ import annotations

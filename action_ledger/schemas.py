@@ -11,6 +11,8 @@ from enum import StrEnum
 
 from pydantic import BaseModel, Field
 
+from action_ledger.execution_schemas import ExecutionEnvelope
+
 
 class ActionOrigin(StrEnum):
     """How an action entered the ledger."""
@@ -94,6 +96,7 @@ class Action(BaseModel):
     routes: list[Route] = Field(default_factory=list)
     origin: ActionOrigin = ActionOrigin.MANUAL
     sequence_id: str = ""          # which sequence this belongs to
+    execution: ExecutionEnvelope | None = None
 
 
 class ActionIndex(BaseModel):

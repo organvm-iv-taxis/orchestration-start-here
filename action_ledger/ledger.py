@@ -13,6 +13,7 @@ from pathlib import Path
 
 import yaml
 
+from action_ledger.execution_schemas import ExecutionEnvelope
 from action_ledger.schemas import (
     Action,
     ActionIndex,
@@ -143,6 +144,7 @@ def record(
     produced: list[dict[str, str]] | None = None,
     routes: list[dict[str, str | float]] | None = None,
     origin: ActionOrigin = ActionOrigin.MANUAL,
+    execution: ExecutionEnvelope | dict | None = None,
 ) -> Action:
     """Record an action — atomically appends, composes, and manifests.
 
@@ -171,6 +173,11 @@ def record(
         produced=produced_models,
         routes=route_models,
         origin=origin,
+        execution=(
+            execution
+            if isinstance(execution, ExecutionEnvelope) or execution is None
+            else ExecutionEnvelope.model_validate(execution)
+        ),
     )
 
     # --- 1. Append to stream ---

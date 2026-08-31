@@ -1,0 +1,139 @@
+schema_version: organvm.execution/v1
+example: ucc-ny-collector-exception-to-verified-activation
+snapshots:
+  - execution_id: ucc:NY:collector:job-77
+    idempotency_key: queue-event-77:failed
+    stage: failed
+    event:
+      provider: ucc-worker
+      event_type: ucc.collector.exception
+      event_id: queue-event-77
+      occurred_at: "2026-08-31T12:00:00Z"
+      source: audit://ucc/job-77/exception
+    scope:
+      refs:
+        - jurisdiction://NY
+        - collector://NY/scrape
+        - audit://ucc/job-77/exception
+      forbidden:
+        - unrelated jurisdictions
+        - raw credentials
+        - production activation
+      redacted: true
+    authority:
+      principal: ucc-ingestion-worker
+      delegated_by: ucc.ingestion.queue
+      permissions: [collector:read, telemetry:write, patch:propose]
+      policy_ref: policy://ucc/jurisdiction-activation/v1
+    policy:
+      decision: review
+      reason: Collector remediation may be proposed; activation requires owner approval.
+    approval:
+      required: true
+      status: pending
+    work:
+      kind: repair_and_activate_collector
+      target: ucc:NY:scrape
+    workflow:
+      objective: Restore trustworthy NY UCC collection after a scrape failure.
+      plan:
+        - Inspect the redacted exception and source provenance.
+        - Reproduce against a fixture or dry run.
+        - Patch and run jurisdiction-specific validation.
+        - Request activation approval with evidence.
+      command_results: []
+      dead_ends: []
+      decisions:
+        - "Fail closed: do not activate without policy evidence."
+      approvals: []
+    evidence:
+      - kind: collector_exception
+        ref: audit://ucc/job-77/exception
+        summary: Redacted collector failure and telemetry receipt.
+    verification:
+      status: pending
+      checks:
+        - collector test:NY
+        - provenance completeness
+        - duplicate-safe upsert
+    rollback:
+      strategy: Keep the collector disabled and retain the last verified dataset.
+      status: planned
+    failure:
+      code: ucc.collector.exception
+      message: Portal parser no longer matched the filing table.
+      retryable: true
+      evidence_ref: audit://ucc/job-77/exception
+
+  - execution_id: ucc:NY:collector:job-77
+    idempotency_key: ucc:NY:collector:job-77:verified:approval-2026-08-31
+    stage: verified
+    event:
+      provider: ucc-activation
+      event_type: ucc.jurisdiction.activation.approved
+      event_id: approval-2026-08-31
+      occurred_at: "2026-08-31T13:00:00Z"
+      source: approval://ucc/NY/2026-08-31
+    scope:
+      refs:
+        - jurisdiction://NY
+        - collector://NY/scrape
+        - audit://ucc/job-77/exception
+      forbidden:
+        - unrelated jurisdictions
+        - raw credentials
+        - production activation outside this approval
+      redacted: true
+    authority:
+      principal: ucc-forward-deployed-engineer
+      delegated_by: ucc-operations-owner
+      permissions: [collector:activate, evidence:write]
+      policy_ref: policy://ucc/jurisdiction-activation/v1
+    policy:
+      decision: allow
+      reason: Named approver accepted jurisdiction-specific test and provenance evidence.
+    approval:
+      required: true
+      status: approved
+      approver: ucc-operations-owner
+      decided_at: "2026-08-31T13:00:00Z"
+      evidence_ref: approval://ucc/NY/2026-08-31
+    work:
+      kind: repair_and_activate_collector
+      target: ucc:NY:scrape
+      mutation_ref: approval://ucc/NY/2026-08-31
+    workflow:
+      objective: Restore trustworthy NY UCC collection after a scrape failure.
+      plan:
+        - Inspect the redacted exception and source provenance.
+        - Reproduce against a fixture or dry run.
+        - Patch and run jurisdiction-specific validation.
+        - Request activation approval with evidence.
+      command_results:
+        - command: npm run test:scrapers:ny
+          exit_code: 0
+          result_ref: artifact://tests/ny-collector
+          summary: NY collector fixture and dry run passed.
+          redacted: true
+      dead_ends:
+        - A CSS-only selector still matched the navigation table.
+      decisions:
+        - Use header-labelled table discovery plus filing-number validation.
+      approvals:
+        - approval://ucc/NY/2026-08-31
+    evidence:
+      - kind: test_report
+        ref: artifact://tests/ny-collector
+      - kind: provenance
+        ref: artifact://provenance/ny-dry-run
+    verification:
+      status: passed
+      checks:
+        - NY collector suite passed
+        - provenance fields complete
+      reviewer: ucc-operations-owner
+      reviewed_at: "2026-08-31T13:00:00Z"
+    rollback:
+      strategy: Disable the collector and restore the last verified dataset snapshot.
+      status: not_needed
+      ref: rollback://ucc:NY:collector:job-77
